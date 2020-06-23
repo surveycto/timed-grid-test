@@ -1,0 +1,636 @@
+.label {
+  /* add style rules here to change how the label appears */
+  margin: .75rem 0;
+}
+
+.hint {
+  /* add style rules here to change how the hint appears */
+  margin: .5rem 0;
+  color: rgba(0,0,0,.65);
+  font-style: italic;
+}
+
+.selected {
+  background-color: #f28b4b !important;
+  border: 2px solid #f28b4b;
+  text-decoration: line-through;
+}
+
+.lastSelected {
+  border: 2px solid red !important;
+  background-color: green !important;
+}
+
+button{
+  cursor: pointer;
+}
+
+.buttonstop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button.startstop {
+  background-color: green;
+  border: 2px solid black;
+  color: white;
+  height: 42px;
+  line-height: 4px;
+  width: 150px;
+  text-align: center;
+  font-size: 100%;
+  font-weight: bold;
+  border-radius: 10px;
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.timerDisplay {
+  background-color: red;
+  color: white;
+  text-align: center;
+  border: 2px solid black;
+  border-radius: 10px;
+  font-size: 100%;
+  font-weight: bold;
+  line-height: 42px;
+  height: 42px;
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/*Yes and no buttons*/
+button.whitebutton, button.bluebutton {
+  font-weight: 500;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.09);
+  display: inline-block;
+  padding: 2px 2px;
+  font-size: 18px;
+  line-height: 1.42857143;
+  width: 70px;
+  height: 35px;
+}
+
+button.whitebutton{
+  background-color: #ffffff;
+  border-color: #367fa9;
+  color: #000000;
+}
+
+button.bluebutton{
+  background-color: #047cc2;
+  border-color: #367fa9;
+  color: #ffffff;
+}
+
+timer {
+  position:absolute;
+  top:5px;
+  right:5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+/* wrapper class */
+.wrapper {
+  margin: 20px;
+}
+/* Styling for the buttons */
+.box {
+  background-color: skyblue;
+  color: black;
+  border-radius: 5px;
+  font-size: 125%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* small screen first page */
+.sm1 {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms1 ms2 ms3 ms4 ms5"
+  "ms6 ms7 ms8 ms9 ms10";
+}
+/* small screen second page */
+.sm2 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms11 ms12 ms13 ms14 ms15"
+  "ms16 ms17 ms18 ms19 ms20";
+}
+/* small screen third page */
+.sm3 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms21 ms22 ms23 ms24 ms25"
+  "ms26 ms27 ms28 ms29 ms30";
+}
+/* small screen fourth page */
+.sm4 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms31 ms32 ms33 ms34 ms35"
+  "ms36 ms37 ms38 ms39 ms40";
+}
+/* small screen fifth page */
+.sm5 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms41 ms42 ms43 ms44 ms45"
+  "ms46 ms47 ms48 ms49 ms50";
+}
+/* small screen sixth page */
+.sm6 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms51 ms52 ms53 ms54 ms55"
+  "ms56 ms57 ms58 ms59 ms60";
+}
+/* small screen seventh page */
+.sm7 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms61 ms62 ms63 ms64 ms65"
+  "ms66 ms67 ms68 ms69 ms70";
+}
+/* small screen eigth page */
+.sm8 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms71 ms72 ms73 ms74 ms75"
+  "ms76 ms77 ms78 ms79 ms80";
+}
+/* small screen ninth page */
+.sm9 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms81 ms82 ms83 ms84 ms85"
+  "ms86 ms87 ms88 ms89 ms90";
+}
+/* small screen tenth page */
+.sm10 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms91 ms92 ms93 ms94 ms95"
+  "ms96 ms97 ms98 ms99 ms100";
+}
+/* medium screen first page */
+.ms1 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms1 ms2 ms3 ms4 ms5 ms6 ms7 ms8 ms9 ms10";
+}
+/* medium screen second page */
+.ms2 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms11 ms12 ms13 ms14 ms15 ms16 ms17 ms18 ms19 ms20";
+}
+/* medium screen second page */
+.ms3 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms21 ms22 ms23 ms24 ms25 ms26 ms27 ms28 ms29 ms30";
+
+  /* "ms41 ms42 ms43 ms44 ms45 ms46 ms47 ms48 ms49 ms50"; */
+}
+/* medium screen third page */
+.ms4 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms31 ms32 ms33 ms34 ms35 ms36 ms37 ms38 ms39 ms40";
+}
+/* medium screen fourth page */
+.ms5 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms41 ms42 ms43 ms44 ms45 ms46 ms47 ms48 ms49 ms50"
+}
+/* medium screen fifth page */
+.ms6 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms51 ms52 ms53 ms54 ms55 ms56 ms57 ms58 ms59 ms60"
+}
+.ms7 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms61 ms62 ms63 ms64 ms65 ms66 ms67 ms68 ms69 ms70"
+}
+.ms8 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms71 ms72 ms73 ms74 ms75 ms76 ms77 ms78 ms79 ms80"
+}
+.ms9 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms81 ms82 ms83 ms84 ms85 ms86 ms87 ms88 ms89 ms90"
+}
+.ms10 {
+  display: grid;
+  grid-template-columns: repeat( 10, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms91 ms92 ms93 ms94 ms95 ms96 ms97 ms98 ms99 ms100"
+}
+/* large screen display */
+.lg {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms71 ms72 ms73 ms74 ms75"
+  "ms76 ms77 ms78 ms79 ms80";
+}
+
+/* large screen first page */
+.lg1 {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms1 ms2 ms3 ms4 ms5";
+}
+/* small screen second page */
+.lg2 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms6 ms7 ms8 ms9 ms10";
+}
+/* small screen third page */
+.lg3 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms11 ms12 ms13 ms14 ms15";
+}
+/* small screen fourth page */
+.lg4 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms16 ms17 ms18 ms19 ms20";
+}
+/* small screen fifth page */
+.lg5 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms21 ms22 ms23 ms24 ms25";
+}
+/* small screen sixth page */
+.lg6 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms26 ms27 ms28 ms29 ms30";
+}
+/* small screen seventh page */
+.lg7 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms31 ms32 ms33 ms34 ms35";
+}
+/* small screen eigth page */
+.lg8 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms36 ms37 ms38 ms39 ms40";
+}
+/* small screen ninth page */
+.lg9 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms41 ms42 ms43 ms44 ms45";
+}
+/* small screen tenth page */
+.lg10 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 15px;
+  grid-template-areas:
+  "ms46 ms47 ms48 ms49 ms50";
+}
+/* hide elements */
+.hidden {
+  display: none;
+}
+/* individual grid elements */
+.item1 { grid-area: ms1; }
+.item2 { grid-area: ms2; }
+.item3 { grid-area: ms3; }
+.item4 { grid-area: ms4; }
+.item5 { grid-area: ms5; }
+.item6 { grid-area: ms6; }
+.item7 { grid-area: ms7; }
+.item8 { grid-area: ms8; }
+.item9 { grid-area: ms9; }
+.item10 { grid-area: ms10; }
+.item11 { grid-area: ms11; }
+.item12 { grid-area: ms12; }
+.item13 { grid-area: ms13; }
+.item14 { grid-area: ms14; }
+.item15 { grid-area: ms15; }
+.item16 { grid-area: ms16; }
+.item17 { grid-area: ms17; }
+.item18 { grid-area: ms18; }
+.item19 { grid-area: ms19; }
+.item20 { grid-area: ms20; }
+.item21{grid-area:ms21;}
+.item22{grid-area:ms22;}
+.item23{grid-area:ms23;}
+.item24{grid-area:ms24;}
+.item25{grid-area:ms25;}
+.item26{grid-area:ms26;}
+.item27{grid-area:ms27;}
+.item28{grid-area:ms28;}
+.item29{grid-area:ms29;}
+.item30{grid-area:ms30;}
+.item31{grid-area:ms31;}
+.item32{grid-area:ms32;}
+.item33{grid-area:ms33;}
+.item34{grid-area:ms34;}
+.item35{grid-area:ms35;}
+.item36{grid-area:ms36;}
+.item37{grid-area:ms37;}
+.item38{grid-area:ms38;}
+.item39{grid-area:ms39;}
+.item40{grid-area:ms40;}
+.item41{grid-area:ms41;}
+.item42{grid-area:ms42;}
+.item43{grid-area:ms43;}
+.item44{grid-area:ms44;}
+.item45{grid-area:ms45;}
+.item46{grid-area:ms46;}
+.item47{grid-area:ms47;}
+.item48{grid-area:ms48;}
+.item49{grid-area:ms49;}
+.item50{grid-area:ms50;}
+.item51{grid-area:ms51;}
+.item52{grid-area:ms52;}
+.item53{grid-area:ms53;}
+.item54{grid-area:ms54;}
+.item55{grid-area:ms55;}
+.item56{grid-area:ms56;}
+.item57{grid-area:ms57;}
+.item58{grid-area:ms58;}
+.item59{grid-area:ms59;}
+.item60{grid-area:ms60;}
+.item61{grid-area:ms61;}
+.item62{grid-area:ms62;}
+.item63{grid-area:ms63;}
+.item64{grid-area:ms64;}
+.item65{grid-area:ms65;}
+.item66{grid-area:ms66;}
+.item67{grid-area:ms67;}
+.item68{grid-area:ms68;}
+.item69{grid-area:ms69;}
+.item70{grid-area:ms70;}
+.item71{grid-area:ms71;}
+.item72{grid-area:ms72;}
+.item73{grid-area:ms73;}
+.item74{grid-area:ms74;}
+.item75{grid-area:ms75;}
+.item76{grid-area:ms76;}
+.item77{grid-area:ms77;}
+.item78{grid-area:ms78;}
+.item79{grid-area:ms79;}
+.item80{grid-area:ms80;}
+.item81{grid-area:ms81;}
+.item82{grid-area:ms82;}
+.item83{grid-area:ms83;}
+.item84{grid-area:ms84;}
+.item85{grid-area:ms85;}
+.item86{grid-area:ms86;}
+.item87{grid-area:ms87;}
+.item88{grid-area:ms88;}
+.item89{grid-area:ms89;}
+.item90{grid-area:ms90;}
+.item91{grid-area:ms91;}
+.item92{grid-area:ms92;}
+.item93{grid-area:ms93;}
+.item94{grid-area:ms94;}
+.item95{grid-area:ms95;}
+.item96{grid-area:ms96;}
+.item97{grid-area:ms97;}
+.item98{grid-area:ms98;}
+.item99{grid-area:ms99;}
+.item100{grid-area:ms100;}
+
+.fieldset {
+  position: relative;
+  /* border: 1px solid gray; */
+  padding: 1px;
+  margin-top: 15px;
+  background-color: #eee;
+}
+
+.fieldset h1 {
+  position: absolute;
+  top: 50%;
+  left: -23px;
+  font-size: 15px;
+  line-height: 1;
+  margin: -9px 0 0; /* half of font-size */
+  /* background: #fff; */
+  padding: 0 3px;
+}
+
+.paging {
+  display: flex;
+  justify-content: space-between;
+  padding-inline:25%;
+}
+
+.hideButton {
+  visibility: hidden;
+}
+
+* {box-sizing: border-box;}
+
+/* Set a style for all buttons */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+button:hover {
+  opacity:1;
+}
+
+/* Float cancel and delete buttons and add an equal width */
+.cancelbtn, .deletebtn {
+  float: left;
+  width: 50%;
+}
+
+/* Add a color to the cancel button */
+.cancelbtn {
+  background-color: #ccc;
+  color: black;
+}
+
+/* Add a color to the delete button */
+.deletebtn {
+  background-color: #f44336;
+}
+
+/* Add padding and center-align text to the container */
+.container {
+  padding: 16px;
+  text-align: center;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: #474e5d;
+  padding-top: 50px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Style the horizontal ruler */
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+ 
+/* The Modal Close Button (x) */
+.close {
+  position: absolute;
+  right: 35px;
+  top: 15px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #f1f1f1;
+}
+
+.close:hover,
+.close:focus {
+  color: #f44336;
+  cursor: pointer;
+}
+
+/* Clear floats */
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Change styles for cancel button and delete button on extra small screens */
+@media screen and (max-width: 300px) {
+  .cancelbtn, .deletebtn {
+     width: 100%;
+  }
+}
