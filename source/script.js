@@ -41,9 +41,11 @@ function myFunction (x) { if (x.matches) { screenSize = 'small' } }
 function myFunction1 (y) { if (y.matches) { screenSize = 'medium' } }
 // function myFunction2 (z) { if (z.matches) { screenSize = 'large' } }
 
-if (type === 'words' && screenSize !== 'small') {
-  screenSize = 'large'
+if (type === 'words') {
   columns = 5
+  if (screenSize !== 'small') {
+    screenSize = 'large'
+  }
 }
 
 createGrid(choices)
@@ -60,25 +62,30 @@ function createGrid (keys) {
     legend.appendChild(legendText)
     fieldset.appendChild(legend)
     var fieldsetId = 'fieldset' + tracker
-    if (screenSize === 'small') {
+    if (screenSize === 'small' && type === 'letters') {
       fieldsetClass = 'sm' + tracker
       if (tracker > 2) {
         fieldset.classList.add('hidden')
       }
+    } else if (screenSize === 'small' && type === 'words') {
+      fieldsetClass = 'lg' + tracker
+      if (tracker > 4) {
+        fieldset.classList.add('hidden')
+      }
     } else if (screenSize === 'medium') {
       fieldsetClass = 'ms' + tracker
+      nextButton.classList.add('hideButton')
     } else if (screenSize === 'large') {
       fieldsetClass = 'lg' + tracker
+      nextButton.classList.add('hideButton')
     }
     fieldset.setAttribute('id', fieldsetId)
     fieldset.classList.add(fieldsetClass, 'fieldset')
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
       var itemValue = counter + 1
-      var itemClass = 'item' + (counter + 1)
-      if (screenSize === 'small') { createSmallGrid(itemValue, itemClass)
-      } else if (screenSize === 'medium') { createMediumGrid(itemValue, itemClass)
-      } else if (screenSize === 'large') { createLargeGrid(itemValue, itemClass) }
+      var itemClass = 'item' + itemValue
+      secondDIV.classList.add('box', itemClass)
       var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       choiceLabelsArray.push(choices[counter].CHOICE_LABEL) // add choice labels to Array
       counter++
@@ -270,108 +277,6 @@ function setResult () {
   setMetaData(result) // make result accessible as plugin metadata
 }
 
-// Create grid on small screen
-function createSmallGrid (itemValue, itemClass) {
-  if (itemValue <= 10) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 11 && itemValue < 20) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 20 && itemValue < 30) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 30 && itemValue < 40) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 40 && itemValue < 50) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 50 && itemValue < 60) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 60 && itemValue < 70) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 70 && itemValue < 80) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 80 && itemValue < 90) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 90 && itemValue <= 100) {
-    secondDIV.classList.add('box', itemClass)
-  }
-}
-
-function createMediumGrid (itemValue, itemClass) {
-  if (itemValue <= 10) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 11 && itemValue < 20) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 20 && itemValue < 30) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 30 && itemValue < 40) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 40 && itemValue < 50) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 50 && itemValue < 60) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 60 && itemValue < 70) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 70 && itemValue < 80) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 80 && itemValue < 90) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 90 && itemValue <= 100) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  nextButton.classList.add('hideButton')
-}
-
-function createLargeGrid (itemValue, itemClass) {
-  if (itemValue <= 5) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 6 && itemValue <= 10) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 11 && itemValue <= 15) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 16 && itemValue <= 20) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 21 && itemValue <= 25) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 26 && itemValue <= 30) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 31 && itemValue <= 35) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 36 && itemValue <= 40) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 41 && itemValue <= 45) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  if (itemValue >= 46 && itemValue <= 50) {
-    secondDIV.classList.add('box', itemClass)
-  }
-  nextButton.classList.add('hideButton')
-}
-
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
   backButton.classList.remove('hideButton')
@@ -426,16 +331,18 @@ document.querySelector('.next').addEventListener('click', function () {
   if (type === 'words' && screenSize === 'small') {
     if (!fieldset1.classList.contains('hidden')) {
       fieldset1.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset2.classList.contains('hidden')) {
       fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
       fieldset3.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
       fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
     }
   }
@@ -493,16 +400,18 @@ document.querySelector('.back').addEventListener('click', function () {
   }
 
   if (type === 'words' && screenSize === 'small') {
-    if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
       fieldset4.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
       fieldset3.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
       fieldset2.classList.remove('hidden')
       fieldset1.classList.remove('hidden')
       backButton.classList.add('hideButton')
