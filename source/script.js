@@ -138,17 +138,21 @@ function startStopTimer () {
 }
 
 function endEarly () {
-  openModal('End now? 10 wrong answers on row 1.')
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-    console.log('time remaining is ' + timeRemaining)
-    console.log('time left is ' + timeLeft)
-    endTimer()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
+  timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+  console.log('time remaining is ' + timeRemaining)
+  console.log('time left is ' + timeLeft)
+  endTimer()
+  // openModal('End now? 10 wrong answers on row 1.')
+  // firstModalButton.onclick = function () {
+  //   modal.style.display = 'none'
+  //   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+  //   console.log('time remaining is ' + timeRemaining)
+  //   console.log('time left is ' + timeLeft)
+  //   endTimer()
+  // }
+  // secondModalButton.onclick = function () {
+  //   modal.style.display = 'none'
+  // }
 }
 
 function endTimer () {
@@ -194,7 +198,7 @@ function itemClicked (item, itemIndex) {
           console.log('Is same is ' + isSame)
           timerRunning = false
           endFirstLine = 'Yes' // Indicate that the first line was all incorrect
-          endEarly()
+          openIncorrectItemsModal()
         }
         console.log(itemCounter)
         console.log(items)
@@ -215,7 +219,7 @@ function itemClicked (item, itemIndex) {
       // ans = lastSelected + ' ' + selectedItems
       // lastselectedDisp.innerHTML = 'Last selected: ' + lastSelected
       setResult()
-      openModal('Thank you! You can move to the next section')
+      openThankYouModal()
       console.log('exiting last selected')
       // goToNextField()
     } else {
@@ -440,6 +444,14 @@ function openModal (content) {
   modal.style.display = 'block'
 }
 
+function openThankYouModal () {
+  modalContent.innerText = 'Thank you! You can move to the next section'
+  firstModalButton.innerText = 'Done'
+  secondModalButton.classList.add('hidden')
+  firstModalButton.style.width = '100%'
+  modal.style.display = 'block'
+}
+
 function openLastItemModal () {
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
@@ -477,6 +489,20 @@ function openDataWarningModal () {
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
     window.location.reload()
+  }
+  secondModalButton.onclick = function () {
+    modal.style.display = 'none'
+  }
+}
+
+function openIncorrectItemsModal () {
+  modalContent.innerText = 'End now? ' + columns + ' wrong answers on row 1.'
+  firstModalButton.innerText = 'Yes'
+  secondModalButton.innerText = 'No'
+  modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    endEarly()
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
