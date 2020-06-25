@@ -6,11 +6,12 @@ var timePassed = 0 // Time passed so far
 var timerRunning = false // Track whether the timer is running
 var startTime = 0 // This will get an actual value when the timer starts in startStopTimer();
 var selectedItems // Track selected (incorrect) items
-var lastSelected = null // Track last selected item
+// var lastSelectedValue = null // Track last selected item
+var lastSelectedIndex // Track index of last selected item
 var ans = choices[0].CHOICE_VALUE //
 var timeRemaining = 0
 var endFirstLine = 'No' // Whether they ended on the firstline or not
-var choiceLabelsArray = [] // Array of choice labels
+var choiceValuesArray = [] // Array of choice labels
 var type = getPluginParameter ('type')
 var columns = 10
 
@@ -87,7 +88,7 @@ function createGrid (keys) {
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
       var text = document.createTextNode(choices[counter].CHOICE_LABEL)
-      choiceLabelsArray.push(choices[counter].CHOICE_LABEL) // add choice labels to Array
+      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
       counter++
       secondDIV.appendChild(text)
       fieldset.appendChild(secondDIV)
@@ -101,7 +102,10 @@ if (createGrid) {
   var gridItems = document.querySelectorAll('.box')
   Array.from(gridItems, function (box) {
     box.addEventListener('click', function () {
-      itemClicked(this)
+      var it = this.classList.item(1)
+      var itemIndex = it.slice(4)
+      console.log('Item index is ' + itemIndex)
+      itemClicked(this, itemIndex)
     })
   })
   setInterval(timer, 1)
@@ -155,24 +159,24 @@ function endTimer () {
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
     selectedItems = getSelectedItems()
-    // dispselected.innerHTML = 'Clicked on: ' + selectedItems
+    console.log('Clicked on: ' + selectedItems)
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
   }
 }
 
-var topTen = choices.slice(0, 10)
+var topTen = choices.slice(0, columns)
 var firstTenItems = []
 
 for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_LABEL)
+  firstTenItems.push(choices[x].CHOICE_VALUE)
 }
 console.log('top ten is ' + firstTenItems)
 var itemCounter = 0
 var items = []
 
-function itemClicked (item) {
+function itemClicked (item, itemIndex) {
   if (timerRunning) { // This way, it only works when the timer is running
     const classes = item.classList
     if (classes.contains('selected')) {
@@ -181,10 +185,11 @@ function itemClicked (item) {
       classes.add('selected')
       if (itemCounter <= 9) {
         itemCounter++
-        items.push(item.innerText)
-        var isSame = firstTenItems.length == items.length && firstTenItems.every(function (element, index) {
-          return element == items[index]
-        })
+        items.push(itemIndex)
+        // var isSame = firstTenItems.length == items.length && firstTenItems.every(function (element, index) {
+        //   return element == items[index]
+        // })
+        var isSame = (firstTenItems.sort().toString() === items.sort().toString())
         if (isSame) {
           console.log('Is same is ' + isSame)
           timerRunning = false
@@ -200,7 +205,8 @@ function itemClicked (item) {
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
-    lastSelected = item.innerText // Get value of last selected item
+    // lastSelectedValue = item.innerText // Get value of last selected item
+    lastSelectedIndex = itemIndex // Get index of last selected item
     // selectedItems = getSelectedItems()
     checkLastItem()
     if (complete) {
@@ -217,7 +223,8 @@ function itemClicked (item) {
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
-      lastSelected = item.innerText // Get value of last selected item
+      // lastSelectedValue = item.innerText // Get value of last selected item
+      lastSelectedIndex = itemIndex // Get index of last selected item
       checkLastItem()
     }
   }
@@ -226,15 +233,17 @@ function itemClicked (item) {
 function checkLastItem () {
   var selectedItemsArray = selectedItems.split(' ')
   var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
-  var indexLastClickedItem = choiceLabelsArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
-  var indexLastSelectedItem = choiceLabelsArray.lastIndexOf(lastSelected) // Get index of last selected item
+  var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
+  var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
   if (indexLastClickedItem >= indexLastSelectedItem) {
     console.log('Entering the if statement.')
     openModal('Please click an item after the last incorrect item.')
     console.log('Time left is ' + timeLeft)
     Array.from(gridItems, function (box) {
       box.addEventListener('click', function () {
-        itemClicked(this)
+        var a = this.classList.item(1)
+        var b = a.slice(4)
+        itemClicked(this, b)
       })
     })
   } else {
@@ -246,7 +255,10 @@ function getSelectedItems () {
   const selectedLet = []
   for (const cell of gridItems) {
     if (cell.classList.contains('selected')) {
-      selectedLet.push(cell.innerText)
+      var m = cell.classList.item(1)
+      var n = m.slice(4)
+      // selectedLet.push(cell.innerText)
+      selectedLet.push(n)
     }
   }
   return selectedLet.join(' ')
@@ -263,8 +275,8 @@ function clearAnswer () {
 // set the results to published
 function setResult () {
   console.log('Time Remaining ' + timeRemaining)
-  console.log('Last Selected ' + lastSelected)
-  var totalItems = choices.map(function (o) { return o.CHOICE_LABEL }).indexOf(lastSelected) + 1 // total number of items attempted
+  console.log('Last Selected ' + lastSelectedIndex)
+  var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
