@@ -1,4 +1,7 @@
-var timeStart = 20000 // Time limit on each field in milliseconds
+var duration = getPluginParameter('duration')
+var metadata = getMetaData()
+console.log('MetaData is ' + metadata)
+var timeStart = duration * 1000 // Time limit on each field in milliseconds
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
 var timeLeft = timeStart // Starts this way for the display.
@@ -109,6 +112,13 @@ if (createGrid) {
     })
   })
   setInterval(timer, 1)
+}
+
+if (metadata !== null) {
+  timerRunning = false
+  timerDisplay.classList.remove('hidden')
+  timerDisplay.innerText = 'Test Complete'
+  button.classList.add('hidden')
 }
 
 function timer () {
@@ -289,7 +299,9 @@ function setResult () {
   console.log('Correct Items  ' + correctItems)
   // create delimited result string to be accessed using the plugin-metadata() function
   var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
-  setAnswer(ans) // set answer to dummy result
+  if(totalItems != null) {
+    setAnswer(ans) // set answer to dummy result
+  }
   setMetaData(result) // make result accessible as plugin metadata
 }
 
