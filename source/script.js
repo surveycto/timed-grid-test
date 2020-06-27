@@ -1,7 +1,14 @@
 var duration = getPluginParameter('duration')
 var metadata = getMetaData()
+var timeStart // Track time limit on each field in milliseconds
 console.log('MetaData is ' + metadata)
-var timeStart = duration * 1000 // Time limit on each field in milliseconds
+
+if (duration === null) {
+  timeStart = 60000 // Default time limit on each field in milliseconds
+} else {
+  timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
+}
+
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
 var timeLeft = timeStart // Starts this way for the display.
@@ -21,7 +28,7 @@ var columns = 10
 var timerDisp = document.querySelector('#timer')
 // var changer = document.querySelector('#changer')
 var button = document.querySelector('#startstop')
-// var endearlyDisp = document.querySelector('#endearly')
+var endearlyDisp = document.querySelector('#endearly')
 // var dispselected = document.querySelector('#dispselected')
 // var lastselectedDisp = document.querySelector('#lastselected')
 var nextButton = document.getElementById('nextButton')
@@ -116,9 +123,13 @@ if (createGrid) {
 
 if (metadata !== null) {
   timerRunning = false
-  timerDisplay.classList.remove('hidden')
   timerDisplay.innerText = 'Test Complete'
-  button.classList.add('hidden')
+  // button.innerHTML = 'Restart'
+  // button.onclick = function () {
+  //   timerDisplay.classList.remove('hidden')
+  //   clearAnswer()
+  //   startStopTimer()
+  // }
 }
 
 function timer () {
@@ -248,10 +259,12 @@ function checkLastItem () {
   var selectedItemsArray = selectedItems.split(' ')
   var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
   var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
+  console.log('indexLastClicked ' + indexLastClickedItem)
   var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
-  if (indexLastClickedItem >= indexLastSelectedItem) {
+  console.log('indexLastSelected ' + indexLastSelectedItem)
+  if (indexLastClickedItem > (indexLastSelectedItem)) {
     console.log('Entering the if statement.')
-    openModal('Please click an item after the last incorrect item.')
+    openModal('Either pick the last incorrect item, or one after that.')
     console.log('Time left is ' + timeLeft)
     Array.from(gridItems, function (box) {
       box.addEventListener('click', function () {
@@ -489,6 +502,7 @@ function openPauseModal () {
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
+    button.classList.add('hidden')
     endEarly()
   }
 }
@@ -500,7 +514,10 @@ function openDataWarningModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    window.location.reload()
+    // window.location.reload()
+    clearAnswer()
+    startStopTimer()
+    button.innerText = 'Pause'
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'

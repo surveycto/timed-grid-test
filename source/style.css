@@ -62,7 +62,7 @@ button.startstop {
   padding-right: 10px;
 }
 
-/*Yes and no buttons*/
+/* Yes and no buttons
 button.whitebutton, button.bluebutton {
   font-weight: 500;
   border-radius: 3px;
@@ -85,7 +85,7 @@ button.bluebutton{
   background-color: #047cc2;
   border-color: #367fa9;
   color: #ffffff;
-}
+} */
 
 timer {
   position:absolute;
@@ -316,7 +316,7 @@ timer {
   display: grid;
   grid-template-columns: repeat(5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms1 ms2 ms3 ms4 ms5";
 }
@@ -325,7 +325,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms6 ms7 ms8 ms9 ms10";
 }
@@ -334,7 +334,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms11 ms12 ms13 ms14 ms15";
 }
@@ -343,7 +343,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms16 ms17 ms18 ms19 ms20";
 }
@@ -352,7 +352,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms21 ms22 ms23 ms24 ms25";
 }
@@ -361,7 +361,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms26 ms27 ms28 ms29 ms30";
 }
@@ -370,7 +370,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms31 ms32 ms33 ms34 ms35";
 }
@@ -379,7 +379,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms36 ms37 ms38 ms39 ms40";
 }
@@ -388,7 +388,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms41 ms42 ms43 ms44 ms45";
 }
@@ -397,7 +397,7 @@ timer {
   display: grid;
   grid-template-columns: repeat( 5, minmax(42px, 1fr) );
   grid-auto-rows: 42px;
-  grid-gap: 15px;
+  grid-gap: 5px;
   grid-template-areas:
   "ms46 ms47 ms48 ms49 ms50";
 }
