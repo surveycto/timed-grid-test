@@ -516,7 +516,9 @@ function openDataWarningModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    window.location.reload()
+    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+      cell.classList.remove('selected')
+    }
     clearAnswer()
     startStopTimer()
     button.innerText = 'Pause'
