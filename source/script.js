@@ -28,7 +28,7 @@ var columns = 10
 var timerDisp = document.querySelector('#timer')
 // var changer = document.querySelector('#changer')
 var button = document.querySelector('#startstop')
-var endearlyDisp = document.querySelector('#endearly')
+var endEarlyDisplay = document.querySelector('#endearly')
 // var dispselected = document.querySelector('#dispselected')
 // var lastselectedDisp = document.querySelector('#lastselected')
 var nextButton = document.getElementById('nextButton')
@@ -122,14 +122,16 @@ if (createGrid) {
 }
 
 if (metadata !== null) {
-  timerRunning = false
-  timerDisplay.innerText = 'Test Complete'
-  // button.innerHTML = 'Restart'
-  // button.onclick = function () {
-  //   timerDisplay.classList.remove('hidden')
-  //   clearAnswer()
-  //   startStopTimer()
-  // }
+  endEarlyDisplay.classList.remove('hidden')
+  endEarlyDisplay.innerText = 'Test Complete'
+  button.innerHTML = 'Restart'
+  button.onclick = function () {
+    timerDisplay.classList.remove('hidden')
+    endEarlyDisplay.classList.add('hidden')
+    timerRunning = true
+    clearAnswer()
+    startStopTimer()
+  }
 }
 
 function timer () {
@@ -292,9 +294,9 @@ function getSelectedItems () {
 }
 
 function clearAnswer () {
-  if (timerRunning) {
-    startStopTimer()
-  }
+  // if (timerRunning) {
+  //   startStopTimer()
+  // }
   setAnswer()
   timePassed = 0
 }
@@ -514,7 +516,7 @@ function openDataWarningModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    // window.location.reload()
+    window.location.reload()
     clearAnswer()
     startStopTimer()
     button.innerText = 'Pause'
