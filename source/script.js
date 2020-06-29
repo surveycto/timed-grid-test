@@ -293,7 +293,7 @@ function clearAnswer () {
   // if (timerRunning) {
   //   startStopTimer()
   // }
-  setAnswer()
+  // setAnswer()
   timePassed = 0
 }
 
