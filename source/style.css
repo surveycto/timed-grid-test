@@ -106,7 +106,9 @@ timer {
   background-color: skyblue;
   color: black;
   border-radius: 5px;
-  font-size: 125%;
+  font-size: 4vw;
+  font-weight: bold;
+  width: 100%;
   cursor: pointer;
   display: flex;
   justify-content: center;
