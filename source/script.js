@@ -35,6 +35,10 @@ var nextButton = document.getElementById('nextButton')
 var backButton = document.getElementById('backButton')
 var timerDisplay = document.querySelector('#timerDisplay')
 // var gridItems = document.querySelectorAll('.box')
+var modal = document.getElementById('modal') // Get the modal
+var modalContent = document.getElementById('modalContent') // Get the modal content
+var firstModalButton = document.getElementById('firstModalButton') // Get the first button
+var secondModalButton = document.getElementById('secondModalButton') // Get the second button
 
 var div = document.getElementById('button-holder')
 var secondDIV
@@ -129,8 +133,7 @@ if (metadata !== null) {
     timerDisplay.classList.remove('hidden')
     endEarlyDisplay.classList.add('hidden')
     timerRunning = true
-    clearAnswer()
-    startStopTimer()
+    restart()
   }
 }
 
@@ -155,7 +158,6 @@ function startStopTimer () {
   } else {
     startTime = Date.now() - timePassed
     timerRunning = true
-    // endearlyDisp.innerHTML = ''
     button.innerHTML = 'Pause'
   }
 }
@@ -165,32 +167,26 @@ function endEarly () {
   console.log('time remaining is ' + timeRemaining)
   console.log('time left is ' + timeLeft)
   endTimer()
-  // openModal('End now? 10 wrong answers on row 1.')
-  // firstModalButton.onclick = function () {
-  //   modal.style.display = 'none'
-  //   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-  //   console.log('time remaining is ' + timeRemaining)
-  //   console.log('time left is ' + timeLeft)
-  //   endTimer()
-  // }
-  // secondModalButton.onclick = function () {
-  //   modal.style.display = 'none'
-  // }
 }
 
 function endTimer () {
   console.log('entering end timer')
   timeLeft = 0
   timerRunning = false
+  button.innerText = 'Restart'
+  button.onclick = function () {
+    timerRunning = true
+    restart()
+  }
   openLastItemModal()
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    selectedItems = getSelectedItems()
-    console.log('Clicked on: ' + selectedItems)
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
+  selectedItems = getSelectedItems()
+  console.log('Clicked on: ' + selectedItems)
+  // firstModalButton.onclick = function () {
+  //   modal.style.display = 'none'
+  // }
+  // secondModalButton.onclick = function () {
+  //   modal.style.display = 'none'
+  // }
 }
 
 var topTen = choices.slice(0, columns)
@@ -314,9 +310,10 @@ function setResult () {
   console.log('Correct Items  ' + correctItems)
   // create delimited result string to be accessed using the plugin-metadata() function
   var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
-  if(totalItems != null) {
-    setAnswer(ans) // set answer to dummy result
-  }
+  // if(totalItems != null) {
+  //   setAnswer(ans) // set answer to dummy result
+  // }
+  setAnswer(ans) // set answer to dummy result
   setMetaData(result) // make result accessible as plugin metadata
 }
 
@@ -472,7 +469,7 @@ function openModal (content) {
 }
 
 function openThankYouModal () {
-  modalContent.innerText = 'Thank you! You can move to the next section'
+  modalContent.innerText = 'Thank you! You can continue.'
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
@@ -504,8 +501,8 @@ function openPauseModal () {
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
-    button.classList.add('hidden')
-    endEarly()
+    button.innerText = 'Restart'
+    openConfirmEndModal()
   }
 }
 
@@ -516,12 +513,21 @@ function openDataWarningModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
-      cell.classList.remove('selected')
-    }
-    clearAnswer()
-    startStopTimer()
-    button.innerText = 'Pause'
+    restart()
+  }
+  secondModalButton.onclick = function () {
+    modal.style.display = 'none'
+  }
+}
+
+function openConfirmEndModal () {
+  modalContent.innerText = 'Are you sure you would like to end early? The current time and selections will be saved.'
+  firstModalButton.innerText = 'Yes'
+  secondModalButton.innerText = 'Cancel'
+  modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    endEarly()
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
@@ -542,11 +548,19 @@ function openIncorrectItemsModal () {
   }
 }
 
-var modal = document.getElementById('modal') // Get the modal
-// var modalHeading = document.getElementById('modalHeading') // Get the modal heading
-var modalContent = document.getElementById('modalContent') // Get the modal content
-var firstModalButton = document.getElementById('firstModalButton') // Get the first button
-var secondModalButton = document.getElementById('secondModalButton') // Get the second button
+function restart () {
+  for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+    cell.classList.remove('selected')
+  }
+  timerRunning = false
+  timerDisplay.classList.add('hidden')
+  clearAnswer()
+  button.innerText = 'Start'
+  button.onclick = function () {
+    timerDisplay.classList.remove('hidden')
+    startStopTimer()
+  }
+}
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {

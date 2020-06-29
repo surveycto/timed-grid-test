@@ -99,7 +99,10 @@ timer {
 
 /* wrapper class */
 .wrapper {
-  margin: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 5px;
 }
 /* Styling for the buttons */
 .box {
@@ -107,7 +110,6 @@ timer {
   color: black;
   border-radius: 5px;
   font-size: 4vw;
-  font-weight: bold;
   width: 100%;
   cursor: pointer;
   display: flex;
