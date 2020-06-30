@@ -1,4 +1,7 @@
 var duration = getPluginParameter('duration')
+var type = getPluginParameter ('type')
+var endAfter = getPluginParameter('end-after')
+console.log('First end after is ' + endAfter)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
 console.log('MetaData is ' + metadata)
@@ -22,8 +25,7 @@ var ans = choices[0].CHOICE_VALUE //
 var timeRemaining = 0
 var endFirstLine = 'No' // Whether they ended on the firstline or not
 var choiceValuesArray = [] // Array of choice labels
-var type = getPluginParameter ('type')
-var columns = 10
+var columns = 10 // Number of columns on grid printout (letters)
 
 var timerDisp = document.querySelector('#timer')
 // var changer = document.querySelector('#changer')
@@ -57,12 +59,21 @@ function myFunction1 (y) { if (y.matches) { screenSize = 'medium' } }
 // function myFunction2 (z) { if (z.matches) { screenSize = 'large' } }
 
 if (type === 'words') {
-  columns = 5
+  columns = 5 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
     screenSize = 'large'
   }
 }
 
+// Set end after default to 10 for letters
+if (endAfter == null && columns === 10) {
+  endAfter = 10
+} else if (endAfter == null && columns === 5) {
+  endAfter = 5
+} else {
+  endAfter = parseInt(endAfter)
+}
+console.log('Second end after is ' + endAfter)
 createGrid(choices)
 
 function createGrid (keys) {
@@ -132,8 +143,9 @@ if (metadata !== null) {
   button.onclick = function () {
     timerDisplay.classList.remove('hidden')
     endEarlyDisplay.classList.add('hidden')
-    timerRunning = true
-    restart()
+    // timerRunning = true
+    // restart()
+    openDataWarningModal()
   }
 }
 
@@ -181,15 +193,9 @@ function endTimer () {
   openLastItemModal()
   selectedItems = getSelectedItems()
   console.log('Clicked on: ' + selectedItems)
-  // firstModalButton.onclick = function () {
-  //   modal.style.display = 'none'
-  // }
-  // secondModalButton.onclick = function () {
-  //   modal.style.display = 'none'
-  // }
 }
 
-var topTen = choices.slice(0, columns)
+var topTen = choices.slice(0, endAfter)
 var firstTenItems = []
 
 for (x = 0; x < topTen.length; x++) {
@@ -535,7 +541,7 @@ function openConfirmEndModal () {
 }
 
 function openIncorrectItemsModal () {
-  modalContent.innerText = 'End now? ' + columns + ' wrong answers on row 1.'
+  modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
   firstModalButton.innerText = 'Yes'
   secondModalButton.innerText = 'No'
   modal.style.display = 'block'
@@ -557,7 +563,8 @@ function restart () {
   clearAnswer()
   button.innerText = 'Start'
   button.onclick = function () {
-    openConfirmRestartModal()
+    timerDisplay.classList.remove('hidden')
+    startStopTimer()
   }
 }
 
