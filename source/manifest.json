@@ -1,6 +1,6 @@
 {
 	"name" : "Button Display",
 	"author" : "Dobility",
-	"version": "1.1.43",
+	"version": "1.1.44",
 	"supportedFieldTypes": ["select_multiple"]
 }

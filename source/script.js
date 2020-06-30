@@ -557,8 +557,22 @@ function restart () {
   clearAnswer()
   button.innerText = 'Start'
   button.onclick = function () {
+    openConfirmRestartModal()
+  }
+}
+
+function openConfirmRestartModal () {
+  modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
+  firstModalButton.innerText = 'Yes'
+  secondModalButton.innerText = 'Cancel'
+  modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
     timerDisplay.classList.remove('hidden')
     startStopTimer()
+  }
+  secondModalButton.onclick = function () {
+    modal.style.display = 'none'
   }
 }
 
