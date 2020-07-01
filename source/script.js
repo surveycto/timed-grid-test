@@ -143,8 +143,6 @@ if (metadata !== null) {
   button.onclick = function () {
     timerDisplay.classList.remove('hidden')
     endEarlyDisplay.classList.add('hidden')
-    // timerRunning = true
-    // restart()
     openDataWarningModal()
   }
 }
@@ -185,11 +183,6 @@ function endTimer () {
   console.log('entering end timer')
   timeLeft = 0
   timerRunning = false
-  button.innerText = 'Restart'
-  button.onclick = function () {
-    timerRunning = true
-    restart()
-  }
   openLastItemModal()
   selectedItems = getSelectedItems()
   console.log('Clicked on: ' + selectedItems)
@@ -245,6 +238,11 @@ function itemClicked (item, itemIndex) {
       // lastselectedDisp.innerHTML = 'Last selected: ' + lastSelected
       setResult()
       openThankYouModal()
+      // button.innerText = 'Restart'
+      // button.onclick = function () {
+      //   // timerRunning = true
+      //   openDataWarningModal()
+      // }
       console.log('exiting last selected')
       // goToNextField()
     } else {
@@ -480,6 +478,16 @@ function openThankYouModal () {
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
   modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    button.innerText = 'Restart'
+    secondModalButton.classList.remove('hidden')
+    firstModalButton.style.width = '50%'
+    button.onclick = function () {
+      // timerRunning = true
+      openDataWarningModal()
+    }
+  }
 }
 
 function openLastItemModal () {
@@ -557,6 +565,7 @@ function openIncorrectItemsModal () {
 function restart () {
   for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
     cell.classList.remove('selected')
+    cell.classList.remove('lastSelected')
   }
   timerRunning = false
   timerDisplay.classList.add('hidden')
@@ -568,20 +577,20 @@ function restart () {
   }
 }
 
-function openConfirmRestartModal () {
-  modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'Cancel'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    timerDisplay.classList.remove('hidden')
-    startStopTimer()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
-}
+// function openConfirmRestartModal () {
+//   modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
+//   firstModalButton.innerText = 'Yes'
+//   secondModalButton.innerText = 'Cancel'
+//   modal.style.display = 'block'
+//   firstModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//     timerDisplay.classList.remove('hidden')
+//     startStopTimer()
+//   }
+//   secondModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//   }
+// }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
