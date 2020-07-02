@@ -19,7 +19,6 @@ var timePassed = 0 // Time passed so far
 var timerRunning = false // Track whether the timer is running
 var startTime = 0 // This will get an actual value when the timer starts in startStopTimer();
 var selectedItems // Track selected (incorrect) items
-// var lastSelectedValue = null // Track last selected item
 var lastSelectedIndex // Track index of last selected item
 var ans = choices[0].CHOICE_VALUE //
 var timeRemaining = 0
@@ -28,15 +27,11 @@ var choiceValuesArray = [] // Array of choice labels
 var columns = 10 // Number of columns on grid printout (letters)
 
 var timerDisp = document.querySelector('#timer')
-// var changer = document.querySelector('#changer')
 var button = document.querySelector('#startstop')
 var endEarlyDisplay = document.querySelector('#endearly')
-// var dispselected = document.querySelector('#dispselected')
-// var lastselectedDisp = document.querySelector('#lastselected')
 var nextButton = document.getElementById('nextButton')
 var backButton = document.getElementById('backButton')
 var timerDisplay = document.querySelector('#timerDisplay')
-// var gridItems = document.querySelectorAll('.box')
 var modal = document.getElementById('modal') // Get the modal
 var modalContent = document.getElementById('modalContent') // Get the modal content
 var firstModalButton = document.getElementById('firstModalButton') // Get the first button
@@ -46,17 +41,13 @@ var div = document.getElementById('button-holder')
 var secondDIV
 var x = window.matchMedia('(max-width: 660px)')
 var y = window.matchMedia('(min-width: 660px)')
-// var z = window.matchMedia('(min-width: 992px)')
 myFunction(x)
 myFunction1(y)
-// myFunction2(z)
 x.addListener(myFunction)
 y.addListener(myFunction1)
-// z.addListener(myFunction2)
 var screenSize
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
 function myFunction1 (y) { if (y.matches) { screenSize = 'medium' } }
-// function myFunction2 (z) { if (z.matches) { screenSize = 'large' } }
 
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -208,9 +199,6 @@ function itemClicked (item, itemIndex) {
       if (itemCounter <= 9) {
         itemCounter++
         items.push(itemIndex)
-        // var isSame = firstTenItems.length == items.length && firstTenItems.every(function (element, index) {
-        //   return element == items[index]
-        // })
         var isSame = (firstTenItems.sort().toString() === items.sort().toString())
         if (isSame) {
           console.log('Is same is ' + isSame)
@@ -227,30 +215,18 @@ function itemClicked (item, itemIndex) {
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
-    // lastSelectedValue = item.innerText // Get value of last selected item
     lastSelectedIndex = itemIndex // Get index of last selected item
-    // selectedItems = getSelectedItems()
     checkLastItem()
     if (complete) {
       console.log('ending last selected')
-      // changer.innerHTML = 'All set! You can move on to the next field, or select a different last letter. To clear your answers, clear the response on this page.'
-      // ans = lastSelected + ' ' + selectedItems
-      // lastselectedDisp.innerHTML = 'Last selected: ' + lastSelected
       setResult()
       openThankYouModal()
-      // button.innerText = 'Restart'
-      // button.onclick = function () {
-      //   // timerRunning = true
-      //   openDataWarningModal()
-      // }
       console.log('exiting last selected')
-      // goToNextField()
     } else {
       for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
-      // lastSelectedValue = item.innerText // Get value of last selected item
       lastSelectedIndex = itemIndex // Get index of last selected item
       checkLastItem()
     }
@@ -286,7 +262,6 @@ function getSelectedItems () {
     if (cell.classList.contains('selected')) {
       var m = cell.classList.item(1)
       var n = m.slice(4)
-      // selectedLet.push(cell.innerText)
       selectedLet.push(n)
     }
   }
@@ -294,9 +269,6 @@ function getSelectedItems () {
 }
 
 function clearAnswer () {
-  // if (timerRunning) {
-  //   startStopTimer()
-  // }
   // setAnswer()
   timePassed = 0
 }
@@ -312,11 +284,7 @@ function setResult () {
   console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
-  // create delimited result string to be accessed using the plugin-metadata() function
   var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
-  // if(totalItems != null) {
-  //   setAnswer(ans) // set answer to dummy result
-  // }
   setAnswer(ans) // set answer to dummy result
   setMetaData(result) // make result accessible as plugin metadata
 }
@@ -465,7 +433,6 @@ document.querySelector('.back').addEventListener('click', function () {
 
 // Open Modal
 function openModal (content) {
-  // modalHeading.innerText = 'Heading Placeholder'
   modalContent.innerText = content
   firstModalButton.innerText = 'Yes'
   secondModalButton.innerText = 'No'
@@ -576,21 +543,6 @@ function restart () {
     startStopTimer()
   }
 }
-
-// function openConfirmRestartModal () {
-//   modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
-//   firstModalButton.innerText = 'Yes'
-//   secondModalButton.innerText = 'Cancel'
-//   modal.style.display = 'block'
-//   firstModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//     timerDisplay.classList.remove('hidden')
-//     startStopTimer()
-//   }
-//   secondModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//   }
-// }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {

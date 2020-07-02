@@ -62,31 +62,6 @@ button.startstop {
   padding-right: 10px;
 }
 
-/* Yes and no buttons
-button.whitebutton, button.bluebutton {
-  font-weight: 500;
-  border-radius: 3px;
-  box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.09);
-  display: inline-block;
-  padding: 2px 2px;
-  font-size: 18px;
-  line-height: 1.42857143;
-  width: 70px;
-  height: 35px;
-}
-
-button.whitebutton{
-  background-color: #ffffff;
-  border-color: #367fa9;
-  color: #000000;
-}
-
-button.bluebutton{
-  background-color: #047cc2;
-  border-color: #367fa9;
-  color: #ffffff;
-} */
-
 timer {
   position:absolute;
   top:5px;
@@ -526,7 +501,6 @@ timer {
   font-size: 15px;
   line-height: 1;
   margin: -9px 0 0; /* half of font-size */
-  /* background: #fff; */
   padding: 0 3px;
 }
 
@@ -631,10 +605,3 @@ hr {
   clear: both;
   display: table;
 }
-
-/* Change styles for cancel button and delete button on extra small screens */
-/* @media screen and (max-width: 300px) {
-  .cancelbtn, .deletebtn {
-     width: 100%;
-  } 
-}*/
