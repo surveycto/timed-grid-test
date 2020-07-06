@@ -1,12 +1,10 @@
 .label {
-  /* add style rules here to change how the label appears */
   margin: .75rem 0;
 }
 
 .hint {
-  /* add style rules here to change how the hint appears */
-  margin: .5rem 0;
   color: rgba(0,0,0,.65);
+  margin: .5rem 0;
   font-style: italic;
 }
 
