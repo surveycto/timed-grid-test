@@ -57,7 +57,7 @@ if (type === 'words') {
 }
 
 if (type === 'reading') {
-  columns = 1 // Number of columns on grid printout (words)
+  columns = choices.length // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
     screenSize = 'large'
   }
@@ -80,38 +80,42 @@ function createGrid (keys) {
   for (var i = 0; i < keys.length / columns; i++) {
     var fieldset = document.createElement('section')
     var tracker = i + 1
-    var legend = document.createElement('h1')
-    var text1 = '(' + tracker + ')'
-    var legendText = document.createTextNode(text1)
-    legend.appendChild(legendText)
-    fieldset.appendChild(legend)
-    var fieldsetId = 'fieldset' + tracker
-    if (screenSize === 'small' && type === 'letters') {
-      fieldsetClass = 'sm' + tracker
-      if (tracker > 2) {
-        fieldset.classList.add('hidden')
+    if (type !== 'reading') {
+      var legend = document.createElement('h1')
+      var text1 = '(' + tracker + ')'
+      var legendText = document.createTextNode(text1)
+      legend.appendChild(legendText)
+      fieldset.appendChild(legend)
+      var fieldsetId = 'fieldset' + tracker
+      if (screenSize === 'small' && type === 'letters') {
+        fieldsetClass = 'sm' + tracker
+        if (tracker > 2) {
+          fieldset.classList.add('hidden')
+        }
+      } else if (screenSize === 'small' && type === 'words') {
+        fieldsetClass = 'lg' + tracker
+        if (tracker > 4) {
+          fieldset.classList.add('hidden')
+        }
+      } else if (screenSize === 'medium') {
+        fieldsetClass = 'ms' + tracker
+        nextButton.classList.add('hideButton')
+      } else if (screenSize === 'large') {
+        fieldsetClass = 'lg' + tracker
+        nextButton.classList.add('hideButton')
       }
-    } else if (screenSize === 'small' && type === 'words') {
-      fieldsetClass = 'lg' + tracker
-      if (tracker > 4) {
-        fieldset.classList.add('hidden')
-      }
-    } else if (screenSize === 'medium') {
-      fieldsetClass = 'ms' + tracker
-      nextButton.classList.add('hideButton')
-    } else if (screenSize === 'large') {
-      fieldsetClass = 'lg' + tracker
-      nextButton.classList.add('hideButton')
+      fieldset.setAttribute('id', fieldsetId)
+      fieldset.classList.add(fieldsetClass, 'fieldset')
+    } else {
+      fieldset.classList.add('pg')
     }
-    fieldset.setAttribute('id', fieldsetId)
-    fieldset.classList.add(fieldsetClass, 'fieldset')
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
       var itemValue = counter + 1
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
       if (type === 'reading') {
-        secondDIV.style.removeProperty('display')
+        secondDIV.classList.add('pgBox')
       }
       var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
