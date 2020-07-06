@@ -56,6 +56,13 @@ if (type === 'words') {
   }
 }
 
+if (type === 'reading') {
+  columns = 1 // Number of columns on grid printout (words)
+  if (screenSize !== 'small') {
+    screenSize = 'large'
+  }
+}
+
 // Set end after default to 10 for letters
 if (endAfter == null && columns === 10) {
   endAfter = 10
@@ -103,6 +110,9 @@ function createGrid (keys) {
       var itemValue = counter + 1
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
+      if (type === 'reading') {
+        secondDIV.style.removeProperty('display')
+      }
       var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
       counter++
