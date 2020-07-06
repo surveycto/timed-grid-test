@@ -1,10 +1,10 @@
+/* global getPluginParameter, getMetaData, fieldProperties, setAnswer, setMetaData */
+
 var duration = getPluginParameter('duration')
-var type = getPluginParameter ('type')
+var type = getPluginParameter('type')
 var endAfter = getPluginParameter('end-after')
-console.log('First end after is ' + endAfter)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
-console.log('MetaData is ' + metadata)
 
 if (duration === null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
@@ -41,13 +41,17 @@ var div = document.getElementById('button-holder')
 var secondDIV
 var x = window.matchMedia('(max-width: 660px)')
 var y = window.matchMedia('(min-width: 660px)')
-myFunction(x)
-myFunction1(y)
-x.addListener(myFunction)
-y.addListener(myFunction1)
 var screenSize
-function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-function myFunction1 (y) { if (y.matches) { screenSize = 'medium' } }
+
+var topTen
+var firstTenItems = []
+var itemCounter = 0
+var items = []
+
+checkSmall(x)
+checkMedium(y)
+x.addListener(checkSmall)
+y.addListener(checkMedium)
 
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -71,61 +75,17 @@ if (endAfter == null && columns === 10) {
 } else {
   endAfter = parseInt(endAfter)
 }
-console.log('Second end after is ' + endAfter)
 createGrid(choices)
 
-function createGrid (keys) {
-  var counter = 0
-  var fieldsetClass
-  for (var i = 0; i < keys.length / columns; i++) {
-    var fieldset = document.createElement('section')
-    var tracker = i + 1
-    if (type !== 'reading') {
-      var legend = document.createElement('h1')
-      var text1 = '(' + tracker + ')'
-      var legendText = document.createTextNode(text1)
-      legend.appendChild(legendText)
-      fieldset.appendChild(legend)
-      var fieldsetId = 'fieldset' + tracker
-      if (screenSize === 'small' && type === 'letters') {
-        fieldsetClass = 'sm' + tracker
-        if (tracker > 2) {
-          fieldset.classList.add('hidden')
-        }
-      } else if (screenSize === 'small' && type === 'words') {
-        fieldsetClass = 'lg' + tracker
-        if (tracker > 4) {
-          fieldset.classList.add('hidden')
-        }
-      } else if (screenSize === 'medium') {
-        fieldsetClass = 'ms' + tracker
-        nextButton.classList.add('hideButton')
-      } else if (screenSize === 'large') {
-        fieldsetClass = 'lg' + tracker
-        nextButton.classList.add('hideButton')
-      }
-      fieldset.setAttribute('id', fieldsetId)
-      fieldset.classList.add(fieldsetClass, 'fieldset')
-    } else {
-      fieldset.classList.add('pg')
-    }
-    for (var j = 0; j < columns; j++) {
-      secondDIV = document.createElement('div')
-      var itemValue = counter + 1
-      var itemClass = 'item' + itemValue
-      secondDIV.classList.add('box', itemClass)
-      if (type === 'reading') {
-        secondDIV.classList.add('pgBox')
-      }
-      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
-      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-      counter++
-      secondDIV.appendChild(text)
-      fieldset.appendChild(secondDIV)
-    }
-    div.append(fieldset)
+if (metadata !== null) {
+  endEarlyDisplay.classList.remove('hidden')
+  endEarlyDisplay.innerText = 'Test Complete'
+  button.innerHTML = 'Restart'
+  button.onclick = function () {
+    timerDisplay.classList.remove('hidden')
+    endEarlyDisplay.classList.add('hidden')
+    openDataWarningModal()
   }
-  return true
 }
 
 if (createGrid) {
@@ -141,166 +101,10 @@ if (createGrid) {
   setInterval(timer, 1)
 }
 
-if (metadata !== null) {
-  endEarlyDisplay.classList.remove('hidden')
-  endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Restart'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    endEarlyDisplay.classList.add('hidden')
-    openDataWarningModal()
-  }
-}
-
-function timer () {
-  if (timerRunning) {
-    timePassed = Date.now() - startTime
-    timeLeft = timeStart - timePassed
-  }
-
-  if (timeLeft < 0) {
-    endTimer()
-  }
-  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
-}
-
-function startStopTimer () {
-  timerDisplay.classList.remove('hidden')
-  if (timerRunning) {
-    timerRunning = false
-    button.innerHTML = 'Resume'
-    openPauseModal()
-  } else {
-    startTime = Date.now() - timePassed
-    timerRunning = true
-    button.innerHTML = 'Pause'
-  }
-}
-
-function endEarly () {
-  timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-  console.log('time remaining is ' + timeRemaining)
-  console.log('time left is ' + timeLeft)
-  endTimer()
-}
-
-function endTimer () {
-  console.log('entering end timer')
-  timeLeft = 0
-  timerRunning = false
-  openLastItemModal()
-  selectedItems = getSelectedItems()
-  console.log('Clicked on: ' + selectedItems)
-}
-
-var topTen = choices.slice(0, endAfter)
-var firstTenItems = []
+choices.slice(0, endAfter)
 
 for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(choices[x].CHOICE_VALUE)
-}
-console.log('top ten is ' + firstTenItems)
-var itemCounter = 0
-var items = []
-
-function itemClicked (item, itemIndex) {
-  if (timerRunning) { // This way, it only works when the timer is running
-    const classes = item.classList
-    if (classes.contains('selected')) {
-      classes.remove('selected')
-    } else {
-      classes.add('selected')
-      if (itemCounter <= 9) {
-        itemCounter++
-        items.push(itemIndex)
-        var isSame = (firstTenItems.sort().toString() === items.sort().toString())
-        if (isSame) {
-          console.log('Is same is ' + isSame)
-          timerRunning = false
-          endFirstLine = 'Yes' // Indicate that the first line was all incorrect
-          openIncorrectItemsModal()
-        }
-        console.log(itemCounter)
-        console.log(items)
-      }
-    }
-  } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
-      cell.classList.remove('lastSelected')
-    }
-    item.classList.add('lastSelected')
-    lastSelectedIndex = itemIndex // Get index of last selected item
-    checkLastItem()
-    if (complete) {
-      console.log('ending last selected')
-      setResult()
-      openThankYouModal()
-      console.log('exiting last selected')
-    } else {
-      for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
-        cell.classList.remove('lastSelected')
-      }
-      item.classList.add('lastSelected')
-      lastSelectedIndex = itemIndex // Get index of last selected item
-      checkLastItem()
-    }
-  }
-}
-
-function checkLastItem () {
-  var selectedItemsArray = selectedItems.split(' ')
-  var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
-  var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
-  console.log('indexLastClicked ' + indexLastClickedItem)
-  var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
-  console.log('indexLastSelected ' + indexLastSelectedItem)
-  if (indexLastClickedItem > (indexLastSelectedItem)) {
-    console.log('Entering the if statement.')
-    openModal('Either pick the last incorrect item, or one after that.')
-    console.log('Time left is ' + timeLeft)
-    Array.from(gridItems, function (box) {
-      box.addEventListener('click', function () {
-        var a = this.classList.item(1)
-        var b = a.slice(4)
-        itemClicked(this, b)
-      })
-    })
-  } else {
-    complete = true
-  }
-}
-
-function getSelectedItems () {
-  const selectedLet = []
-  for (const cell of gridItems) {
-    if (cell.classList.contains('selected')) {
-      var m = cell.classList.item(1)
-      var n = m.slice(4)
-      selectedLet.push(n)
-    }
-  }
-  return selectedLet.join(' ')
-}
-
-function clearAnswer () {
-  // setAnswer()
-  timePassed = 0
-}
-
-// set the results to published
-function setResult () {
-  console.log('Time Remaining ' + timeRemaining)
-  console.log('Last Selected ' + lastSelectedIndex)
-  var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
-  console.log('Total Items  ' + totalItems)
-  var splitselectedItems = selectedItems.split(' ')
-  var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
-  console.log('Incorrect Items  ' + incorrectItems)
-  var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  console.log('Correct Items  ' + correctItems)
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
-  setAnswer(ans) // set answer to dummy result
-  setMetaData(result) // make result accessible as plugin metadata
 }
 
 // get next button and bind click event handler
@@ -445,6 +249,199 @@ document.querySelector('.back').addEventListener('click', function () {
   }
 })
 
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+  if (event.target === modal) {
+    modal.style.display = 'none'
+  }
+}
+
+function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
+function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
+
+function createGrid (keys) {
+  var counter = 0
+  var fieldsetClass
+  for (var i = 0; i < keys.length / columns; i++) {
+    var fieldset = document.createElement('section')
+    var tracker = i + 1
+    if (type !== 'reading') {
+      var legend = document.createElement('h1')
+      var text1 = '(' + tracker + ')'
+      var legendText = document.createTextNode(text1)
+      legend.appendChild(legendText)
+      fieldset.appendChild(legend)
+      var fieldsetId = 'fieldset' + tracker
+      if (screenSize === 'small' && type === 'letters') {
+        fieldsetClass = 'sm' + tracker
+        if (tracker > 2) {
+          fieldset.classList.add('hidden')
+        }
+      } else if (screenSize === 'small' && type === 'words') {
+        fieldsetClass = 'lg' + tracker
+        if (tracker > 4) {
+          fieldset.classList.add('hidden')
+        }
+      } else if (screenSize === 'medium') {
+        fieldsetClass = 'ms' + tracker
+        nextButton.classList.add('hideButton')
+      } else if (screenSize === 'large') {
+        fieldsetClass = 'lg' + tracker
+        nextButton.classList.add('hideButton')
+      }
+      fieldset.setAttribute('id', fieldsetId)
+      fieldset.classList.add(fieldsetClass, 'fieldset')
+    } else {
+      fieldset.classList.add('pg')
+    }
+    for (var j = 0; j < columns; j++) {
+      secondDIV = document.createElement('div')
+      var itemValue = counter + 1
+      var itemClass = 'item' + itemValue
+      secondDIV.classList.add('box', itemClass)
+      if (type === 'reading') {
+        secondDIV.classList.add('pgBox')
+      }
+      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
+      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+      counter++
+      secondDIV.appendChild(text)
+      fieldset.appendChild(secondDIV)
+    }
+    div.append(fieldset)
+  }
+  return true
+}
+
+function timer () {
+  if (timerRunning) {
+    timePassed = Date.now() - startTime
+    timeLeft = timeStart - timePassed
+  }
+
+  if (timeLeft < 0) {
+    endTimer()
+  }
+  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
+}
+
+function startStopTimer () {
+  timerDisplay.classList.remove('hidden')
+  if (timerRunning) {
+    timerRunning = false
+    button.innerHTML = 'Resume'
+    openPauseModal()
+  } else {
+    startTime = Date.now() - timePassed
+    timerRunning = true
+    button.innerHTML = 'Pause'
+  }
+}
+
+function endEarly () {
+  timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+  endTimer()
+}
+
+function endTimer () {
+  console.log('entering end timer')
+  timeLeft = 0
+  timerRunning = false
+  openLastItemModal()
+  selectedItems = getSelectedItems()
+}
+
+function itemClicked (item, itemIndex) {
+  if (timerRunning) { // This way, it only works when the timer is running
+    var classes = item.classList
+    if (classes.contains('selected')) {
+      classes.remove('selected')
+    } else {
+      classes.add('selected')
+      if (itemCounter <= 9) {
+        itemCounter++
+        items.push(itemIndex)
+        var isSame = (firstTenItems.sort().toString() === items.sort().toString())
+        if (isSame) {
+          console.log('Is same is ' + isSame)
+          timerRunning = false
+          endFirstLine = 'Yes' // Indicate that the first line was all incorrect
+          openIncorrectItemsModal()
+        }
+        console.log(itemCounter)
+        console.log(items)
+      }
+    }
+  } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
+    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+      cell.classList.remove('lastSelected')
+    }
+    item.classList.add('lastSelected')
+    lastSelectedIndex = itemIndex // Get index of last selected item
+    checkLastItem()
+    if (complete) {
+      console.log('ending last selected')
+      setResult()
+      openThankYouModal()
+      console.log('exiting last selected')
+    } else {
+      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+        cell.classList.remove('lastSelected')
+      }
+      item.classList.add('lastSelected')
+      lastSelectedIndex = itemIndex // Get index of last selected item
+      checkLastItem()
+    }
+  }
+}
+
+function checkLastItem () {
+  var selectedItemsArray = selectedItems.split(' ')
+  var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
+  var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
+  var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
+  if (indexLastClickedItem > (indexLastSelectedItem)) {
+    openModal('Either pick the last incorrect item, or one after that.')
+    Array.from(gridItems, function (box) {
+      box.addEventListener('click', function () {
+        var a = this.classList.item(1)
+        var b = a.slice(4)
+        itemClicked(this, b)
+      })
+    })
+  } else {
+    complete = true
+  }
+}
+
+function getSelectedItems () {
+  var selectedLet = []
+  for (var cell of gridItems) {
+    if (cell.classList.contains('selected')) {
+      var m = cell.classList.item(1)
+      var n = m.slice(4)
+      selectedLet.push(n)
+    }
+  }
+  return selectedLet.join(' ')
+}
+
+function clearAnswer () {
+  setAnswer()
+  timePassed = 0
+}
+
+// set the results to published
+function setResult () {
+  var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  var splitselectedItems = selectedItems.split(' ')
+  var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  var correctItems = totalItems - incorrectItems // Number of correct items attempted
+  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
+  setAnswer(ans) // set answer to dummy result
+  setMetaData(result) // make result accessible as plugin metadata
+}
+
 // Open Modal
 function openModal (content) {
   modalContent.innerText = content
@@ -544,7 +541,7 @@ function openIncorrectItemsModal () {
 }
 
 function restart () {
-  for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+  for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
     cell.classList.remove('selected')
     cell.classList.remove('lastSelected')
   }
@@ -555,12 +552,5 @@ function restart () {
   button.onclick = function () {
     timerDisplay.classList.remove('hidden')
     startStopTimer()
-  }
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    modal.style.display = 'none'
   }
 }
