@@ -1,6 +1,6 @@
 {
 	"name" : "EGRA Grid",
 	"author" : "Dobility",
-	"version": "1.2.4",
+	"version": "1.2.19",
 	"supportedFieldTypes": ["select_multiple"]
 }

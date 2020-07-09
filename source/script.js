@@ -72,6 +72,7 @@ if (endAfter == null && columns === 10) {
   endAfter = parseInt(endAfter)
 }
 console.log('Second end after is ' + endAfter)
+var marks = ['.', ',', '!', '?']
 createGrid(choices)
 
 function createGrid (keys) {
@@ -111,13 +112,21 @@ function createGrid (keys) {
     }
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
+      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       var itemValue = counter + 1
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
       if (type === 'reading') {
+        // secondDIV.classList.remove(itemClass)
         secondDIV.classList.add('pgBox')
+        var textLabel = choices[counter].CHOICE_LABEL
+        console.log('Text label is ' + textLabel)
+        for (const ch of textLabel) {
+          if (marks.includes(ch)) {
+            secondDIV.classList.add('pmBox')
+          }
+        }
       }
-      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
       counter++
       secondDIV.appendChild(text)
@@ -131,13 +140,16 @@ function createGrid (keys) {
 if (createGrid) {
   var gridItems = document.querySelectorAll('.box')
   Array.from(gridItems, function (box) {
-    box.addEventListener('click', function () {
-      var it = this.classList.item(1)
-      var itemIndex = it.slice(4)
-      console.log('Item index is ' + itemIndex)
-      itemClicked(this, itemIndex)
-    })
+    if (!(box.classList.contains('pmBox'))) {
+      box.addEventListener('click', function () {
+        var it = this.classList.item(1)
+        var itemIndex = it.slice(4)
+        console.log('Item index is ' + itemIndex)
+        itemClicked(this, itemIndex)
+      })
+    }
   })
+
   setInterval(timer, 1)
 }
 

@@ -12,7 +12,7 @@
 
 .selected {
   background-color: #f28b4b !important;
-  border: 2px solid #f28b4b;
+  /* border: 2px solid #f28b4b; */
   text-decoration: line-through;
 }
 
@@ -391,6 +391,10 @@ timer {
   width: auto;
   padding: 2%;
   margin: 3px;
+}
+
+.pmBox {
+  background-color: #888;
 }
 /* hide elements */
 .hidden {
