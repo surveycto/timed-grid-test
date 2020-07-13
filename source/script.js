@@ -143,11 +143,6 @@ var rowPos = 0
 if (createGrid) {
   var gridItems = document.querySelectorAll('.box')
   Array.from(gridItems, function (box) {
-    // var left = box.offset().left
-    // if (left <= minLeft || minLeft == null) {
-    //   rows++
-    //   minLeft = left
-    // }
     if (!(box.classList.contains('pmBox'))) {
       box.addEventListener('click', function () {
         var it = this.classList.item(1)
@@ -174,7 +169,7 @@ $(document).ready(function () {
       if (rowPos > 5) {
         shouldPage = true
       }
-      if (rowPos % 5 === 0) {
+      if (rowPos % 4 === 0) {
         console.log('classlist is ' + div1[0].classList)
         var temp = div1[0].classList.item(1).slice(4)
         pageArr.push(temp)
@@ -360,8 +355,8 @@ function setResult () {
   setMetaData(result) // make result accessible as plugin metadata
 }
 
-var aStart = 0
-var aEnd = 1
+var aStart = -1
+var aEnd = 0
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
@@ -434,6 +429,8 @@ document.querySelector('.next').addEventListener('click', function () {
   }
 
   if (type === 'reading' && screenSize === 'small') {
+    aStart++
+    aEnd++
     Array.from(gridItems, function (box) {
       var temp1 = parseInt(box.classList.item(1).slice(4))
       if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
@@ -444,12 +441,10 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       if (pageArr[aEnd] === undefined) {
         nextButton.classList.add('hideButton')
-        // aStart = aStart - 1
-        // aEnd = pageArr.length - 1
       }
     })
-    aStart++
-    aEnd++
+    console.log('Start is ' + aStart)
+    console.log('End is ' + aEnd)
   }
 })
 
@@ -528,7 +523,7 @@ document.querySelector('.back').addEventListener('click', function () {
     aEnd--
     Array.from(gridItems, function (box) {
       var temp1 = parseInt(box.classList.item(1).slice(4))
-      if ((temp1 < parseInt(pageArr[aStart] || (pageArr[aStart] === undefined))) || temp1 >= parseInt(pageArr[aEnd])) {
+      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
         box.classList.add('hidden')
       }
       if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
@@ -536,8 +531,16 @@ document.querySelector('.back').addEventListener('click', function () {
       }
       if (pageArr[aStart] === undefined) {
         backButton.classList.add('hideButton')
+        if (temp1 >= parseInt(pageArr[0])) {
+          box.classList.add('hidden')
+        }
+        if (temp1 < parseInt(pageArr[0])) {
+          box.classList.remove('hidden')
+        }
       }
     })
+    console.log('Back start is ' + aStart)
+    console.log('Back end is ' + aEnd)
   }
 })
 
