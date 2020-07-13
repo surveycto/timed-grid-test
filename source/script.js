@@ -166,10 +166,10 @@ $(document).ready(function () {
     // console.log('left is ' + div1)
     if (left <= minLeft || minLeft == null) {
       rowPos++
-      if (rowPos > 5) {
+      if (rowPos >= 6) {
         shouldPage = true
       }
-      if (rowPos % 4 === 0) {
+      if (rowPos % 6 === 0) {
         console.log('classlist is ' + div1[0].classList)
         var temp = div1[0].classList.item(1).slice(4)
         pageArr.push(temp)
