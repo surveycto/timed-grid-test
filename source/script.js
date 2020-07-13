@@ -137,9 +137,17 @@ function createGrid (keys) {
   return true
 }
 
+var minLeft = null
+var rowPos = 0
+
 if (createGrid) {
   var gridItems = document.querySelectorAll('.box')
   Array.from(gridItems, function (box) {
+    // var left = box.offset().left
+    // if (left <= minLeft || minLeft == null) {
+    //   rows++
+    //   minLeft = left
+    // }
     if (!(box.classList.contains('pmBox'))) {
       box.addEventListener('click', function () {
         var it = this.classList.item(1)
@@ -151,6 +159,43 @@ if (createGrid) {
   })
 
   setInterval(timer, 1)
+}
+var pageArr = []
+var shouldPage = false
+
+$(document).ready(function () {
+  $('.box').each(function () {
+    var div1 = $(this)
+    // console.log(JSON.stringify(div1))
+    var left = div1.position().left
+    // console.log('left is ' + div1)
+    if (left <= minLeft || minLeft == null) {
+      rowPos++
+      if (rowPos > 5) {
+        shouldPage = true
+      }
+      if (rowPos % 5 === 0) {
+        console.log('classlist is ' + div1[0].classList)
+        var temp = div1[0].classList.item(1).slice(4)
+        pageArr.push(temp)
+      }
+      minLeft = left
+    }
+  })
+  console.log('Box rows are ' + rowPos)
+  console.log('Page array ' + pageArr)
+  passagePaging(pageArr, shouldPage)
+})
+
+function passagePaging (pageArray, isPage) {
+  if (isPage) {
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if (temp1 >= parseInt(pageArray[0])) {
+        box.classList.add('hidden')
+      }
+    })
+  }
 }
 
 if (metadata !== null) {
@@ -315,6 +360,9 @@ function setResult () {
   setMetaData(result) // make result accessible as plugin metadata
 }
 
+var aStart = 0
+var aEnd = 1
+
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
   backButton.classList.remove('hideButton')
@@ -383,6 +431,25 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
     }
+  }
+
+  if (type === 'reading' && screenSize === 'small') {
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+        box.classList.add('hidden')
+      }
+      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+        box.classList.remove('hidden')
+      }
+      if (pageArr[aEnd] === undefined) {
+        nextButton.classList.add('hideButton')
+        // aStart = aStart - 1
+        // aEnd = pageArr.length - 1
+      }
+    })
+    aStart++
+    aEnd++
   }
 })
 
@@ -454,6 +521,23 @@ document.querySelector('.back').addEventListener('click', function () {
       fieldset1.classList.remove('hidden')
       backButton.classList.add('hideButton')
     }
+  }
+
+  if (type === 'reading' && screenSize === 'small') {
+    aStart--
+    aEnd--
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if ((temp1 < parseInt(pageArr[aStart] || (pageArr[aStart] === undefined))) || temp1 >= parseInt(pageArr[aEnd])) {
+        box.classList.add('hidden')
+      }
+      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+        box.classList.remove('hidden')
+      }
+      if (pageArr[aStart] === undefined) {
+        backButton.classList.add('hideButton')
+      }
+    })
   }
 })
 
