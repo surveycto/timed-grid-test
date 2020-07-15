@@ -2,14 +2,22 @@ var duration = getPluginParameter('duration')
 var type = getPluginParameter ('type')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
+var continuity = getPluginParameter('continuity')
+console.log('Continuity at start is ' + continuity)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
 console.log('MetaData is ' + metadata)
 
-if (duration === null) {
+if (duration == null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
 } else {
   timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
+}
+
+if (continuity == null) {
+  continuity = 0 // Default time limit on each field in milliseconds
+} else {
+  continuity = parseInt(continuity) // Parameterized time limit on each field in milliseconds
 }
 
 var choices = fieldProperties.CHOICES // Array of choices
@@ -40,14 +48,21 @@ var secondModalButton = document.getElementById('secondModalButton') // Get the 
 var div = document.getElementById('button-holder')
 var secondDIV
 var x = window.matchMedia('(max-width: 660px)')
-var y = window.matchMedia('(min-width: 660px)')
+var y = window.matchMedia('(min-width: 661px)')
 myFunction(x)
 myFunction1(y)
 x.addListener(myFunction)
 y.addListener(myFunction1)
 var screenSize
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-function myFunction1 (y) { if (y.matches) { screenSize = 'large' } }
+function myFunction1 (y) { if (y.matches) { screenSize = 'meduim' } }
+
+if (type === 'letters') {
+  columns = 10 // Number of columns on grid printout (words)
+  if (screenSize !== 'small') {
+    screenSize = 'large'
+  }
+}
 
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -71,7 +86,11 @@ if (endAfter == null && columns === 10) {
 } else {
   endAfter = parseInt(endAfter)
 }
+
 console.log('Second end after is ' + endAfter)
+console.log('Continuity is ' + continuity)
+console.log('Type is ' + type)
+
 var marks = ['.', ',', '!', '?']
 createGrid(choices)
 
@@ -124,7 +143,7 @@ function createGrid (keys) {
         for (const ch of textLabel) {
           if (marks.includes(ch)) {
             if (ch === '.') {
-              secondDIV.append(1)
+              // secondDIV.append(1)
             }
             secondDIV.classList.add('pmBox')
           }
@@ -161,7 +180,8 @@ if (createGrid) {
 var pageArr = []
 var shouldPage = false
 
-$(document).ready(function () {
+// $(document).ready(function () {
+if (type === 'reading') {
   $('.box').each(function () {
     var div1 = $(this)
     var left = div1.position().left
@@ -181,7 +201,8 @@ $(document).ready(function () {
   console.log('Box rows are ' + rowPos)
   console.log('Page array ' + pageArr)
   passagePaging(pageArr, shouldPage)
-})
+}
+// })
 
 function passagePaging (pageArray, isPage) {
   if (isPage) {
@@ -373,7 +394,33 @@ document.querySelector('.next').addEventListener('click', function () {
   var fieldset9 = document.querySelector('#fieldset9')
   var fieldset10 = document.querySelector('#fieldset10')
 
-  if (type === 'letters') {
+  // Do not show top line on next page
+  if (type === 'letters' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'letters' && screenSize === 'small' && continuity === 1) {
     if (!fieldset1.classList.contains('hidden')) {
       fieldset1.classList.add('hidden')
       fieldset2.classList.remove('hidden')
@@ -410,7 +457,28 @@ document.querySelector('.next').addEventListener('click', function () {
     }
   }
 
-  if (type === 'words' && screenSize === 'small') {
+  if (type === 'words' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 1) {
     if (!fieldset1.classList.contains('hidden')) {
       fieldset1.classList.add('hidden')
       fieldset2.classList.add('hidden')
@@ -463,7 +531,32 @@ document.querySelector('.back').addEventListener('click', function () {
   var fieldset9 = document.querySelector('#fieldset9')
   var fieldset10 = document.querySelector('#fieldset10')
 
-  if (type === 'letters') {
+  if (type === 'letters' && continuity === 0) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'letters' && continuity === 1) {
     if (!fieldset10.classList.contains('hidden')) {
       fieldset10.classList.add('hidden')
       fieldset9.classList.remove('hidden')
@@ -500,7 +593,28 @@ document.querySelector('.back').addEventListener('click', function () {
     }
   }
 
-  if (type === 'words' && screenSize === 'small') {
+  if (type === 'words' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 1) {
     if (!fieldset10.classList.contains('hidden')) {
       fieldset10.classList.add('hidden')
       fieldset9.classList.add('hidden')
