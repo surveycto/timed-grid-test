@@ -47,7 +47,7 @@ x.addListener(myFunction)
 y.addListener(myFunction1)
 var screenSize
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-function myFunction1 (y) { if (y.matches) { screenSize = 'medium' } }
+function myFunction1 (y) { if (y.matches) { screenSize = 'large' } }
 
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -123,6 +123,9 @@ function createGrid (keys) {
         console.log('Text label is ' + textLabel)
         for (const ch of textLabel) {
           if (marks.includes(ch)) {
+            if (ch === '.') {
+              secondDIV.append(1)
+            }
             secondDIV.classList.add('pmBox')
           }
         }
@@ -161,9 +164,7 @@ var shouldPage = false
 $(document).ready(function () {
   $('.box').each(function () {
     var div1 = $(this)
-    // console.log(JSON.stringify(div1))
     var left = div1.position().left
-    // console.log('left is ' + div1)
     if (left <= minLeft || minLeft == null) {
       rowPos++
       if (rowPos >= 6) {
