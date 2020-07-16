@@ -47,20 +47,20 @@ var secondModalButton = document.getElementById('secondModalButton') // Get the 
 
 var div = document.getElementById('button-holder')
 var secondDIV
-var x = window.matchMedia('(max-width: 660px)')
-var y = window.matchMedia('(min-width: 661px)')
+var x = window.matchMedia('(max-width: 550px)')
+// var y = window.matchMedia('(min-width: 598px)')
 myFunction(x)
-myFunction1(y)
+// myFunction1(y)
 x.addListener(myFunction)
-y.addListener(myFunction1)
+// y.addListener(myFunction1)
 var screenSize
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-function myFunction1 (y) { if (y.matches) { screenSize = 'meduim' } }
+// function myFunction1 (y) { if (y.matches) { screenSize = 'meduim' } }
 
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
-    screenSize = 'large'
+    screenSize = 'medium'
   }
 }
 
