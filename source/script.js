@@ -215,6 +215,27 @@ function passagePaging (pageArray, isPage) {
   }
 }
 
+// Add click event to row numbers and allow selecting of the whole row
+$('h1').dblclick(function () {
+  var tempRowNumber = $(this).text()
+  console.log('tempRowNumber is ' + tempRowNumber)
+  var rowNumber = tempRowNumber.slice(1, -1)
+  console.log('rowNumber is ' + rowNumber)
+  var rowId = '#fieldset' + rowNumber
+  console.log('rowId is ' + rowId)
+  var nodes = document.querySelector(rowId).childNodes
+  console.log('nodes is ' + nodes)
+  for (var b = 0; b < nodes.length; b++) {
+    if (nodes[b].nodeName.toLowerCase() === 'div') {
+      if (nodes[b].classList.contains('selected')) {
+        nodes[b].classList.remove('selected')
+      } else {
+        nodes[b].classList.add('selected')
+      }
+    }
+  }
+})
+
 if (metadata !== null) {
   endEarlyDisplay.classList.remove('hidden')
   endEarlyDisplay.innerText = 'Test Complete'
