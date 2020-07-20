@@ -809,7 +809,12 @@ function restart () {
     timerDisplay.classList.remove('hidden')
     startStopTimer()
   }
-  window.location.reload()
+  // var frame = window.frameElement
+  // console.log('Page reloading. .' + frame)
+  // if (frame) {
+  //   console.log('Page reloaded')
+  //   frame.contentWindow.location.reload(true)
+  // }
 }
 
 // When the user clicks anywhere outside of the modal, close it
