@@ -8,18 +8,6 @@ var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
 console.log('MetaData is ' + metadata)
 
-if (duration == null) {
-  timeStart = 60000 // Default time limit on each field in milliseconds
-} else {
-  timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
-}
-
-if (continuity == null) {
-  continuity = 0 // Default time limit on each field in milliseconds
-} else {
-  continuity = parseInt(continuity) // Parameterized time limit on each field in milliseconds
-}
-
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
 var timeLeft = timeStart // Starts this way for the display.
@@ -47,15 +35,34 @@ var secondModalButton = document.getElementById('secondModalButton') // Get the 
 
 var div = document.getElementById('button-holder')
 var secondDIV
-var x = window.matchMedia('(max-width: 550px)')
-// var y = window.matchMedia('(min-width: 598px)')
-myFunction(x)
-// myFunction1(y)
-x.addListener(myFunction)
-// y.addListener(myFunction1)
 var screenSize
+var marks = ['.', ',', '!', '?']
+var x = window.matchMedia('(max-width: 550px)')
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-// function myFunction1 (y) { if (y.matches) { screenSize = 'meduim' } }
+myFunction(x)
+x.addListener(myFunction)
+
+// Set parameter default values.
+if (duration == null) {
+  timeStart = 60000 // Default time limit on each field in milliseconds
+} else {
+  timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
+}
+
+if (continuity == null) {
+  continuity = 0 // Default continuity set to false.
+} else {
+  continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+}
+
+// Set end after default to 10 for letters
+if (endAfter == null && columns === 10) {
+  endAfter = 10
+} else if (endAfter == null && columns === 5) {
+  endAfter = 5
+} else {
+  endAfter = parseInt(endAfter)
+}
 
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
@@ -78,20 +85,10 @@ if (type === 'reading') {
   }
 }
 
-// Set end after default to 10 for letters
-if (endAfter == null && columns === 10) {
-  endAfter = 10
-} else if (endAfter == null && columns === 5) {
-  endAfter = 5
-} else {
-  endAfter = parseInt(endAfter)
-}
-
 console.log('Second end after is ' + endAfter)
 console.log('Continuity is ' + continuity)
 console.log('Type is ' + type)
 
-var marks = ['.', ',', '!', '?']
 createGrid(choices)
 
 function createGrid (keys) {
@@ -138,7 +135,7 @@ function createGrid (keys) {
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
       if (type === 'reading') {
-        // secondDIV.classList.remove(itemClass)
+        nextButton.classList.add('hideButton')
         secondDIV.classList.add('pgBox')
         var textLabel = choices[counter].CHOICE_LABEL
         console.log('Text label is ' + textLabel)
@@ -184,29 +181,30 @@ if (createGrid) {
 var pageArr = []
 var shouldPage = false
 
-// $(document).ready(function () {
-if (type === 'reading') {
-  $('.box').each(function () {
-    var div1 = $(this)
-    var left = div1.position().left
-    if (left <= minLeft || minLeft == null) {
-      rowPos++
-      if (rowPos >= 6) {
-        shouldPage = true
+$(document).ready(function () {
+  if (type === 'reading' && screenSize === 'small') {
+    nextButton.classList.remove('hideButton')
+    $('.box').each(function () {
+      var div1 = $(this)
+      var left = div1.position().left
+      if (left <= minLeft || minLeft == null) {
+        rowPos++
+        if (rowPos >= 6) {
+          shouldPage = true
+        }
+        if (rowPos % 6 === 0) {
+          console.log('classlist is ' + div1[0].classList)
+          var temp = div1[0].classList.item(1).slice(4)
+          pageArr.push(temp)
+        }
+        minLeft = left
       }
-      if (rowPos % 6 === 0) {
-        console.log('classlist is ' + div1[0].classList)
-        var temp = div1[0].classList.item(1).slice(4)
-        pageArr.push(temp)
-      }
-      minLeft = left
-    }
-  })
-  console.log('Box rows are ' + rowPos)
-  console.log('Page array ' + pageArr)
-  passagePaging(pageArr, shouldPage)
-}
-// })
+    })
+    console.log('Box rows are ' + rowPos)
+    console.log('Page array ' + pageArr)
+    passagePaging(pageArr, shouldPage)
+  }
+})
 
 function passagePaging (pageArray, isPage) {
   if (isPage) {
@@ -219,39 +217,11 @@ function passagePaging (pageArray, isPage) {
   }
 }
 
-// $('h1').dblclick(function () {
-//   var tempRowNumber = $(this).text()
-//   console.log('tempRowNumber is ' + tempRowNumber)
-//   var rowNumber = tempRowNumber.slice(1, -1)
-//   console.log('rowNumber is ' + rowNumber)
-//   var rowId = '#fieldset' + rowNumber
-//   console.log('rowId is ' + rowId)
-//   var nodes = document.querySelector(rowId).childNodes
-//   console.log('nodes is ' + nodes)
-//   for (var b = 0; b < nodes.length; b++) {
-//     if (nodes[b].nodeName.toLowerCase() === 'div') {
-//       if (counter === 0) {
-//         nodes[b].classList.add('selected')
-//       } else {
-//         nodes[b].classList.remove('selected')
-//       }
-//     }
-//   }
-//   if (counter === 0) {
-//     counter = 1
-//   } else {
-//     counter = 0
-//   }
-// })
-
 function firstClick (clickedElement) {
   clickedElement.text('(?)')
 }
 
 function secondClick (clickedElement, rowNumber) {
-  // var tempRowNumber = clickedElement.text()
-  // console.log('tempRowNumber is ' + tempRowNumber)
-  // rowNumber = tempRowNumber.slice(1, -1)
   clickedElement.text('(' + rowNumber + ')')
   console.log('rowNumber is ' + rowNumber)
   var rowId = '#fieldset' + rowNumber
@@ -266,9 +236,6 @@ function secondClick (clickedElement, rowNumber) {
 }
 
 function thirdClick (clickedElement, rowNumber) {
-  // var tempRowNumber = clickedElement.text()
-  // console.log('tempRowNumber is ' + tempRowNumber)
-  // rowNumber = tempRowNumber.slice(1, -1)
   console.log('rowNumber is ' + rowNumber)
   var rowId = '#fieldset' + rowNumber
   console.log('rowId is ' + rowId)
