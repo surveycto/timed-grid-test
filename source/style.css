@@ -1,3 +1,9 @@
+.buttonstop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .hint {
   /* add style rules here to change how the hint appears */
   margin: .5rem 0;
@@ -23,12 +29,6 @@
 
 button{
   cursor: pointer;
-}
-
-.buttonstop {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 button.startstop {
