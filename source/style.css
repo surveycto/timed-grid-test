@@ -1,8 +1,3 @@
-.label {
-  /* add style rules here to change how the label appears */
-  margin: .75rem 0;
-}
-
 .hint {
   /* add style rules here to change how the hint appears */
   margin: .5rem 0;
@@ -10,15 +5,20 @@
   font-style: italic;
 }
 
-.selected {
-  background-color: #f28b4b !important;
-  /* border: 2px solid #f28b4b; */
-  text-decoration: line-through;
+.label {
+  /* add style rules here to change how the label appears */
+  margin: .75rem 0;
 }
 
 .lastSelected {
   border: 2px solid red !important;
   background-color: green !important;
+}
+
+.selected {
+  background-color: #f28b4b !important;
+  /* border: 2px solid #f28b4b; */
+  text-decoration: line-through;
 }
 
 button{

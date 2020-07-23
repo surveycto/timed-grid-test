@@ -85,9 +85,9 @@ if (type === 'reading') {
   }
 }
 
-console.log('Second end after is ' + endAfter)
-console.log('Continuity is ' + continuity)
-console.log('Type is ' + type)
+// console.log('Second end after is ' + endAfter)
+// console.log('Continuity is ' + continuity)
+// console.log('Type is ' + type)
 
 createGrid(choices)
 
