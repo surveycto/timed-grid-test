@@ -1,12 +1,10 @@
 .label {
-  /* add style rules here to change how the label appears */
   margin: .75rem 0;
 }
 
 .hint {
-  /* add style rules here to change how the hint appears */
-  margin: .5rem 0;
   color: rgba(0,0,0,.65);
+  margin: .5rem 0;
   font-style: italic;
 }
 
@@ -17,8 +15,8 @@
 }
 
 .lastSelected {
-  border: 2px solid red !important;
   background-color: green !important;
+  border: 2px solid red !important;
 }
 
 button{
@@ -26,33 +24,32 @@ button{
 }
 
 .buttonstop {
+  align-items: center;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 button.startstop {
   background-color: green;
+  border-radius: 10px;
   border: 2px solid black;
   color: white;
-  height: 42px;
-  line-height: 4px;
-  width: 150px;
-  text-align: center;
   font-size: 100%;
   font-weight: bold;
-  border-radius: 10px;
+  height: 42px;
+  line-height: 4px;
   margin: 5px;
   padding-left: 10px;
   padding-right: 10px;
+  text-align: center;
+  width: 150px;
 }
 
 .timerDisplay {
   background-color: red;
-  color: white;
-  text-align: center;
   border: 2px solid black;
   border-radius: 10px;
+  color: white;
   font-size: 100%;
   font-weight: bold;
   line-height: 42px;
@@ -60,9 +57,10 @@ button.startstop {
   margin: 5px;
   padding-left: 10px;
   padding-right: 10px;
+  text-align: center;
 }
 
-timer {
+#timer {
   position:absolute;
   top:5px;
   right:5px;
@@ -379,6 +377,18 @@ timer {
   grid-gap: 5px;
   grid-template-areas:
   "ms46 ms47 ms48 ms49 ms50";
+}
+
+.pg {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pgBox {
+  height: 42px;
+  width: auto;
+  padding: 2%;
+  margin: 3px;
 }
 /* hide elements */
 .hidden {
