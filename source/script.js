@@ -32,6 +32,8 @@ var modal = document.getElementById('modal') // Get the modal
 var modalContent = document.getElementById('modalContent') // Get the modal content
 var firstModalButton = document.getElementById('firstModalButton') // Get the first button
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button
+var sentenceCount = 0 // count number of full stops in reading passage
+var punctuationCount = 0 // count number of punctuation marks in reading passage
 
 var div = document.getElementById('button-holder')
 var secondDIV
@@ -142,9 +144,10 @@ function createGrid (keys) {
         for (const ch of textLabel) {
           if (marks.includes(ch)) {
             if (ch === '.') {
-              // secondDIV.append(1)
+              // sentenceCount++
             }
             secondDIV.classList.add('pmBox')
+            // punctuationCount++
           }
         }
       }
@@ -399,13 +402,27 @@ function setResult () {
   console.log('Time Remaining ' + timeRemaining)
   console.log('Last Selected ' + lastSelectedIndex)
   var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  if (type === 'reading') {
+    for (var x = 0; x < totalItems; x++) {
+      var textLabel = choices[x].CHOICE_LABEL
+      if (marks.includes(textLabel)) {
+        if (textLabel === '.') {
+          sentenceCount++
+        }
+        punctuationCount++
+      }
+    }
+    totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
+  }
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
+  console.log('Punctuation Marks ' + punctuationCount)
+  console.log('Sentences are ' + sentenceCount)
+  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
   setAnswer(ans) // set answer to dummy result
   setMetaData(result) // make result accessible as plugin metadata
 }
