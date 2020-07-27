@@ -2,6 +2,7 @@
 
 var duration = getPluginParameter('duration')
 var type = getPluginParameter('type')
+var pause = getPluginParameter('pause')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
 var continuity = getPluginParameter('continuity')
@@ -56,6 +57,12 @@ if (continuity == null) {
   continuity = 0 // Default continuity set to false.
 } else {
   continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+}
+
+if (pause == null) {
+  pause = 0 // Default pause set to false.
+} else {
+  pause = parseInt(pause) // Parameterized pause set to value entered.
 }
 
 // Set end after default to 10 for letters
