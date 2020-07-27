@@ -1,12 +1,13 @@
+/* global getPluginParameter, getMetaData, fieldProperties, setAnswer, setMetaData */
+
 var duration = getPluginParameter('duration')
-var type = getPluginParameter ('type')
+var type = getPluginParameter('type')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
 var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
-console.log('MetaData is ' + metadata)
 
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
@@ -92,6 +93,188 @@ if (type === 'reading') {
 // console.log('Type is ' + type)
 
 createGrid(choices)
+
+if (metadata !== null) {
+  endEarlyDisplay.classList.remove('hidden')
+  endEarlyDisplay.innerText = 'Test Complete'
+  button.innerHTML = 'Restart'
+  button.onclick = function () {
+    timerDisplay.classList.remove('hidden')
+    endEarlyDisplay.classList.add('hidden')
+    openDataWarningModal()
+  }
+}
+
+if (createGrid) {
+  var gridItems = document.querySelectorAll('.box')
+  Array.from(gridItems, function (box) {
+    box.addEventListener('click', function () {
+      var it = this.classList.item(1)
+      var itemIndex = it.slice(4)
+      console.log('Item index is ' + itemIndex)
+      itemClicked(this, itemIndex)
+    })
+  })
+  setInterval(timer, 1)
+}
+
+choices.slice(0, endAfter)
+
+for (x = 0; x < topTen.length; x++) {
+  firstTenItems.push(choices[x].CHOICE_VALUE)
+}
+
+// get next button and bind click event handler
+document.querySelector('.next').addEventListener('click', function () {
+  backButton.classList.remove('hideButton')
+  var fieldset1 = document.querySelector('#fieldset1')
+  var fieldset2 = document.querySelector('#fieldset2')
+  var fieldset3 = document.querySelector('#fieldset3')
+  var fieldset4 = document.querySelector('#fieldset4')
+  var fieldset5 = document.querySelector('#fieldset5')
+  var fieldset6 = document.querySelector('#fieldset6')
+  var fieldset7 = document.querySelector('#fieldset7')
+  var fieldset8 = document.querySelector('#fieldset8')
+  var fieldset9 = document.querySelector('#fieldset9')
+  var fieldset10 = document.querySelector('#fieldset10')
+
+  if (type === 'letters') {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset2.classList.contains('hidden')) {
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset6.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset9.classList.remove('hidden')
+    } else if (!fieldset8.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small') {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+})
+
+// get back button and bind click event handler
+document.querySelector('.back').addEventListener('click', function () {
+  nextButton.classList.remove('hideButton')
+  var fieldset1 = document.querySelector('#fieldset1')
+  var fieldset2 = document.querySelector('#fieldset2')
+  var fieldset3 = document.querySelector('#fieldset3')
+  var fieldset4 = document.querySelector('#fieldset4')
+  var fieldset5 = document.querySelector('#fieldset5')
+  var fieldset6 = document.querySelector('#fieldset6')
+  var fieldset7 = document.querySelector('#fieldset7')
+  var fieldset8 = document.querySelector('#fieldset8')
+  var fieldset9 = document.querySelector('#fieldset9')
+  var fieldset10 = document.querySelector('#fieldset10')
+
+  if (type === 'letters') {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset9.classList.contains('hidden')) {
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset8.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset6.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small') {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+})
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+  if (event.target === modal) {
+    modal.style.display = 'none'
+  }
+}
+
+function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
+function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
 
 function createGrid (keys) {
   var counter = 0
@@ -289,8 +472,6 @@ function startStopTimer () {
 
 function endEarly () {
   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-  console.log('time remaining is ' + timeRemaining)
-  console.log('time left is ' + timeLeft)
   endTimer()
 }
 
@@ -300,22 +481,11 @@ function endTimer () {
   timerRunning = false
   openLastItemModal()
   selectedItems = getSelectedItems()
-  console.log('Clicked on: ' + selectedItems)
 }
-
-var topTen = choices.slice(0, endAfter)
-var firstTenItems = []
-
-for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE)
-}
-console.log('top ten is ' + firstTenItems)
-var itemCounter = 0
-var items = []
 
 function itemClicked (item, itemIndex) {
   if (timerRunning) { // This way, it only works when the timer is running
-    const classes = item.classList
+    var classes = item.classList
     if (classes.contains('selected')) {
       classes.remove('selected')
     } else {
@@ -335,7 +505,7 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
@@ -347,7 +517,7 @@ function itemClicked (item, itemIndex) {
       openThankYouModal()
       console.log('exiting last selected')
     } else {
-      for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
@@ -361,13 +531,9 @@ function checkLastItem () {
   var selectedItemsArray = selectedItems.split(' ')
   var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
   var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
-  console.log('indexLastClicked ' + indexLastClickedItem)
   var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
-  console.log('indexLastSelected ' + indexLastSelectedItem)
   if (indexLastClickedItem > (indexLastSelectedItem)) {
-    console.log('Entering the if statement.')
     openModal('Either pick the last incorrect item, or one after that.')
-    console.log('Time left is ' + timeLeft)
     Array.from(gridItems, function (box) {
       box.addEventListener('click', function () {
         var a = this.classList.item(1)
@@ -381,8 +547,8 @@ function checkLastItem () {
 }
 
 function getSelectedItems () {
-  const selectedLet = []
-  for (const cell of gridItems) {
+  var selectedLet = []
+  for (var cell of gridItems) {
     if (cell.classList.contains('selected')) {
       var m = cell.classList.item(1)
       var n = m.slice(4)
@@ -393,14 +559,12 @@ function getSelectedItems () {
 }
 
 function clearAnswer () {
-  // setAnswer()
+  setAnswer()
   timePassed = 0
 }
 
 // set the results to published
 function setResult () {
-  console.log('Time Remaining ' + timeRemaining)
-  console.log('Last Selected ' + lastSelectedIndex)
   var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   if (type === 'reading') {
     for (var x = 0; x < totalItems; x++) {
@@ -417,7 +581,6 @@ function setResult () {
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
-  console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
   console.log('Punctuation Marks ' + punctuationCount)
@@ -814,7 +977,7 @@ function openIncorrectItemsModal () {
 }
 
 function restart () {
-  for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+  for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
     cell.classList.remove('selected')
     cell.classList.remove('lastSelected')
   }
