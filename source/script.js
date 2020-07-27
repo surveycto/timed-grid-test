@@ -3,14 +3,11 @@
 var duration = getPluginParameter('duration')
 var type = getPluginParameter('type')
 var endAfter = getPluginParameter('end-after')
+console.log('First end after is ' + endAfter)
+var continuity = getPluginParameter('continuity')
+console.log('Continuity at start is ' + continuity)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
-
-if (duration === null) {
-  timeStart = 60000 // Default time limit on each field in milliseconds
-} else {
-  timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
-}
 
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
@@ -36,22 +33,46 @@ var modal = document.getElementById('modal') // Get the modal
 var modalContent = document.getElementById('modalContent') // Get the modal content
 var firstModalButton = document.getElementById('firstModalButton') // Get the first button
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button
+var sentenceCount = 0 // count number of full stops in reading passage
+var punctuationCount = 0 // count number of punctuation marks in reading passage
 
 var div = document.getElementById('button-holder')
 var secondDIV
-var x = window.matchMedia('(max-width: 660px)')
-var y = window.matchMedia('(min-width: 660px)')
 var screenSize
+var marks = ['.', ',', '!', '?']
+var x = window.matchMedia('(max-width: 550px)')
+function myFunction (x) { if (x.matches) { screenSize = 'small' } }
+myFunction(x)
+x.addListener(myFunction)
 
-var topTen
-var firstTenItems = []
-var itemCounter = 0
-var items = []
+// Set parameter default values.
+if (duration == null) {
+  timeStart = 60000 // Default time limit on each field in milliseconds
+} else {
+  timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
+}
 
-checkSmall(x)
-checkMedium(y)
-x.addListener(checkSmall)
-y.addListener(checkMedium)
+if (continuity == null) {
+  continuity = 0 // Default continuity set to false.
+} else {
+  continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+}
+
+// Set end after default to 10 for letters
+if (endAfter == null && columns === 10) {
+  endAfter = 10
+} else if (endAfter == null && columns === 5) {
+  endAfter = 5
+} else {
+  endAfter = parseInt(endAfter)
+}
+
+if (type === 'letters') {
+  columns = 10 // Number of columns on grid printout (words)
+  if (screenSize !== 'small') {
+    screenSize = 'medium'
+  }
+}
 
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -67,14 +88,10 @@ if (type === 'reading') {
   }
 }
 
-// Set end after default to 10 for letters
-if (endAfter == null && columns === 10) {
-  endAfter = 10
-} else if (endAfter == null && columns === 5) {
-  endAfter = 5
-} else {
-  endAfter = parseInt(endAfter)
-}
+// console.log('Second end after is ' + endAfter)
+// console.log('Continuity is ' + continuity)
+// console.log('Type is ' + type)
+
 createGrid(choices)
 
 if (metadata !== null) {
@@ -267,6 +284,8 @@ function createGrid (keys) {
     var tracker = i + 1
     if (type !== 'reading') {
       var legend = document.createElement('h1')
+      var legendId = 'legend' + tracker
+      legend.setAttribute('id', legendId)
       var text1 = '(' + tracker + ')'
       var legendText = document.createTextNode(text1)
       legend.appendChild(legendText)
@@ -296,13 +315,25 @@ function createGrid (keys) {
     }
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
+      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       var itemValue = counter + 1
       var itemClass = 'item' + itemValue
       secondDIV.classList.add('box', itemClass)
       if (type === 'reading') {
+        nextButton.classList.add('hideButton')
         secondDIV.classList.add('pgBox')
+        var textLabel = choices[counter].CHOICE_LABEL
+        console.log('Text label is ' + textLabel)
+        for (const ch of textLabel) {
+          if (marks.includes(ch)) {
+            if (ch === '.') {
+              // sentenceCount++
+            }
+            secondDIV.classList.add('pmBox')
+            // punctuationCount++
+          }
+        }
       }
-      var text = document.createTextNode(choices[counter].CHOICE_LABEL)
       choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
       counter++
       secondDIV.appendChild(text)
@@ -311,6 +342,107 @@ function createGrid (keys) {
     div.append(fieldset)
   }
   return true
+}
+
+var minLeft = null
+var rowPos = 0
+
+var boxHandler = function () {
+  var it = this.classList.item(1)
+  var itemIndex = it.slice(4)
+  console.log('Item index is ' + itemIndex)
+  itemClicked(this, itemIndex)
+}
+
+if (createGrid) {
+  var gridItems = document.querySelectorAll('.box')
+  Array.from(gridItems, function (box) {
+    if (!(box.classList.contains('pmBox'))) {
+      box.addEventListener('click', boxHandler, false)
+    }
+  })
+
+  setInterval(timer, 1)
+}
+var pageArr = []
+var shouldPage = false
+
+$(document).ready(function () {
+  if (type === 'reading' && screenSize === 'small') {
+    nextButton.classList.remove('hideButton')
+    $('.box').each(function () {
+      var div1 = $(this)
+      var left = div1.position().left
+      if (left <= minLeft || minLeft == null) {
+        rowPos++
+        if (rowPos >= 6) {
+          shouldPage = true
+        }
+        if (rowPos % 6 === 0) {
+          console.log('classlist is ' + div1[0].classList)
+          var temp = div1[0].classList.item(1).slice(4)
+          pageArr.push(temp)
+        }
+        minLeft = left
+      }
+    })
+    console.log('Box rows are ' + rowPos)
+    console.log('Page array ' + pageArr)
+    passagePaging(pageArr, shouldPage)
+  }
+})
+
+function passagePaging (pageArray, isPage) {
+  if (isPage) {
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if (temp1 >= parseInt(pageArray[0])) {
+        box.classList.add('hidden')
+      }
+    })
+  }
+}
+
+function firstClick (clickedElement) {
+  clickedElement.text('(?)')
+}
+
+function secondClick (clickedElement, rowNumber) {
+  clickedElement.text('(' + rowNumber + ')')
+  console.log('rowNumber is ' + rowNumber)
+  var rowId = '#fieldset' + rowNumber
+  console.log('rowId is ' + rowId)
+  var nodes = document.querySelector(rowId).childNodes
+  console.log('nodes is ' + nodes)
+  for (var b = 0; b < nodes.length; b++) {
+    if (nodes[b].nodeName.toLowerCase() === 'div') {
+      nodes[b].classList.add('selected')
+    }
+  }
+}
+
+function thirdClick (clickedElement, rowNumber) {
+  console.log('rowNumber is ' + rowNumber)
+  var rowId = '#fieldset' + rowNumber
+  console.log('rowId is ' + rowId)
+  var nodes = document.querySelector(rowId).childNodes
+  console.log('nodes is ' + nodes)
+  for (var b = 0; b < nodes.length; b++) {
+    if (nodes[b].nodeName.toLowerCase() === 'div') {
+      nodes[b].classList.remove('selected')
+    }
+  }
+}
+
+if (metadata !== null) {
+  endEarlyDisplay.classList.remove('hidden')
+  endEarlyDisplay.innerText = 'Test Complete'
+  button.innerHTML = 'Restart'
+  button.onclick = function () {
+    timerDisplay.classList.remove('hidden')
+    endEarlyDisplay.classList.add('hidden')
+    openDataWarningModal()
+  }
 }
 
 function timer () {
@@ -434,13 +566,311 @@ function clearAnswer () {
 // set the results to published
 function setResult () {
   var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  if (type === 'reading') {
+    for (var x = 0; x < totalItems; x++) {
+      var textLabel = choices[x].CHOICE_LABEL
+      if (marks.includes(textLabel)) {
+        if (textLabel === '.') {
+          sentenceCount++
+        }
+        punctuationCount++
+      }
+    }
+    totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
+  }
+  console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine
+  console.log('Correct Items  ' + correctItems)
+  console.log('Punctuation Marks ' + punctuationCount)
+  console.log('Sentences are ' + sentenceCount)
+  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
   setAnswer(ans) // set answer to dummy result
   setMetaData(result) // make result accessible as plugin metadata
 }
+
+var aStart = -1
+var aEnd = 0
+
+// get next button and bind click event handler
+document.querySelector('.next').addEventListener('click', function () {
+  backButton.classList.remove('hideButton')
+  var fieldset1 = document.querySelector('#fieldset1')
+  var fieldset2 = document.querySelector('#fieldset2')
+  var fieldset3 = document.querySelector('#fieldset3')
+  var fieldset4 = document.querySelector('#fieldset4')
+  var fieldset5 = document.querySelector('#fieldset5')
+  var fieldset6 = document.querySelector('#fieldset6')
+  var fieldset7 = document.querySelector('#fieldset7')
+  var fieldset8 = document.querySelector('#fieldset8')
+  var fieldset9 = document.querySelector('#fieldset9')
+  var fieldset10 = document.querySelector('#fieldset10')
+
+  // Do not show top line on next page
+  if (type === 'letters' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'letters' && screenSize === 'small' && continuity === 1) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset2.classList.contains('hidden')) {
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset6.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset9.classList.remove('hidden')
+    } else if (!fieldset8.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 1) {
+    if (!fieldset1.classList.contains('hidden')) {
+      fieldset1.classList.add('hidden')
+      fieldset2.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset10.classList.remove('hidden')
+      nextButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'reading' && screenSize === 'small') {
+    aStart++
+    aEnd++
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+        box.classList.add('hidden')
+      }
+      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+        box.classList.remove('hidden')
+      }
+      if (pageArr[aEnd] === undefined) {
+        nextButton.classList.add('hideButton')
+      }
+    })
+    console.log('Start is ' + aStart)
+    console.log('End is ' + aEnd)
+  }
+})
+
+// get back button and bind click event handler
+document.querySelector('.back').addEventListener('click', function () {
+  nextButton.classList.remove('hideButton')
+  var fieldset1 = document.querySelector('#fieldset1')
+  var fieldset2 = document.querySelector('#fieldset2')
+  var fieldset3 = document.querySelector('#fieldset3')
+  var fieldset4 = document.querySelector('#fieldset4')
+  var fieldset5 = document.querySelector('#fieldset5')
+  var fieldset6 = document.querySelector('#fieldset6')
+  var fieldset7 = document.querySelector('#fieldset7')
+  var fieldset8 = document.querySelector('#fieldset8')
+  var fieldset9 = document.querySelector('#fieldset9')
+  var fieldset10 = document.querySelector('#fieldset10')
+
+  if (type === 'letters' && continuity === 0) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset3.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'letters' && continuity === 1) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.remove('hidden')
+      fieldset8.classList.remove('hidden')
+    } else if (!fieldset9.classList.contains('hidden')) {
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+    } else if (!fieldset8.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset6.classList.contains('hidden')) {
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+    } else if (!fieldset4.classList.contains('hidden')) {
+      fieldset4.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+    } else if (!fieldset3.classList.contains('hidden')) {
+      fieldset3.classList.add('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 0) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.remove('hidden')
+      fieldset7.classList.remove('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+    } else if (!fieldset5.classList.contains('hidden')) {
+      fieldset8.classList.add('hidden')
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset4.classList.remove('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'words' && screenSize === 'small' && continuity === 1) {
+    if (!fieldset10.classList.contains('hidden')) {
+      fieldset10.classList.add('hidden')
+      fieldset9.classList.add('hidden')
+      fieldset8.classList.add('hidden')
+      fieldset6.classList.remove('hidden')
+      fieldset5.classList.remove('hidden')
+      fieldset4.classList.remove('hidden')
+    } else if (!fieldset7.classList.contains('hidden')) {
+      fieldset7.classList.add('hidden')
+      fieldset6.classList.add('hidden')
+      fieldset5.classList.add('hidden')
+      fieldset3.classList.remove('hidden')
+      fieldset2.classList.remove('hidden')
+      fieldset1.classList.remove('hidden')
+      backButton.classList.add('hideButton')
+    }
+  }
+
+  if (type === 'reading' && screenSize === 'small') {
+    aStart--
+    aEnd--
+    Array.from(gridItems, function (box) {
+      var temp1 = parseInt(box.classList.item(1).slice(4))
+      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+        box.classList.add('hidden')
+      }
+      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+        box.classList.remove('hidden')
+      }
+      if (pageArr[aStart] === undefined) {
+        backButton.classList.add('hideButton')
+        if (temp1 >= parseInt(pageArr[0])) {
+          box.classList.add('hidden')
+        }
+        if (temp1 < parseInt(pageArr[0])) {
+          box.classList.remove('hidden')
+        }
+      }
+    })
+    console.log('Back start is ' + aStart)
+    console.log('Back end is ' + aEnd)
+  }
+})
 
 // Open Modal
 function openModal (content) {
@@ -466,6 +896,11 @@ function openThankYouModal () {
       openDataWarningModal()
     }
   }
+  Array.from(gridItems, function (box) {
+    if (!(box.classList.contains('pmBox'))) {
+      box.removeEventListener('click', boxHandler, false)
+    }
+  })
 }
 
 function openLastItemModal () {
@@ -522,6 +957,7 @@ function openConfirmEndModal () {
     endEarly()
   }
   secondModalButton.onclick = function () {
+    button.innerText = 'Resume'
     modal.style.display = 'none'
   }
 }
@@ -553,4 +989,163 @@ function restart () {
     timerDisplay.classList.remove('hidden')
     startStopTimer()
   }
+  // var frame = window.frameElement
+  // console.log('Page reloading. .' + frame)
+  // if (frame) {
+  //   console.log('Page reloaded')
+  //   frame.contentWindow.location.reload(true)
+  // }
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+  if (event.target === modal) {
+    modal.style.display = 'none'
+  }
+}
+
+if (true) {
+  var counter1 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend1').click(function () {
+    var clickedElement = $(this)
+    if (counter1 === 0) {
+      firstClick(clickedElement)
+    } else if (counter1 === 1) {
+      secondClick(clickedElement, 1)
+      openIncorrectItemsModal()
+    } else if (counter1 === 2) {
+      thirdClick(clickedElement, 1)
+      counter1 = -1
+    }
+    counter1++
+  })
+
+  var counter2 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend2').click(function () {
+    var clickedElement = $(this)
+    if (counter2 === 0) {
+      firstClick(clickedElement)
+    } else if (counter2 === 1) {
+      secondClick(clickedElement, 2)
+    } else if (counter2 === 2) {
+      thirdClick(clickedElement, 2)
+      counter2 = -1
+    }
+    counter2++
+  })
+  var counter3 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend3').click(function () {
+    var clickedElement = $(this)
+    if (counter3 === 0) {
+      firstClick(clickedElement)
+    } else if (counter3 === 1) {
+      secondClick(clickedElement, 3)
+    } else if (counter3 === 2) {
+      thirdClick(clickedElement, 3)
+      counter3 = -1
+    }
+    counter3++
+  })
+  var counter4 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend4').click(function () {
+    var clickedElement = $(this)
+    if (counter4 === 0) {
+      firstClick(clickedElement)
+    } else if (counter4 === 1) {
+      secondClick(clickedElement, 4)
+    } else if (counter4 === 2) {
+      thirdClick(clickedElement, 4)
+      counter4 = -1
+    }
+    counter4++
+  })
+  var counter5 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend5').click(function () {
+    var clickedElement = $(this)
+    if (counter5 === 0) {
+      firstClick(clickedElement)
+    } else if (counter5 === 1) {
+      secondClick(clickedElement, 5)
+    } else if (counter5 === 2) {
+      thirdClick(clickedElement, 5)
+      counter5 = -1
+    }
+    counter5++
+  })
+  var counter6 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend6').click(function () {
+    var clickedElement = $(this)
+    if (counter6 === 0) {
+      firstClick(clickedElement)
+    } else if (counter6 === 1) {
+      secondClick(clickedElement, 6)
+    } else if (counter6 === 2) {
+      thirdClick(clickedElement, 6)
+      counter6 = -1
+    }
+    counter6++
+  })
+  var counter7 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend7').click(function () {
+    var clickedElement = $(this)
+    if (counter7 === 0) {
+      firstClick(clickedElement)
+    } else if (counter7 === 1) {
+      secondClick(clickedElement, 7)
+    } else if (counter7 === 2) {
+      thirdClick(clickedElement, 7)
+      counter7 = -1
+    }
+    counter7++
+  })
+  var counter8 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend8').click(function () {
+    var clickedElement = $(this)
+    if (counter8 === 0) {
+      firstClick(clickedElement)
+    } else if (counter8 === 1) {
+      secondClick(clickedElement, 8)
+    } else if (counter8 === 2) {
+      thirdClick(clickedElement, 8)
+      counter8 = -1
+    }
+    counter8++
+  })
+  var counter9 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend9').click(function () {
+    var clickedElement = $(this)
+    if (counter9 === 0) {
+      firstClick(clickedElement)
+    } else if (counter9 === 1) {
+      secondClick(clickedElement, 9)
+    } else if (counter9 === 2) {
+      thirdClick(clickedElement, 9)
+      counter9 = -1
+    }
+    counter9++
+  })
+
+  var counter10 = 0
+  // Add click event to row numbers and allow selecting of the whole row
+  $('#legend10').click(function () {
+    var clickedElement = $(this)
+    if (counter10 === 0) {
+      firstClick(clickedElement)
+    } else if (counter10 === 1) {
+      secondClick(clickedElement, 10)
+    } else if (counter10 === 2) {
+      thirdClick(clickedElement, 10)
+      counter10 = -1
+    }
+    counter10++
+  })
 }

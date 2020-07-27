@@ -1,5 +1,7 @@
-.label {
-  margin: .75rem 0;
+.buttonstop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hint {
@@ -8,10 +10,9 @@
   font-style: italic;
 }
 
-.selected {
-  background-color: #f28b4b !important;
-  border: 2px solid #f28b4b;
-  text-decoration: line-through;
+.label {
+  /* add style rules here to change how the label appears */
+  margin: .75rem 0;
 }
 
 .lastSelected {
@@ -19,14 +20,14 @@
   border: 2px solid red !important;
 }
 
-button{
-  cursor: pointer;
+.selected {
+  background-color: #f28b4b !important;
+  /* border: 2px solid #f28b4b; */
+  text-decoration: line-through;
 }
 
-.buttonstop {
-  align-items: center;
-  display: flex;
-  justify-content: center;
+button{
+  cursor: pointer;
 }
 
 button.startstop {
@@ -389,6 +390,10 @@ button.startstop {
   width: auto;
   padding: 2%;
   margin: 3px;
+}
+
+.pmBox {
+  background-color: #888;
 }
 /* hide elements */
 .hidden {
