@@ -124,8 +124,8 @@ if (createGrid) {
   })
   setInterval(timer, 1)
 }
-
-choices.slice(0, endAfter)
+var topTen = choices.slice(0, endAfter)
+var firstTenItems = []
 
 for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(choices[x].CHOICE_VALUE)
@@ -280,8 +280,8 @@ window.onclick = function (event) {
   }
 }
 
-function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
-function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
+// function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
+// function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
 
 function createGrid (keys) {
   var counter = 0
@@ -469,7 +469,7 @@ function startStopTimer () {
   if (timerRunning) {
     timerRunning = false
     button.innerHTML = 'Resume'
-    openPauseModal()
+    // openPauseModal()
   } else {
     startTime = Date.now() - timePassed
     timerRunning = true
@@ -489,6 +489,8 @@ function endTimer () {
   openLastItemModal()
   selectedItems = getSelectedItems()
 }
+var itemCounter
+var items
 
 function itemClicked (item, itemIndex) {
   if (timerRunning) { // This way, it only works when the timer is running
@@ -574,8 +576,8 @@ function clearAnswer () {
 function setResult () {
   var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   if (type === 'reading') {
-    for (var x = 0; x < totalItems; x++) {
-      var textLabel = choices[x].CHOICE_LABEL
+    for (var y = 0; y < totalItems; y++) {
+      var textLabel = choices[y].CHOICE_LABEL
       if (marks.includes(textLabel)) {
         if (textLabel === '.') {
           sentenceCount++
