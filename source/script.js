@@ -1,7 +1,5 @@
-/* global getPluginParameter, getMetaData, fieldProperties, setAnswer, setMetaData */
-
 var duration = getPluginParameter('duration')
-var type = getPluginParameter('type')
+var type = getPluginParameter ('type')
 var pause = getPluginParameter('pause')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
@@ -9,6 +7,7 @@ var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
 var metadata = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
+console.log('MetaData is ' + metadata)
 
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
@@ -23,12 +22,14 @@ var timeRemaining = 0
 var endFirstLine = 'No' // Whether they ended on the firstline or not
 var choiceValuesArray = [] // Array of choice labels
 var columns = 10 // Number of columns on grid printout (letters)
+var finishEarly = 0 // Track whether the test is finished on time.
 
 var timerDisp = document.querySelector('#timer')
 var button = document.querySelector('#startstop')
 var endEarlyDisplay = document.querySelector('#endearly')
 var nextButton = document.getElementById('nextButton')
 var backButton = document.getElementById('backButton')
+var finishButton = document.getElementById('finishButton')
 var timerDisplay = document.querySelector('#timerDisplay')
 var modal = document.getElementById('modal') // Get the modal
 var modalContent = document.getElementById('modalContent') // Get the modal content
@@ -101,188 +102,6 @@ if (type === 'reading') {
 
 createGrid(choices)
 
-if (metadata !== null) {
-  endEarlyDisplay.classList.remove('hidden')
-  endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Restart'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    endEarlyDisplay.classList.add('hidden')
-    openDataWarningModal()
-  }
-}
-
-if (createGrid) {
-  var gridItems = document.querySelectorAll('.box')
-  Array.from(gridItems, function (box) {
-    box.addEventListener('click', function () {
-      var it = this.classList.item(1)
-      var itemIndex = it.slice(4)
-      console.log('Item index is ' + itemIndex)
-      itemClicked(this, itemIndex)
-    })
-  })
-  setInterval(timer, 1)
-}
-var topTen = choices.slice(0, endAfter)
-var firstTenItems = []
-
-for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE)
-}
-
-// get next button and bind click event handler
-document.querySelector('.next').addEventListener('click', function () {
-  backButton.classList.remove('hideButton')
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  if (type === 'letters') {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset2.classList.contains('hidden')) {
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small') {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-    }
-  }
-})
-
-// get back button and bind click event handler
-document.querySelector('.back').addEventListener('click', function () {
-  nextButton.classList.remove('hideButton')
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  if (type === 'letters') {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset9.classList.contains('hidden')) {
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small') {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-})
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    modal.style.display = 'none'
-  }
-}
-
-// function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
-// function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
-
 function createGrid (keys) {
   var counter = 0
   var fieldsetClass
@@ -311,6 +130,7 @@ function createGrid (keys) {
       } else if (screenSize === 'medium') {
         fieldsetClass = 'ms' + tracker
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hideButton')
       } else if (screenSize === 'large') {
         fieldsetClass = 'lg' + tracker
         nextButton.classList.add('hideButton')
@@ -442,13 +262,13 @@ function thirdClick (clickedElement, rowNumber) {
 }
 
 if (metadata !== null) {
-  endEarlyDisplay.classList.remove('hidden')
-  endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Restart'
+  // endEarlyDisplay.classList.remove('hidden')
+  // endEarlyDisplay.innerText = 'Test Complete'
+  button.innerHTML = 'Test Complete'
   button.onclick = function () {
     timerDisplay.classList.remove('hidden')
     endEarlyDisplay.classList.add('hidden')
-    openDataWarningModal()
+    // openDataWarningModal()
   }
 }
 
@@ -466,6 +286,9 @@ function timer () {
 
 function startStopTimer () {
   timerDisplay.classList.remove('hidden')
+  if (pause === 0) {
+    button.classList.add('hidden')
+  }
   if (timerRunning) {
     timerRunning = false
     button.innerHTML = 'Resume'
@@ -479,22 +302,38 @@ function startStopTimer () {
 
 function endEarly () {
   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+  console.log('time remaining is ' + timeRemaining)
+  console.log('time left is ' + timeLeft)
   endTimer()
 }
 
 function endTimer () {
   console.log('entering end timer')
+  button.innerHTML = 'Test Complete'
+  button.classList.remove('hidden')
+  timerDisplay.classList.add('hidden')
   timeLeft = 0
   timerRunning = false
-  openLastItemModal()
+  if (finishEarly === 0) {
+    openLastItemModal()
+  }
   selectedItems = getSelectedItems()
+  console.log('Clicked on: ' + selectedItems)
 }
-var itemCounter
-var items
+
+var topTen = choices.slice(0, endAfter)
+var firstTenItems = []
+
+for (x = 0; x < topTen.length; x++) {
+  firstTenItems.push(choices[x].CHOICE_VALUE)
+}
+console.log('top ten is ' + firstTenItems)
+var itemCounter = 0
+var items = []
 
 function itemClicked (item, itemIndex) {
   if (timerRunning) { // This way, it only works when the timer is running
-    var classes = item.classList
+    const classes = item.classList
     if (classes.contains('selected')) {
       classes.remove('selected')
     } else {
@@ -514,7 +353,7 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
@@ -526,7 +365,7 @@ function itemClicked (item, itemIndex) {
       openThankYouModal()
       console.log('exiting last selected')
     } else {
-      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+      for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
@@ -540,9 +379,13 @@ function checkLastItem () {
   var selectedItemsArray = selectedItems.split(' ')
   var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
   var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
+  console.log('indexLastClicked ' + indexLastClickedItem)
   var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
+  console.log('indexLastSelected ' + indexLastSelectedItem)
   if (indexLastClickedItem > (indexLastSelectedItem)) {
+    console.log('Entering the if statement.')
     openModal('Either pick the last incorrect item, or one after that.')
+    console.log('Time left is ' + timeLeft)
     Array.from(gridItems, function (box) {
       box.addEventListener('click', function () {
         var a = this.classList.item(1)
@@ -556,8 +399,8 @@ function checkLastItem () {
 }
 
 function getSelectedItems () {
-  var selectedLet = []
-  for (var cell of gridItems) {
+  const selectedLet = []
+  for (const cell of gridItems) {
     if (cell.classList.contains('selected')) {
       var m = cell.classList.item(1)
       var n = m.slice(4)
@@ -568,16 +411,18 @@ function getSelectedItems () {
 }
 
 function clearAnswer () {
-  setAnswer()
+  // setAnswer()
   timePassed = 0
 }
 
 // set the results to published
 function setResult () {
+  console.log('Time Remaining ' + timeRemaining)
+  console.log('Last Selected ' + lastSelectedIndex)
   var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   if (type === 'reading') {
-    for (var y = 0; y < totalItems; y++) {
-      var textLabel = choices[y].CHOICE_LABEL
+    for (var x = 0; x < totalItems; x++) {
+      var textLabel = choices[x].CHOICE_LABEL
       if (marks.includes(textLabel)) {
         if (textLabel === '.') {
           sentenceCount++
@@ -590,12 +435,15 @@ function setResult () {
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
   console.log('Punctuation Marks ' + punctuationCount)
   console.log('Sentences are ' + sentenceCount)
   var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
-  setAnswer(ans) // set answer to dummy result
+  if (result != null) {
+    setAnswer(ans) // set answer to dummy result
+  }
   setMetaData(result) // make result accessible as plugin metadata
 }
 
@@ -676,6 +524,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hideButton')
     }
   }
 
@@ -697,6 +546,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hideButton')
     }
   }
 
@@ -716,6 +566,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hideButton')
     }
   }
 
@@ -742,6 +593,7 @@ document.querySelector('.next').addEventListener('click', function () {
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton')
+  finishButton.classList.add('hideButton')
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -897,13 +749,13 @@ function openThankYouModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    button.innerText = 'Restart'
+    button.innerText = 'Test Complete'
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
-    button.onclick = function () {
-      // timerRunning = true
-      openDataWarningModal()
-    }
+    // button.onclick = function () {
+    //   // timerRunning = true
+    //   openDataWarningModal()
+    // }
   }
   Array.from(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) {
@@ -926,50 +778,50 @@ function openLastItemModal () {
   }
 }
 
-function openPauseModal () {
-  modalContent.innerText = 'Paused'
-  firstModalButton.innerText = 'Restart'
-  secondModalButton.innerText = 'End'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    openDataWarningModal()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-    button.innerText = 'Restart'
-    openConfirmEndModal()
-  }
-}
+// function openPauseModal () {
+//   modalContent.innerText = 'Paused'
+//   firstModalButton.innerText = 'Restart'
+//   secondModalButton.innerText = 'End'
+//   modal.style.display = 'block'
+//   firstModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//     openDataWarningModal()
+//   }
+//   secondModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//     button.innerText = 'Restart'
+//     openConfirmEndModal()
+//   }
+// }
 
-function openDataWarningModal () {
-  modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'Cancel'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    restart()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
-}
+// function openDataWarningModal () {
+//   modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
+//   firstModalButton.innerText = 'Yes'
+//   secondModalButton.innerText = 'Cancel'
+//   modal.style.display = 'block'
+//   firstModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//     restart()
+//   }
+//   secondModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//   }
+// }
 
-function openConfirmEndModal () {
-  modalContent.innerText = 'Are you sure you would like to end early? The current time and selections will be saved.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'Cancel'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    endEarly()
-  }
-  secondModalButton.onclick = function () {
-    button.innerText = 'Resume'
-    modal.style.display = 'none'
-  }
-}
+// function openConfirmEndModal () {
+//   modalContent.innerText = 'Are you sure you would like to end early? The current time and selections will be saved.'
+//   firstModalButton.innerText = 'Yes'
+//   secondModalButton.innerText = 'Cancel'
+//   modal.style.display = 'block'
+//   firstModalButton.onclick = function () {
+//     modal.style.display = 'none'
+//     endEarly()
+//   }
+//   secondModalButton.onclick = function () {
+//     button.innerText = 'Resume'
+//     modal.style.display = 'none'
+//   }
+// }
 
 function openIncorrectItemsModal () {
   modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
@@ -985,26 +837,20 @@ function openIncorrectItemsModal () {
   }
 }
 
-function restart () {
-  for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-    cell.classList.remove('selected')
-    cell.classList.remove('lastSelected')
-  }
-  timerRunning = false
-  timerDisplay.classList.add('hidden')
-  clearAnswer()
-  button.innerText = 'Start'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    startStopTimer()
-  }
-  // var frame = window.frameElement
-  // console.log('Page reloading. .' + frame)
-  // if (frame) {
-  //   console.log('Page reloaded')
-  //   frame.contentWindow.location.reload(true)
-  // }
-}
+// function restart () {
+//   for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+//     cell.classList.remove('selected')
+//     cell.classList.remove('lastSelected')
+//   }
+//   timerRunning = false
+//   timerDisplay.classList.add('hidden')
+//   clearAnswer()
+//   button.innerText = 'Start'
+//   button.onclick = function () {
+//     timerDisplay.classList.remove('hidden')
+//     startStopTimer()
+//   }
+// }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
@@ -1012,6 +858,14 @@ window.onclick = function (event) {
     modal.style.display = 'none'
   }
 }
+
+$('#finishButton').click(function () {
+  finishEarly = 1
+  // var flastIndex =
+  lastSelectedIndex = choices.length
+  endEarly()
+  setResult()
+})
 
 if (true) {
   var counter1 = 0
