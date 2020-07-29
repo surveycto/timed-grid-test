@@ -134,11 +134,15 @@ function createGrid (keys) {
       } else if (screenSize === 'large') {
         fieldsetClass = 'lg' + tracker
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hideButton')
       }
       fieldset.setAttribute('id', fieldsetId)
       fieldset.classList.add(fieldsetClass, 'fieldset')
     } else {
       fieldset.classList.add('pg')
+      if (screenSize !== 'small') {
+        finishButton.classList.remove('hideButton')
+      }
     }
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
@@ -414,12 +418,16 @@ function clearAnswer () {
   // setAnswer()
   timePassed = 0
 }
-
+var totalItems
 // set the results to published
 function setResult () {
   console.log('Time Remaining ' + timeRemaining)
   console.log('Last Selected ' + lastSelectedIndex)
-  var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  if (finishEarly === 0) {
+    totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  } else {
+    totalItems = lastSelectedIndex
+  }
   if (type === 'reading') {
     for (var x = 0; x < totalItems; x++) {
       var textLabel = choices[x].CHOICE_LABEL
@@ -435,6 +443,9 @@ function setResult () {
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  if (selectedItems.length === 0) {
+    incorrectItems = 0
+  }
   console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
@@ -487,6 +498,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hideButton')
     }
   }
 
@@ -583,6 +595,7 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       if (pageArr[aEnd] === undefined) {
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hideButton')
       }
     })
     console.log('Start is ' + aStart)
@@ -861,7 +874,9 @@ window.onclick = function (event) {
 
 $('#finishButton').click(function () {
   finishEarly = 1
-  // var flastIndex =
+  Array.from(gridItems, function (box) {
+    box.removeEventListener('click', boxHandler, false)
+  })
   lastSelectedIndex = choices.length
   endEarly()
   setResult()
