@@ -1,6 +1,7 @@
 var duration = getPluginParameter('duration')
 var type = getPluginParameter ('type')
 var pause = getPluginParameter('pause')
+var strict = getPluginParameter('strict')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
 var continuity = getPluginParameter('continuity')
@@ -37,6 +38,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button
 var sentenceCount = 0 // count number of full stops in reading passage
 var punctuationCount = 0 // count number of punctuation marks in reading passage
+var extraItems// track whether to ss
 
 var div = document.getElementById('button-holder')
 var secondDIV
@@ -64,6 +66,14 @@ if (pause == null) {
   pause = 0 // Default pause set to false.
 } else {
   pause = parseInt(pause) // Parameterized pause set to value entered.
+}
+
+if (strict == null) {
+  strict = 0 // Default strict set to false.
+  extraItems = 1
+} else {
+  strict = parseInt(strict) // Parameterized strict set to value entered.
+  extraItems = 0
 }
 
 // Set end after default to 10 for letters
@@ -319,7 +329,17 @@ function endTimer () {
   timeLeft = 0
   timerRunning = false
   if (finishEarly === 0) {
-    openLastItemModal()
+    if (strict === 0) {
+      finishButton.classList.add('hideButton')
+      button.innerHTML = 'Finished?'
+      button.onclick = function () {
+        extraItems = 0
+        openLastItemModal()
+        button.innerHTML = 'Test Complete'
+      }
+    } else {
+      openLastItemModal()
+    }
   }
   selectedItems = getSelectedItems()
   console.log('Clicked on: ' + selectedItems)
@@ -336,7 +356,7 @@ var itemCounter = 0
 var items = []
 
 function itemClicked (item, itemIndex) {
-  if (timerRunning) { // This way, it only works when the timer is running
+  if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     const classes = item.classList
     if (classes.contains('selected')) {
       classes.remove('selected')
@@ -356,7 +376,7 @@ function itemClicked (item, itemIndex) {
         console.log(items)
       }
     }
-  } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
+  } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
       cell.classList.remove('lastSelected')
     }
