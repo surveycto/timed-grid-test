@@ -6,9 +6,9 @@ var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
 var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
-var metadata = getMetaData()
+var previousMetaData = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
-console.log('MetaData is ' + metadata)
+console.log('MetaData is ' + previousMetaData)
 
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
@@ -24,6 +24,7 @@ var endFirstLine = 'No' // Whether they ended on the firstline or not
 var choiceValuesArray = [] // Array of choice labels
 var columns = 10 // Number of columns on grid printout (letters)
 var finishEarly = 0 // Track whether the test is finished on time.
+var previousSelectedItems // Stores an array of previously selected values.
 
 var timerDisp = document.querySelector('#timer')
 var button = document.querySelector('#startstop')
@@ -104,6 +105,13 @@ if (type === 'reading') {
   if (screenSize !== 'small') {
     screenSize = 'large'
   }
+}
+
+if (previousMetaData !== null) {
+  var previousSelected = previousMetaData.split('|')
+  previousSelectedItems = previousSelected[6].split(' ')
+  console.log('Previous Items ' + previousSelectedItems)
+  button.innerHTML = 'Test Complete'
 }
 
 // console.log('Second end after is ' + endAfter)
@@ -201,6 +209,12 @@ if (createGrid) {
     if (!(box.classList.contains('pmBox'))) {
       box.addEventListener('click', boxHandler, false)
     }
+    var it = box.classList.item(1)
+    var itemIndex = it.slice(4)
+    if (previousSelectedItems != null && previousSelectedItems.includes(itemIndex)) {
+      // console.log('')
+      box.classList.add('selected')
+    }
   })
 
   setInterval(timer, 1)
@@ -272,17 +286,6 @@ function thirdClick (clickedElement, rowNumber) {
     if (nodes[b].nodeName.toLowerCase() === 'div') {
       nodes[b].classList.remove('selected')
     }
-  }
-}
-
-if (metadata !== null) {
-  // endEarlyDisplay.classList.remove('hidden')
-  // endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Test Complete'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    endEarlyDisplay.classList.add('hidden')
-    // openDataWarningModal()
   }
 }
 
@@ -471,7 +474,8 @@ function setResult () {
   console.log('Correct Items  ' + correctItems)
   console.log('Punctuation Marks ' + punctuationCount)
   console.log('Sentences are ' + sentenceCount)
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
+  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + selectedItems
+  console.log('Result is ' + result)
   if (result != null) {
     setAnswer(ans) // set answer to dummy result
   }
