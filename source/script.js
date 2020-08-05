@@ -8,6 +8,8 @@ var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
 var previousMetaData = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
+var leftoverTime
+var currentAnswer
 console.log('MetaData is ' + previousMetaData)
 
 var choices = fieldProperties.CHOICES // Array of choices
@@ -109,9 +111,26 @@ if (type === 'reading') {
 
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|')
-  previousSelectedItems = previousSelected[6].split(' ')
-  console.log('Previous Items ' + previousSelectedItems)
-  button.innerHTML = 'Test Complete'
+  var timeArray = previousSelected[0].split(' ')
+  var lastTimeLeft = parseInt(timeArray[0])
+  var lastTimeNow = parseInt(timeArray[1])
+  var timeWhileGone = Date.now() - lastTimeNow // This is how much time has passed since the respondent left the field and returned
+
+  leftoverTime = lastTimeLeft - timeWhileGone // This is how much time should be remaining on the timer. It takes how much was previously remaining, and subtracts the amount of time that has passed since the respondent was last at this field. This way, the respondent cannot leave the field and come back to extend their time and cheat.
+
+  if (leftoverTime < 0) {
+    complete = true
+    leftoverTime = 0
+    button.innerHTML = 'Test Complete'
+  }
+  if (false) {
+    previousSelectedItems = previousSelected[6].split(' ')
+    console.log('Previous Items ' + previousSelectedItems)
+  } else {
+    previousSelectedItems = previousSelected[1].split(' ')
+    console.log('Previous Items ' + previousSelectedItems)
+  }
+  establishTimeLeft()
 }
 
 // console.log('Second end after is ' + endAfter)
@@ -290,14 +309,17 @@ function thirdClick (clickedElement, rowNumber) {
 }
 
 function timer () {
+  var timeNow = Date.now()
   if (timerRunning) {
-    timePassed = Date.now() - startTime
+    timePassed = timeNow - startTime
     timeLeft = timeStart - timePassed
   }
 
   if (timeLeft < 0) {
     endTimer()
   }
+  selectedItems = getSelectedItems()
+  setMetaData(String(timeLeft) + ' ' + String(timeNow) + '|' + selectedItems + '|' + currentAnswer)
   timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
 }
 
@@ -441,6 +463,16 @@ function clearAnswer () {
   // setAnswer()
   timePassed = 0
 }
+
+function establishTimeLeft () { // This checks if there is leftover time
+  if ((leftoverTime == null) || (leftoverTime === '') || isNaN(leftoverTime)) {
+    startTime = Date.now()
+    timeLeft = timeStart
+  } else {
+    timeLeft = leftoverTime
+    startTime = Date.now() - (timeStart - timeLeft)
+  }
+} // End establishTimeLeft
 var totalItems
 // set the results to published
 function setResult () {
@@ -770,14 +802,14 @@ document.querySelector('.back').addEventListener('click', function () {
   }
 })
 
-// Open Modal
+// Incorrect last item modal
 function openModal (content) {
   modalContent.innerText = content
   firstModalButton.innerText = 'Yes'
   secondModalButton.innerText = 'No'
   modal.style.display = 'block'
 }
-
+// Thank you note modal
 function openThankYouModal () {
   modalContent.innerText = 'Thank you! You can continue.'
   firstModalButton.innerText = 'Done'
@@ -789,18 +821,14 @@ function openThankYouModal () {
     button.innerText = 'Test Complete'
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
-    // button.onclick = function () {
-    //   // timerRunning = true
-    //   openDataWarningModal()
-    // }
   }
-  Array.from(gridItems, function (box) {
+  Array.from(gridItems, function (box) {// Make all grid unclickable once test is complete.
     if (!(box.classList.contains('pmBox'))) {
       box.removeEventListener('click', boxHandler, false)
     }
   })
 }
-
+// Modal to prompt user to select the last item.
 function openLastItemModal () {
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
@@ -815,51 +843,6 @@ function openLastItemModal () {
   }
 }
 
-// function openPauseModal () {
-//   modalContent.innerText = 'Paused'
-//   firstModalButton.innerText = 'Restart'
-//   secondModalButton.innerText = 'End'
-//   modal.style.display = 'block'
-//   firstModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//     openDataWarningModal()
-//   }
-//   secondModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//     button.innerText = 'Restart'
-//     openConfirmEndModal()
-//   }
-// }
-
-// function openDataWarningModal () {
-//   modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
-//   firstModalButton.innerText = 'Yes'
-//   secondModalButton.innerText = 'Cancel'
-//   modal.style.display = 'block'
-//   firstModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//     restart()
-//   }
-//   secondModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//   }
-// }
-
-// function openConfirmEndModal () {
-//   modalContent.innerText = 'Are you sure you would like to end early? The current time and selections will be saved.'
-//   firstModalButton.innerText = 'Yes'
-//   secondModalButton.innerText = 'Cancel'
-//   modal.style.display = 'block'
-//   firstModalButton.onclick = function () {
-//     modal.style.display = 'none'
-//     endEarly()
-//   }
-//   secondModalButton.onclick = function () {
-//     button.innerText = 'Resume'
-//     modal.style.display = 'none'
-//   }
-// }
-
 function openIncorrectItemsModal () {
   modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
   firstModalButton.innerText = 'Yes'
@@ -873,21 +856,6 @@ function openIncorrectItemsModal () {
     modal.style.display = 'none'
   }
 }
-
-// function restart () {
-//   for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
-//     cell.classList.remove('selected')
-//     cell.classList.remove('lastSelected')
-//   }
-//   timerRunning = false
-//   timerDisplay.classList.add('hidden')
-//   clearAnswer()
-//   button.innerText = 'Start'
-//   button.onclick = function () {
-//     timerDisplay.classList.remove('hidden')
-//     startStopTimer()
-//   }
-// }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
