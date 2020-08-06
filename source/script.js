@@ -8,7 +8,6 @@ var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
 var previousMetaData = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
-var leftoverTime
 var currentAnswer
 console.log('MetaData is ' + previousMetaData)
 
@@ -30,7 +29,6 @@ var previousSelectedItems // Stores an array of previously selected values.
 
 var timerDisp = document.querySelector('#timer')
 var button = document.querySelector('#startstop')
-var endEarlyDisplay = document.querySelector('#endearly')
 var nextButton = document.getElementById('nextButton')
 var backButton = document.getElementById('backButton')
 var finishButton = document.getElementById('finishButton')
@@ -111,31 +109,23 @@ if (type === 'reading') {
 
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|')
-  var timeArray = previousSelected[0].split(' ')
-  var lastTimeLeft = parseInt(timeArray[0])
-  var lastTimeNow = parseInt(timeArray[1])
-  var timeWhileGone = Date.now() - lastTimeNow // This is how much time has passed since the respondent left the field and returned
-
-  leftoverTime = lastTimeLeft - timeWhileGone // This is how much time should be remaining on the timer. It takes how much was previously remaining, and subtracts the amount of time that has passed since the respondent was last at this field. This way, the respondent cannot leave the field and come back to extend their time and cheat.
-
-  if (leftoverTime < 0) {
-    complete = true
-    leftoverTime = 0
-    button.innerHTML = 'Test Complete'
-  }
-  if (false) {
-    previousSelectedItems = previousSelected[6].split(' ')
-    console.log('Previous Items ' + previousSelectedItems)
+  console.log('Previous Selected is ' + previousSelected)
+  complete = previousSelected[2]
+  console.log('Complete here is ' + complete)
+  console.log(typeof (complete))
+  if (complete !== 'true' || complete == null) {
+    timeLeft = parseInt(previousSelected[0])
+    timeStart = timeLeft
   } else {
-    previousSelectedItems = previousSelected[1].split(' ')
-    console.log('Previous Items ' + previousSelectedItems)
+    timeLeft = 0
   }
-  establishTimeLeft()
+  // if (timeLeft <= 0) {
+  //   complete = true
+  // }
+  timerRunning = true
+  previousSelectedItems = previousSelected[1].split(' ')
+  console.log('Previous Items ' + previousSelectedItems)
 }
-
-// console.log('Second end after is ' + endAfter)
-// console.log('Continuity is ' + continuity)
-// console.log('Type is ' + type)
 
 createGrid(choices)
 
@@ -167,18 +157,18 @@ function createGrid (keys) {
       } else if (screenSize === 'medium') {
         fieldsetClass = 'ms' + tracker
         nextButton.classList.add('hideButton')
-        finishButton.classList.remove('hideButton')
+        finishButton.classList.remove('hidden')
       } else if (screenSize === 'large') {
         fieldsetClass = 'lg' + tracker
         nextButton.classList.add('hideButton')
-        finishButton.classList.remove('hideButton')
+        finishButton.classList.remove('hidden')
       }
       fieldset.setAttribute('id', fieldsetId)
       fieldset.classList.add(fieldsetClass, 'fieldset')
     } else {
       fieldset.classList.add('pg')
       if (screenSize !== 'small') {
-        finishButton.classList.remove('hideButton')
+        finishButton.classList.remove('hidden')
       }
     }
     for (var j = 0; j < columns; j++) {
@@ -191,7 +181,7 @@ function createGrid (keys) {
         nextButton.classList.add('hideButton')
         secondDIV.classList.add('pgBox')
         var textLabel = choices[counter].CHOICE_LABEL
-        console.log('Text label is ' + textLabel)
+        // console.log('Text label is ' + textLabel)
         for (const ch of textLabel) {
           if (marks.includes(ch)) {
             if (ch === '.') {
@@ -235,8 +225,13 @@ if (createGrid) {
       box.classList.add('selected')
     }
   })
-
-  setInterval(timer, 1)
+  setInterval(timer, 1000)
+  if (previousMetaData != null && complete !== 'true') {
+    console.log('I am calling startsss')
+    timerRunning = false
+    startStopTimer()
+  }
+  console.log('Calling startstop timer')
 }
 var pageArr = []
 var shouldPage = false
@@ -313,14 +308,17 @@ function timer () {
   if (timerRunning) {
     timePassed = timeNow - startTime
     timeLeft = timeStart - timePassed
+    console.log('Time Left is ' + timeLeft)
   }
-
+  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
+  selectedItems = getSelectedItems()
+  if (!complete) {
+    currentAnswer = String(timeLeft) + '|' + selectedItems
+    setMetaData(currentAnswer)
+  }
   if (timeLeft < 0) {
     endTimer()
   }
-  selectedItems = getSelectedItems()
-  setMetaData(String(timeLeft) + ' ' + String(timeNow) + '|' + selectedItems + '|' + currentAnswer)
-  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
 }
 
 function startStopTimer () {
@@ -331,7 +329,6 @@ function startStopTimer () {
   if (timerRunning) {
     timerRunning = false
     button.innerHTML = 'Resume'
-    // openPauseModal()
   } else {
     startTime = Date.now() - timePassed
     timerRunning = true
@@ -353,9 +350,9 @@ function endTimer () {
   timerDisplay.classList.add('hidden')
   timeLeft = 0
   timerRunning = false
-  if (finishEarly === 0) {
+  if (finishEarly === 0 && complete !== 'true') {
     if (strict === 0) {
-      finishButton.classList.add('hideButton')
+      finishButton.classList.add('hidden')
       button.innerHTML = 'Finished?'
       button.onclick = function () {
         extraItems = 0
@@ -464,15 +461,6 @@ function clearAnswer () {
   timePassed = 0
 }
 
-function establishTimeLeft () { // This checks if there is leftover time
-  if ((leftoverTime == null) || (leftoverTime === '') || isNaN(leftoverTime)) {
-    startTime = Date.now()
-    timeLeft = timeStart
-  } else {
-    timeLeft = leftoverTime
-    startTime = Date.now() - (timeStart - timeLeft)
-  }
-} // End establishTimeLeft
 var totalItems
 // set the results to published
 function setResult () {
@@ -506,8 +494,9 @@ function setResult () {
   console.log('Correct Items  ' + correctItems)
   console.log('Punctuation Marks ' + punctuationCount)
   console.log('Sentences are ' + sentenceCount)
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + selectedItems
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
   console.log('Result is ' + result)
+  console.log('Complete is ' + complete)
   if (result != null) {
     setAnswer(ans) // set answer to dummy result
   }
@@ -554,7 +543,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -592,7 +581,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -614,7 +603,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -634,7 +623,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -651,7 +640,7 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       if (pageArr[aEnd] === undefined) {
         nextButton.classList.add('hideButton')
-        finishButton.classList.remove('hideButton')
+        finishButton.classList.remove('hidden')
       }
     })
     console.log('Start is ' + aStart)
@@ -662,7 +651,7 @@ document.querySelector('.next').addEventListener('click', function () {
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton')
-  finishButton.classList.add('hideButton')
+  finishButton.classList.add('hidden')
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -870,6 +859,7 @@ $('#finishButton').click(function () {
     box.removeEventListener('click', boxHandler, false)
   })
   lastSelectedIndex = choices.length
+  complete = true
   endEarly()
   setResult()
 })
