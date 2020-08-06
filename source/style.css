@@ -5,8 +5,9 @@
 }
 
 .hint {
-  color: rgba(0,0,0,.65);
+  /* add style rules here to change how the hint appears */
   margin: .5rem 0;
+  color: rgba(0,0,0,.65);
   font-style: italic;
 }
 
@@ -16,8 +17,8 @@
 }
 
 .lastSelected {
-  background-color: green !important;
   border: 2px solid red !important;
+  background-color: green !important;
 }
 
 .selected {
@@ -32,25 +33,26 @@ button{
 
 button.startstop {
   background-color: green;
-  border-radius: 10px;
   border: 2px solid black;
   color: white;
-  font-size: 100%;
-  font-weight: bold;
   height: 42px;
   line-height: 4px;
+  width: 150px;
+  text-align: center;
+  font-size: 100%;
+  font-weight: bold;
+  border-radius: 10px;
   margin: 5px;
   padding-left: 10px;
   padding-right: 10px;
-  text-align: center;
-  width: 150px;
 }
 
 .timerDisplay {
   background-color: red;
+  color: white;
+  text-align: center;
   border: 2px solid black;
   border-radius: 10px;
-  color: white;
   font-size: 100%;
   font-weight: bold;
   line-height: 42px;
@@ -58,10 +60,9 @@ button.startstop {
   margin: 5px;
   padding-left: 10px;
   padding-right: 10px;
-  text-align: center;
 }
 
-#timer {
+timer {
   position:absolute;
   top:5px;
   right:5px;

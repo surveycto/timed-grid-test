@@ -1,13 +1,15 @@
-/* global getPluginParameter, getMetaData, fieldProperties, setAnswer, setMetaData */
-
 var duration = getPluginParameter('duration')
-var type = getPluginParameter('type')
+var type = getPluginParameter ('type')
+var pause = getPluginParameter('pause')
+var strict = getPluginParameter('strict')
 var endAfter = getPluginParameter('end-after')
 console.log('First end after is ' + endAfter)
 var continuity = getPluginParameter('continuity')
 console.log('Continuity at start is ' + continuity)
-var metadata = getMetaData()
+var previousMetaData = getMetaData()
 var timeStart // Track time limit on each field in milliseconds
+var currentAnswer
+console.log('MetaData is ' + previousMetaData)
 
 var choices = fieldProperties.CHOICES // Array of choices
 var complete = false // Keep track of whether the test was completed
@@ -22,12 +24,14 @@ var timeRemaining = 0
 var endFirstLine = 'No' // Whether they ended on the firstline or not
 var choiceValuesArray = [] // Array of choice labels
 var columns = 10 // Number of columns on grid printout (letters)
+var finishEarly = 0 // Track whether the test is finished on time.
+var previousSelectedItems // Stores an array of previously selected values.
 
 var timerDisp = document.querySelector('#timer')
 var button = document.querySelector('#startstop')
-var endEarlyDisplay = document.querySelector('#endearly')
 var nextButton = document.getElementById('nextButton')
 var backButton = document.getElementById('backButton')
+var finishButton = document.getElementById('finishButton')
 var timerDisplay = document.querySelector('#timerDisplay')
 var modal = document.getElementById('modal') // Get the modal
 var modalContent = document.getElementById('modalContent') // Get the modal content
@@ -35,6 +39,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button
 var sentenceCount = 0 // count number of full stops in reading passage
 var punctuationCount = 0 // count number of punctuation marks in reading passage
+var extraItems// track whether to ss
 
 var div = document.getElementById('button-holder')
 var secondDIV
@@ -56,6 +61,20 @@ if (continuity == null) {
   continuity = 0 // Default continuity set to false.
 } else {
   continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+}
+
+if (pause == null) {
+  pause = 0 // Default pause set to false.
+} else {
+  pause = parseInt(pause) // Parameterized pause set to value entered.
+}
+
+if (strict == null) {
+  strict = 0 // Default strict set to false.
+  extraItems = 1
+} else {
+  strict = parseInt(strict) // Parameterized strict set to value entered.
+  extraItems = 0
 }
 
 // Set end after default to 10 for letters
@@ -88,193 +107,27 @@ if (type === 'reading') {
   }
 }
 
-// console.log('Second end after is ' + endAfter)
-// console.log('Continuity is ' + continuity)
-// console.log('Type is ' + type)
+if (previousMetaData !== null) {
+  var previousSelected = previousMetaData.split('|')
+  console.log('Previous Selected is ' + previousSelected)
+  complete = previousSelected[2]
+  console.log('Complete here is ' + complete)
+  console.log(typeof (complete))
+  if (complete !== 'true' || complete == null) {
+    timeLeft = parseInt(previousSelected[0])
+    timeStart = timeLeft
+  } else {
+    timeLeft = 0
+  }
+  // if (timeLeft <= 0) {
+  //   complete = true
+  // }
+  timerRunning = true
+  previousSelectedItems = previousSelected[1].split(' ')
+  console.log('Previous Items ' + previousSelectedItems)
+}
 
 createGrid(choices)
-
-if (metadata !== null) {
-  endEarlyDisplay.classList.remove('hidden')
-  endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Restart'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    endEarlyDisplay.classList.add('hidden')
-    openDataWarningModal()
-  }
-}
-
-if (createGrid) {
-  var gridItems = document.querySelectorAll('.box')
-  Array.from(gridItems, function (box) {
-    box.addEventListener('click', function () {
-      var it = this.classList.item(1)
-      var itemIndex = it.slice(4)
-      console.log('Item index is ' + itemIndex)
-      itemClicked(this, itemIndex)
-    })
-  })
-  setInterval(timer, 1)
-}
-
-choices.slice(0, endAfter)
-
-for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE)
-}
-
-// get next button and bind click event handler
-document.querySelector('.next').addEventListener('click', function () {
-  backButton.classList.remove('hideButton')
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  if (type === 'letters') {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset2.classList.contains('hidden')) {
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small') {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-    }
-  }
-})
-
-// get back button and bind click event handler
-document.querySelector('.back').addEventListener('click', function () {
-  nextButton.classList.remove('hideButton')
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  if (type === 'letters') {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset9.classList.contains('hidden')) {
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small') {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-})
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    modal.style.display = 'none'
-  }
-}
-
-function checkSmall (x) { if (x.matches) { screenSize = 'small' } }
-function checkMedium (y) { if (y.matches) { screenSize = 'medium' } }
 
 function createGrid (keys) {
   var counter = 0
@@ -304,14 +157,19 @@ function createGrid (keys) {
       } else if (screenSize === 'medium') {
         fieldsetClass = 'ms' + tracker
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hidden')
       } else if (screenSize === 'large') {
         fieldsetClass = 'lg' + tracker
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hidden')
       }
       fieldset.setAttribute('id', fieldsetId)
       fieldset.classList.add(fieldsetClass, 'fieldset')
     } else {
       fieldset.classList.add('pg')
+      if (screenSize !== 'small') {
+        finishButton.classList.remove('hidden')
+      }
     }
     for (var j = 0; j < columns; j++) {
       secondDIV = document.createElement('div')
@@ -323,7 +181,7 @@ function createGrid (keys) {
         nextButton.classList.add('hideButton')
         secondDIV.classList.add('pgBox')
         var textLabel = choices[counter].CHOICE_LABEL
-        console.log('Text label is ' + textLabel)
+        // console.log('Text label is ' + textLabel)
         for (const ch of textLabel) {
           if (marks.includes(ch)) {
             if (ch === '.') {
@@ -360,9 +218,20 @@ if (createGrid) {
     if (!(box.classList.contains('pmBox'))) {
       box.addEventListener('click', boxHandler, false)
     }
+    var it = box.classList.item(1)
+    var itemIndex = it.slice(4)
+    if (previousSelectedItems != null && previousSelectedItems.includes(itemIndex)) {
+      // console.log('')
+      box.classList.add('selected')
+    }
   })
-
-  setInterval(timer, 1)
+  setInterval(timer, 1000)
+  if (previousMetaData != null && complete !== 'true') {
+    console.log('I am calling startsss')
+    timerRunning = false
+    startStopTimer()
+  }
+  console.log('Calling startstop timer')
 }
 var pageArr = []
 var shouldPage = false
@@ -434,35 +303,32 @@ function thirdClick (clickedElement, rowNumber) {
   }
 }
 
-if (metadata !== null) {
-  endEarlyDisplay.classList.remove('hidden')
-  endEarlyDisplay.innerText = 'Test Complete'
-  button.innerHTML = 'Restart'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    endEarlyDisplay.classList.add('hidden')
-    openDataWarningModal()
-  }
-}
-
 function timer () {
+  var timeNow = Date.now()
   if (timerRunning) {
-    timePassed = Date.now() - startTime
+    timePassed = timeNow - startTime
     timeLeft = timeStart - timePassed
+    console.log('Time Left is ' + timeLeft)
   }
-
+  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
+  selectedItems = getSelectedItems()
+  if (!complete) {
+    currentAnswer = String(timeLeft) + '|' + selectedItems
+    setMetaData(currentAnswer)
+  }
   if (timeLeft < 0) {
     endTimer()
   }
-  timerDisp.innerHTML = Math.ceil(timeLeft / 1000)
 }
 
 function startStopTimer () {
   timerDisplay.classList.remove('hidden')
+  if (pause === 0) {
+    button.classList.add('hidden')
+  }
   if (timerRunning) {
     timerRunning = false
     button.innerHTML = 'Resume'
-    openPauseModal()
   } else {
     startTime = Date.now() - timePassed
     timerRunning = true
@@ -472,20 +338,48 @@ function startStopTimer () {
 
 function endEarly () {
   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+  console.log('time remaining is ' + timeRemaining)
+  console.log('time left is ' + timeLeft)
   endTimer()
 }
 
 function endTimer () {
   console.log('entering end timer')
+  button.innerHTML = 'Test Complete'
+  button.classList.remove('hidden')
+  timerDisplay.classList.add('hidden')
   timeLeft = 0
   timerRunning = false
-  openLastItemModal()
+  if (finishEarly === 0 && complete !== 'true') {
+    if (strict === 0) {
+      finishButton.classList.add('hidden')
+      button.innerHTML = 'Finished?'
+      button.onclick = function () {
+        extraItems = 0
+        openLastItemModal()
+        button.innerHTML = 'Test Complete'
+      }
+    } else {
+      openLastItemModal()
+    }
+  }
   selectedItems = getSelectedItems()
+  console.log('Clicked on: ' + selectedItems)
 }
 
+var topTen = choices.slice(0, endAfter)
+var firstTenItems = []
+
+for (x = 0; x < topTen.length; x++) {
+  firstTenItems.push(choices[x].CHOICE_VALUE)
+}
+console.log('top ten is ' + firstTenItems)
+var itemCounter = 0
+var items = []
+
 function itemClicked (item, itemIndex) {
-  if (timerRunning) { // This way, it only works when the timer is running
-    var classes = item.classList
+  if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
+    const classes = item.classList
     if (classes.contains('selected')) {
       classes.remove('selected')
     } else {
@@ -504,8 +398,8 @@ function itemClicked (item, itemIndex) {
         console.log(items)
       }
     }
-  } else if (timeLeft === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+  } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
+    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
@@ -517,7 +411,7 @@ function itemClicked (item, itemIndex) {
       openThankYouModal()
       console.log('exiting last selected')
     } else {
-      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+      for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
@@ -531,9 +425,13 @@ function checkLastItem () {
   var selectedItemsArray = selectedItems.split(' ')
   var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect
   var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item
+  console.log('indexLastClicked ' + indexLastClickedItem)
   var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item
+  console.log('indexLastSelected ' + indexLastSelectedItem)
   if (indexLastClickedItem > (indexLastSelectedItem)) {
+    console.log('Entering the if statement.')
     openModal('Either pick the last incorrect item, or one after that.')
+    console.log('Time left is ' + timeLeft)
     Array.from(gridItems, function (box) {
       box.addEventListener('click', function () {
         var a = this.classList.item(1)
@@ -547,8 +445,8 @@ function checkLastItem () {
 }
 
 function getSelectedItems () {
-  var selectedLet = []
-  for (var cell of gridItems) {
+  const selectedLet = []
+  for (const cell of gridItems) {
     if (cell.classList.contains('selected')) {
       var m = cell.classList.item(1)
       var n = m.slice(4)
@@ -559,13 +457,20 @@ function getSelectedItems () {
 }
 
 function clearAnswer () {
-  setAnswer()
+  // setAnswer()
   timePassed = 0
 }
 
+var totalItems
 // set the results to published
 function setResult () {
-  var totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  console.log('Time Remaining ' + timeRemaining)
+  console.log('Last Selected ' + lastSelectedIndex)
+  if (finishEarly === 0) {
+    totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
+  } else {
+    totalItems = lastSelectedIndex
+  }
   if (type === 'reading') {
     for (var x = 0; x < totalItems; x++) {
       var textLabel = choices[x].CHOICE_LABEL
@@ -581,12 +486,20 @@ function setResult () {
   console.log('Total Items  ' + totalItems)
   var splitselectedItems = selectedItems.split(' ')
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  if (selectedItems.length === 0) {
+    incorrectItems = 0
+  }
+  console.log('Incorrect Items  ' + incorrectItems)
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   console.log('Correct Items  ' + correctItems)
   console.log('Punctuation Marks ' + punctuationCount)
   console.log('Sentences are ' + sentenceCount)
-  var result = timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
-  setAnswer(ans) // set answer to dummy result
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
+  console.log('Result is ' + result)
+  console.log('Complete is ' + complete)
+  if (result != null) {
+    setAnswer(ans) // set answer to dummy result
+  }
   setMetaData(result) // make result accessible as plugin metadata
 }
 
@@ -630,6 +543,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -667,6 +581,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -688,6 +603,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -707,6 +623,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hidden')
     }
   }
 
@@ -723,6 +640,7 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       if (pageArr[aEnd] === undefined) {
         nextButton.classList.add('hideButton')
+        finishButton.classList.remove('hidden')
       }
     })
     console.log('Start is ' + aStart)
@@ -733,6 +651,7 @@ document.querySelector('.next').addEventListener('click', function () {
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton')
+  finishButton.classList.add('hidden')
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -872,14 +791,14 @@ document.querySelector('.back').addEventListener('click', function () {
   }
 })
 
-// Open Modal
+// Incorrect last item modal
 function openModal (content) {
   modalContent.innerText = content
   firstModalButton.innerText = 'Yes'
   secondModalButton.innerText = 'No'
   modal.style.display = 'block'
 }
-
+// Thank you note modal
 function openThankYouModal () {
   modalContent.innerText = 'Thank you! You can continue.'
   firstModalButton.innerText = 'Done'
@@ -888,21 +807,17 @@ function openThankYouModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    button.innerText = 'Restart'
+    button.innerText = 'Test Complete'
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
-    button.onclick = function () {
-      // timerRunning = true
-      openDataWarningModal()
-    }
   }
-  Array.from(gridItems, function (box) {
+  Array.from(gridItems, function (box) {// Make all grid unclickable once test is complete.
     if (!(box.classList.contains('pmBox'))) {
       box.removeEventListener('click', boxHandler, false)
     }
   })
 }
-
+// Modal to prompt user to select the last item.
 function openLastItemModal () {
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
@@ -913,51 +828,6 @@ function openLastItemModal () {
     modal.style.display = 'none'
   }
   secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
-}
-
-function openPauseModal () {
-  modalContent.innerText = 'Paused'
-  firstModalButton.innerText = 'Restart'
-  secondModalButton.innerText = 'End'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    openDataWarningModal()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-    button.innerText = 'Restart'
-    openConfirmEndModal()
-  }
-}
-
-function openDataWarningModal () {
-  modalContent.innerText = 'Are you sure you want to restart? All answers up to this point will be lost.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'Cancel'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    restart()
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
-}
-
-function openConfirmEndModal () {
-  modalContent.innerText = 'Are you sure you would like to end early? The current time and selections will be saved.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'Cancel'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    endEarly()
-  }
-  secondModalButton.onclick = function () {
-    button.innerText = 'Resume'
     modal.style.display = 'none'
   }
 }
@@ -976,33 +846,23 @@ function openIncorrectItemsModal () {
   }
 }
 
-function restart () {
-  for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-    cell.classList.remove('selected')
-    cell.classList.remove('lastSelected')
-  }
-  timerRunning = false
-  timerDisplay.classList.add('hidden')
-  clearAnswer()
-  button.innerText = 'Start'
-  button.onclick = function () {
-    timerDisplay.classList.remove('hidden')
-    startStopTimer()
-  }
-  // var frame = window.frameElement
-  // console.log('Page reloading. .' + frame)
-  // if (frame) {
-  //   console.log('Page reloaded')
-  //   frame.contentWindow.location.reload(true)
-  // }
-}
-
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
   if (event.target === modal) {
     modal.style.display = 'none'
   }
 }
+
+$('#finishButton').click(function () {
+  finishEarly = 1
+  Array.from(gridItems, function (box) {
+    box.removeEventListener('click', boxHandler, false)
+  })
+  lastSelectedIndex = choices.length
+  complete = true
+  endEarly()
+  setResult()
+})
 
 if (true) {
   var counter1 = 0
