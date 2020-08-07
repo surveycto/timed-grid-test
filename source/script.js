@@ -26,6 +26,8 @@ var choiceValuesArray = [] // Array of choice labels.
 var columns = 10 // Number of columns on grid printout (letters).
 var finishEarly = 0 // Track whether the test is finished on time.
 var previousSelectedItems // Stores an array of previously selected values.
+var aStart = -1 // Counter for paging for reading test.
+var aEnd = 0 // Counter for paging for reading test.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton')
@@ -41,9 +43,23 @@ var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
 var extraItems// track whether to allow selecting items after time has run out.
 
+// Bind created rows.
+// var fieldset1 = document.querySelector('#fieldset1')
+// var fieldset2 = document.querySelector('#fieldset2')
+// var fieldset3 = document.querySelector('#fieldset3')
+// var fieldset4 = document.querySelector('#fieldset4')
+// var fieldset5 = document.querySelector('#fieldset5')
+// var fieldset6 = document.querySelector('#fieldset6')
+// var fieldset7 = document.querySelector('#fieldset7')
+// var fieldset8 = document.querySelector('#fieldset8')
+// var fieldset9 = document.querySelector('#fieldset9')
+// var fieldset10 = document.querySelector('#fieldset10')
+
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
 var screenSize
+var pageNumber = 0
+var prevPageNumber = 0
 var marks = ['.', ',', '!', '?'] // List of punction marks.
 // Check if the window size is 550px - this is treated as a small screen.
 var x = window.matchMedia('(max-width: 550px)')
@@ -113,8 +129,11 @@ if (type === 'reading') {
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
   complete = previousSelected[2] // Keeps track of whether the test was completed or not (accidental swipe).
+  var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
+  prevPageNumber = parseInt(s1[1]) // Get the last page number.
+  pageNumber = prevPageNumber // Update pageNumber to the last page number.
   if (complete !== 'true' || complete == null) { // For incomplete test.
-    timeLeft = parseInt(previousSelected[0]) // Get time left from metadata.
+    timeLeft = parseInt(s1[0]) // Get time left from metadata.
     timeStart = timeLeft // Start timer from time left.
   } else {
     timeLeft = 0 // For completed test
@@ -219,6 +238,7 @@ if (createGrid) {
       box.classList.add('selected') // Add the CSS class selected.
     }
   })
+  updateGrid()
   setInterval(timer, 1000) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
@@ -249,6 +269,29 @@ $(document).ready(function () {
       }
     })
     passagePaging(pageArr, shouldPage) // Create passage.
+    if (previousMetaData != null) {
+      if (prevPageNumber === 1) {
+        aStart = 0
+        aEnd = 1
+        pageReading()
+      } else if (prevPageNumber === 2) {
+        aStart = 1
+        aEnd = 2
+        pageReading()
+      } else if (prevPageNumber === 3) {
+        aStart = 2
+        aEnd = 3
+        pageReading()
+      } else if (prevPageNumber === 4) {
+        aStart = 3
+        aEnd = 4
+        pageReading()
+      } else if (prevPageNumber === 5) {
+        aStart = 4
+        aEnd = 5
+        pageReading()
+      }
+    }
   }
 })
 
@@ -297,7 +340,7 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (!complete) { // For incomplete tests.
-    currentAnswer = String(timeLeft) + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
   if (timeLeft < 0) {
@@ -472,14 +515,11 @@ function setResult () {
   setMetaData(result) // make result accessible as plugin metadata
 }
 
-var aStart = -1 // Counter for paging for reading test.
-var aEnd = 0 // Counter for paging for reading test.
-
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
+  ++pageNumber
   backButton.classList.remove('hideButton') // Make back button visible on click.
 
-  // Bind created rows.
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -605,26 +645,31 @@ document.querySelector('.next').addEventListener('click', function () {
     // Increment page counters.
     aStart++
     aEnd++
-    Array.from(gridItems, function (box) {
-      var temp1 = parseInt(box.classList.item(1).slice(4))
-      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
-        box.classList.add('hidden')
-      }
-      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
-        box.classList.remove('hidden')
-      }
-      if (pageArr[aEnd] === undefined) {
-        nextButton.classList.add('hideButton')
-        finishButton.classList.remove('hidden')
-      }
-    })
+    pageReading()
   }
 })
+
+function pageReading () {
+  Array.from(gridItems, function (box) {
+    var temp1 = parseInt(box.classList.item(1).slice(4))
+    if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+      box.classList.add('hidden')
+    }
+    if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+      box.classList.remove('hidden')
+    }
+    if (pageArr[aEnd] === undefined) {
+      nextButton.classList.add('hideButton')
+      finishButton.classList.remove('hidden')
+    }
+  })
+}
 
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton') // Show the next button.
   finishButton.classList.add('hidden') // Hide the next button.
+  --pageNumber
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -998,4 +1043,243 @@ if (true) {
     }
     counter10++
   })
+}
+
+function updateGrid () {
+  var fieldset1 = document.querySelector('#fieldset1')
+  var fieldset2 = document.querySelector('#fieldset2')
+  var fieldset3 = document.querySelector('#fieldset3')
+  var fieldset4 = document.querySelector('#fieldset4')
+  var fieldset5 = document.querySelector('#fieldset5')
+  var fieldset6 = document.querySelector('#fieldset6')
+  var fieldset7 = document.querySelector('#fieldset7')
+  var fieldset8 = document.querySelector('#fieldset8')
+  var fieldset9 = document.querySelector('#fieldset9')
+  var fieldset10 = document.querySelector('#fieldset10')
+  if (previousSelectedItems != null) {
+    if (type === 'letters' && screenSize === 'small' && continuity === 0) {
+      console.log('Page number is ' + prevPageNumber)
+      if (prevPageNumber === 1) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.remove('hidden')
+        fieldset4.classList.remove('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 2) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.remove('hidden')
+        fieldset6.classList.remove('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 3) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.remove('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 4) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.remove('hidden')
+        fieldset10.classList.remove('hidden')
+        finishButton.classList.remove('hidden')
+        backButton.classList.remove('hideButton')
+      }
+    }
+    if (type === 'letters' && screenSize === 'small' && continuity === 1) {
+      console.log('Page number is ' + prevPageNumber)
+      if (prevPageNumber === 1) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.remove('hidden')
+        fieldset3.classList.remove('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 2) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.remove('hidden')
+        fieldset4.classList.remove('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 3) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.remove('hidden')
+        fieldset5.classList.remove('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 4) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.remove('hidden')
+        fieldset6.classList.remove('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 5) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.remove('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 6) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.remove('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 7) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.remove('hidden')
+        fieldset9.classList.remove('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 8) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.remove('hidden')
+        fieldset10.classList.add('hidden')
+        finishButton.classList.remove('hidden')
+        backButton.classList.remove('hideButton')
+      }
+    }
+    if (type === 'words' && screenSize === 'small' && continuity === 0) {
+      console.log('Page number is ' + prevPageNumber)
+      if (prevPageNumber === 1) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.remove('hidden')
+        fieldset6.classList.remove('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.remove('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 2) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.add('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.remove('hidden')
+        fieldset10.classList.remove('hidden')
+        finishButton.classList.remove('hidden')
+        backButton.classList.remove('hideButton')
+      }
+    }
+    if (type === 'words' && screenSize === 'small' && continuity === 1) {
+      console.log('Page number is ' + prevPageNumber)
+      if (prevPageNumber === 1) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.remove('hidden')
+        fieldset5.classList.remove('hidden')
+        fieldset6.classList.remove('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.add('hidden')
+        fieldset9.classList.add('hidden')
+        fieldset10.classList.add('hidden')
+        nextButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton')
+      } else if (prevPageNumber === 2) {
+        fieldset1.classList.add('hidden')
+        fieldset2.classList.add('hidden')
+        fieldset3.classList.add('hidden')
+        fieldset4.classList.add('hidden')
+        fieldset5.classList.add('hidden')
+        fieldset6.classList.add('hidden')
+        fieldset7.classList.remove('hidden')
+        fieldset8.classList.remove('hidden')
+        fieldset9.classList.remove('hidden')
+        fieldset10.classList.remove('hidden')
+        finishButton.classList.remove('hidden')
+        backButton.classList.remove('hideButton')
+      }
+    }
+  }
 }
