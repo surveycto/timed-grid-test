@@ -295,7 +295,6 @@ function timer () { // Timer function.
     timePassed = timeNow - startTime
     timeLeft = timeStart - timePassed
   }
-  timerDisp.innerHTML = Math.ceil(timeLeft / 1000) // display the countdown timer.
   selectedItems = getSelectedItems()
   if (!complete) { // For incomplete tests.
     currentAnswer = String(timeLeft) + '|' + selectedItems // Save progress whilst the timer is running.
@@ -303,6 +302,9 @@ function timer () { // Timer function.
   }
   if (timeLeft < 0) {
     endTimer() // End test if time is less than 0.
+  }
+  if (!isNaN(timeLeft)) {
+    timerDisp.innerHTML = Math.ceil(timeLeft / 1000) // display the countdown timer.
   }
 }
 
