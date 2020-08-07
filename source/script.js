@@ -819,6 +819,24 @@ function openIncorrectItemsModal () {
   }
 }
 
+function finishModal () {
+  modalContent.innerText = 'Do you want to end the test now?'
+  firstModalButton.innerText = 'Yes'
+  secondModalButton.innerText = 'No'
+  modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    lastSelectedIndex = choices.length
+    complete = true
+    endEarly()
+    setResult()
+  }
+  secondModalButton.onclick = function () {
+    modal.style.display = 'none'
+    startStopTimer()
+  }
+}
+
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
   if (event.target === modal) {
@@ -832,10 +850,8 @@ $('#finishButton').click(function () {
   Array.from(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false)
   })
-  lastSelectedIndex = choices.length
-  complete = true
-  endEarly()
-  setResult()
+  startStopTimer()
+  finishModal()
 })
 
 if (true) {
