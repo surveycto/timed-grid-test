@@ -270,6 +270,9 @@ $(document).ready(function () {
     })
     passagePaging(pageArr, shouldPage) // Create passage.
     if (previousMetaData != null) {
+      if (prevPageNumber > 0) {
+        backButton.classList.remove('hideButton')
+      }
       if (prevPageNumber === 1) {
         aStart = 0
         aEnd = 1
