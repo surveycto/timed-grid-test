@@ -13,7 +13,7 @@ This field plug-in is designed to help execute the Early Grade Reading Assessmen
 
 For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf).
 
-[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-grid/raw/master/egra-test.fieldplugin.zip)
+[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip)
 
 ### Features
 
@@ -43,12 +43,12 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 * 7 - Whether the firstline was all incorrect
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
 
-See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-grid/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx) for details.
+See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx) for details.
 
 ## How to use
 
-1. Download the [sample form](https://github.com/surveycto/egra-grid/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx) from this repo and upload it to your SurveyCTO server.
-1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-grid/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
+1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx) from this repo and upload it to your SurveyCTO server.
+1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
 ### Parameters
@@ -75,7 +75,7 @@ If you're using the online form designer, you could simply add the following to 
 ## More resources
 
 * **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-grid/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx).
+You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx).
 * **Developer documentation**  
 More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
 * **User documentation**  
