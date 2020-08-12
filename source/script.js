@@ -43,18 +43,6 @@ var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
 var extraItems// track whether to allow selecting items after time has run out.
 
-// Bind created rows.
-// var fieldset1 = document.querySelector('#fieldset1')
-// var fieldset2 = document.querySelector('#fieldset2')
-// var fieldset3 = document.querySelector('#fieldset3')
-// var fieldset4 = document.querySelector('#fieldset4')
-// var fieldset5 = document.querySelector('#fieldset5')
-// var fieldset6 = document.querySelector('#fieldset6')
-// var fieldset7 = document.querySelector('#fieldset7')
-// var fieldset8 = document.querySelector('#fieldset8')
-// var fieldset9 = document.querySelector('#fieldset9')
-// var fieldset10 = document.querySelector('#fieldset10')
-
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
 var screenSize
@@ -232,13 +220,13 @@ if (createGrid) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
     }
-    var it = box.classList.item(1)
-    var itemIndex = it.slice(4)
+    var it = box.classList.item(1) // Get the item class
+    var itemIndex = it.slice(4) // Get the item number from the item class
     if (previousSelectedItems != null && previousSelectedItems.includes(itemIndex)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
   })
-  updateGrid()
+  updateGrid() // Draw grid based on selections and paging done so far.
   setInterval(timer, 1000) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
@@ -269,9 +257,10 @@ $(document).ready(function () {
       }
     })
     passagePaging(pageArr, shouldPage) // Create passage.
+    // Manages paging for a grid test in progress.
     if (previousMetaData != null) {
       if (prevPageNumber > 0) {
-        backButton.classList.remove('hideButton')
+        backButton.classList.remove('hideButton') // show back button for more than one page
       }
       if (prevPageNumber === 1) {
         aStart = 0
@@ -652,18 +641,19 @@ document.querySelector('.next').addEventListener('click', function () {
   }
 })
 
+// Creates paging for the reading test.
 function pageReading () {
   Array.from(gridItems, function (box) {
-    var temp1 = parseInt(box.classList.item(1).slice(4))
+    var temp1 = parseInt(box.classList.item(1).slice(4)) // Get the item number.
     if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
-      box.classList.add('hidden')
+      box.classList.add('hidden') // Hide items greater than current page limits.
     }
     if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
-      box.classList.remove('hidden')
+      box.classList.remove('hidden') // Show items within current page limits
     }
-    if (pageArr[aEnd] === undefined) {
-      nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+    if (pageArr[aEnd] === undefined) { // If on the last page.
+      nextButton.classList.add('hideButton') // Hide nex button.
+      finishButton.classList.remove('hidden') // Show the finish button.
     }
   })
 }
@@ -807,8 +797,6 @@ document.querySelector('.back').addEventListener('click', function () {
         }
       }
     })
-    console.log('Back start is ' + aStart)
-    console.log('Back end is ' + aEnd)
   }
 })
 
@@ -821,7 +809,7 @@ function openModal (content) {
 }
 // Thank you note modal
 function openThankYouModal () {
-  modalContent.innerText = 'Thank you! You can continue.'
+  modalContent.innerText = 'Thank you! You can continue.' // Text to display on the modal.
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
@@ -867,6 +855,7 @@ function openIncorrectItemsModal () {
   }
 }
 
+// Modal to confirm finishing a test early.
 function finishModal () {
   modalContent.innerText = 'Do you want to end the test now?'
   firstModalButton.innerText = 'Yes'
@@ -876,12 +865,12 @@ function finishModal () {
     modal.style.display = 'none'
     lastSelectedIndex = choices.length
     complete = true
-    endEarly()
-    setResult()
+    endEarly() // Confirm ending early.
+    setResult() // Save current results.
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
-    startStopTimer()
+    startStopTimer() // On cancel, continue the timer.
   }
 }
 
@@ -894,12 +883,12 @@ window.onclick = function (event) {
 
 // Finish early
 $('#finishButton').click(function () {
-  finishEarly = 1
+  finishEarly = 1 // Mark the test as finishing early.
   Array.from(gridItems, function (box) {
-    box.removeEventListener('click', boxHandler, false)
+    box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
   })
-  startStopTimer()
-  finishModal()
+  startStopTimer() // Pause the timer.
+  finishModal() // Open modal to confirm ending the test early.
 })
 
 if (true) {
@@ -1048,6 +1037,7 @@ if (true) {
   })
 }
 
+// Paging for letter and word tests that have already started or have been completed.
 function updateGrid () {
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
@@ -1059,9 +1049,8 @@ function updateGrid () {
   var fieldset8 = document.querySelector('#fieldset8')
   var fieldset9 = document.querySelector('#fieldset9')
   var fieldset10 = document.querySelector('#fieldset10')
-  if (previousSelectedItems != null) {
+  if (previousSelectedItems != null) { // Check that the test has started.
     if (type === 'letters' && screenSize === 'small' && continuity === 0) {
-      console.log('Page number is ' + prevPageNumber)
       if (prevPageNumber === 1) {
         fieldset1.classList.add('hidden')
         fieldset2.classList.add('hidden')
@@ -1117,7 +1106,6 @@ function updateGrid () {
       }
     }
     if (type === 'letters' && screenSize === 'small' && continuity === 1) {
-      console.log('Page number is ' + prevPageNumber)
       if (prevPageNumber === 1) {
         fieldset1.classList.add('hidden')
         fieldset2.classList.remove('hidden')
@@ -1225,7 +1213,6 @@ function updateGrid () {
       }
     }
     if (type === 'words' && screenSize === 'small' && continuity === 0) {
-      console.log('Page number is ' + prevPageNumber)
       if (prevPageNumber === 1) {
         fieldset1.classList.add('hidden')
         fieldset2.classList.add('hidden')
@@ -1255,7 +1242,6 @@ function updateGrid () {
       }
     }
     if (type === 'words' && screenSize === 'small' && continuity === 1) {
-      console.log('Page number is ' + prevPageNumber)
       if (prevPageNumber === 1) {
         fieldset1.classList.add('hidden')
         fieldset2.classList.add('hidden')
