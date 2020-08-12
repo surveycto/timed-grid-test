@@ -66,7 +66,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 
 To create a letter reading test that takes 30 seconds, with a strictly observed time limit, and ends if the respondent gets the first 10 letters incorrect, the following would be placed in the appearance column of the spreadsheet form definition:
 
-    custom-egra-grid(type='letters', duration=30, strict=1, ends-with=10)
+    custom-egra-test(type='letters', duration=30, strict=1, ends-with=10)
 
 If you're using the online form designer, you could simply add the following to the _parameters_ field properties box:
 
