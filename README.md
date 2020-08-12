@@ -13,7 +13,7 @@ This field plug-in is designed to help execute the Early Grade Reading Assessmen
 
 For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf).
 
-[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-grid/raw/master/egra-grid.fieldplugin.zip)
+[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-grid/raw/master/egra-test.fieldplugin.zip)
 
 ### Features
 
@@ -48,7 +48,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 ## How to use
 
 1. Download the [sample form](https://github.com/surveycto/egra-grid/raw/master/extras/sample-form/EGRA%20grid%20sample%20form.xlsx) from this repo and upload it to your SurveyCTO server.
-1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-grid/raw/master/egra-grid.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
+1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-grid/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
 ### Parameters
