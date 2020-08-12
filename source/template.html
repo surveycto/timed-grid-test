@@ -1,3 +1,5 @@
+<div class="label default-question-text-size">{{{LABEL}}}</div>
+<div class="hint default-hint-text-size">{{{HINT}}}</div>
 <div class="buttonstop" id="changer">
   <span id="endearly" class="hidden timerDisplay"></span>
     <div id="timerDisplay" class="hidden timerDisplay">TIME LEFT : <span id="timer"></span></div>
@@ -7,9 +9,7 @@
     <span onclick="document.getElementById('modal').style.display='none'" class="close" title="Close Modal">×</span>
     <form class="modal-content">
       <div class="container">
-        <!-- <h1 id="modalHeading">Delete Account</h1> -->
         <p id="modalContent"></p>
-      
         <div class="clearfix">
           <button type="button" id="firstModalButton" class="cancelbtn"></button>
           <button type="button" id="secondModalButton" class="deletebtn"></button>
@@ -17,15 +17,14 @@
       </div>
     </form>
   </div>
-<div class="label default-question-text-size">{{{LABEL}}}</div>
-<div class="hint default-hint-text-size">{{{HINT}}}</div>
 <div class="wrapper">
 <div id='button-holder'>
 </div>
 </div>
 <div class="buttonstop paging">
-    <button id='backButton' class="startstop back hideButton">Back</button>
-    <button id='nextButton' type="button" class="startstop next">Next</button>
+    <button id="backButton" class="startstop back hideButton">Back</button>
+    <button id="nextButton" type="button" class="startstop next">Next</button>
+    <button id="finishButton" type="button" class="startstop next hidden">Finish</button>
 </div>
 <div id="dispselected"></div>
 <div id="lastselected"></div>
