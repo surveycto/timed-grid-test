@@ -12,7 +12,7 @@ This field plug-in is designed to help execute the Early Grade Reading Assessmen
 1. Nonword reading
 1. Oral reading fluency with comprehension
 
-For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf). Also see the [Support Center Guide to EGRA on SurveyCTO]([https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233).
+For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf). Also see the [Support Center Guide to EGRA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233).
 
 [![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip)
 
