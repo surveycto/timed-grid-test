@@ -1,3 +1,4 @@
+
 # EGRA test
 
 ![Screenshot](extras/egra-test.jpg)
@@ -11,7 +12,7 @@ This field plug-in is designed to help execute the Early Grade Reading Assessmen
 1. Nonword reading
 1. Oral reading fluency with comprehension
 
-For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf).
+For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf). Also see the [Support Center Guide to EGRA on SurveyCTO]([https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)).
 
 [![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip)
 
@@ -21,15 +22,15 @@ The egra-test field plug-in has a number of features to help EGRA assessors:
 
 * Appropriate choice list arrangement into a grid or text passage.
 * Adaptive button layouts and pagination, depending on screen size.
-* A built-in timer for limiting the duration of these assessed activities.
+* A built-in timer for limiting the duration of EGRA subtasks.
 * Prompt to prematurely end the test after X number of incorrect answers in line/row 1 of assessed text.
-* Prompt to stop the test once the time runs out.
+* Prompt to stop the subtask once the time runs out.
 * Prompt to pick the last attempted item for the purpose of scoring.
-* Stores sentence progress in an oral reading testing.
+* Stores sentence progress in the oral reading subtask.
 
 ### Data format
 
-This field plug-in supports the `select_multiple` field type, though the EGRA test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the EGRA test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
 
     16714|7 14 16|true|17|88|3|85|No|12
 
@@ -43,11 +44,11 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 * 7 - Whether the firstline was all incorrect
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
 
-See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20test%20sample%20form.xlsx) for details.
+See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) for details.
 
 ## How to use
 
-1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20test%20sample%20form.xlsx) from this repo and upload it to your SurveyCTO server.
+1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
 1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
@@ -75,8 +76,11 @@ If you're using the online form designer, you could simply add the following to 
 ## More resources
 
 * **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20test%20sample%20form.xlsx).
+You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx).
 * **Developer documentation**  
 More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
 * **User documentation**  
 How to get started using field plug-ins in your SurveyCTO form. [https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
+* **Support Center guide**
+How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO.
+[https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)
