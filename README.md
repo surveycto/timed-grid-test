@@ -74,11 +74,11 @@ If you're using the online form designer, you could simply add the following to 
 
 ## More resources
 
-* **Sample form**
+* **Sample form** <br>
 [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx).
-* **Developer documentation**
+* **Developer documentation** <br>
 [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
-* **User documentation**
+* **User documentation** <br>
 [https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
-* **Support Center guide**
+* **Support Center guide** <br>
 [https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)
