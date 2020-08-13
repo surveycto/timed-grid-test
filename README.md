@@ -1,4 +1,3 @@
-
 # EGRA test
 
 ![Screenshot](extras/egra-test.jpg)
@@ -75,12 +74,11 @@ If you're using the online form designer, you could simply add the following to 
 
 ## More resources
 
-* **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx).
-* **Developer documentation**  
-More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
-* **User documentation**  
-How to get started using field plug-ins in your SurveyCTO form. [https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
+* **Sample form**
+[extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx).
+* **Developer documentation**
+[https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
+* **User documentation**
+[https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
 * **Support Center guide**
-How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO.
 [https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)
