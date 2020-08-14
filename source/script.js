@@ -121,8 +121,10 @@ if (previousMetaData !== null) {
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   if (complete !== 'true' || complete == null) { // For incomplete test.
-    timeLeft = parseInt(s1[0]) // Get time left from metadata.
-    timeStart = timeLeft // Start timer from time left.
+    if (!isNaN(parseInt(s1[0]))) {
+      timeLeft = parseInt(s1[0]) // Get time left from metadata.
+      timeStart = timeLeft // Start timer from time left.
+    }
   } else {
     timeLeft = 0 // For completed test
   }
@@ -227,10 +229,21 @@ if (createGrid) {
     }
   })
   updateGrid() // Draw grid based on selections and paging done so far.
-  setInterval(timer, 1000) // Start the timer.
+  setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
-    startStopTimer() // continue the test immediately on return
+    if (!isNaN(timeLeft)) {
+      startStopTimer() // continue the test immediately on return
+    } else {
+      timerDisplay.classList.add('hidden')
+      button.classList.remove('hidden')
+      button.innerHTML = 'Start'
+      button.onclick = function () {
+        timerRunning = false
+        startStopTimer()
+        // button.classList.add('hidden')
+      }
+    }
   }
 }
 
@@ -340,6 +353,15 @@ function timer () { // Timer function.
   }
   if (!isNaN(timeLeft)) {
     timerDisp.innerHTML = Math.ceil(timeLeft / 1000) // display the countdown timer.
+  } else {
+    // timerDisplay.classList.add('hidden')
+    // button.classList.remove('hidden')
+    // button.innerHTML = 'Start'
+    // button.onclick = function () {
+    //   timerRunning = false
+    //   startStopTimer()
+    //   button.classList.add('hidden')
+    // }
   }
 }
 
