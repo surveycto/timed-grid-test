@@ -906,12 +906,22 @@ window.onclick = function (event) {
 // Finish early
 $('#finishButton').click(function () {
   finishEarly = 1 // Mark the test as finishing early.
-  Array.from(gridItems, function (box) {
-    box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
-  })
+  makeInActive()
   startStopTimer() // Pause the timer.
   finishModal() // Open modal to confirm ending the test early.
 })
+
+function makeActive () {
+  Array.from(gridItems, function (box) {
+    box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
+  })
+}
+
+function makeInActive () {
+  Array.from(gridItems, function (box) {
+    box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
+  })
+}
 
 if (true) {
   var counter1 = 0
