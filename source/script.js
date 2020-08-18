@@ -83,15 +83,6 @@ if (strict == null) {
   extraItems = 0
 }
 
-// Set end after default to 10 for letters and 5 for words.
-if (endAfter == null && columns === 10) {
-  endAfter = 10
-} else if (endAfter == null && columns === 5) {
-  endAfter = 5
-} else {
-  endAfter = parseInt(endAfter)
-}
-
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
@@ -111,6 +102,15 @@ if (type === 'reading') {
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
+}
+
+// Set end after default to 10 for letters and 5 for words.
+if (endAfter == null && columns === 10) {
+  endAfter = 10
+} else if (endAfter == null && columns === 5) {
+  endAfter = 5
+} else {
+  endAfter = parseInt(endAfter)
 }
 
 // Check if MetaData exists
