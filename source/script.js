@@ -874,6 +874,7 @@ function openIncorrectItemsModal () {
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
+    startStopTimer()
   }
 }
 
