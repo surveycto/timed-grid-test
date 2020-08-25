@@ -160,6 +160,9 @@ function createGrid (keys) {
         fieldsetClass = 'lg' + tracker // CSS class to be applied.
         if (tracker > 4) { // check whether there are four rows displayed.
           fieldset.classList.add('hidden') // Hide all other rows except the first four.
+        } else {
+          nextButton.classList.add('hideButton') // hide next button.
+          finishButton.classList.remove('hidden')
         }
       } else if (screenSize === 'medium') { // this is really a large screen for the words test *NEED TO RENAME THIS*
         fieldsetClass = 'ms' + tracker // CSS class to be applied.
