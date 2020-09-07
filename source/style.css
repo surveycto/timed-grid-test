@@ -386,6 +386,23 @@ timer {
   flex-wrap: wrap;
 }
 
+.pgNumber {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: auto auto;
+  grid-template-areas: 
+  "ms1 ms2"
+  "ms3 ms4"
+  "ms5 ms6"
+  "ms7 ms8"
+  "ms9 ms10"
+  "ms11 ms12"
+  "ms13 ms14"
+  "ms15 ms16"
+  "ms17 ms18"
+  "ms19 ms20";
+}
+
 .pgBox {
   height: 42px;
   width: auto;
@@ -410,9 +427,9 @@ timer {
 .item7 { grid-area: ms7; }
 .item8 { grid-area: ms8; }
 .item9 { grid-area: ms9; }
-.item10 { grid-area: ms10; }
-.item11 { grid-area: ms11; }
-.item12 { grid-area: ms12; }
+.item10{ grid-area: ms10; }
+.item11{ grid-area: ms11; }
+.item12{ grid-area: ms12; }
 .item13 { grid-area: ms13; }
 .item14 { grid-area: ms14; }
 .item15 { grid-area: ms15; }
@@ -420,7 +437,7 @@ timer {
 .item17 { grid-area: ms17; }
 .item18 { grid-area: ms18; }
 .item19 { grid-area: ms19; }
-.item20 { grid-area: ms20; }
+.item20{ grid-area: ms20; }
 .item21{grid-area:ms21;}
 .item22{grid-area:ms22;}
 .item23{grid-area:ms23;}

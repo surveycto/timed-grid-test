@@ -42,6 +42,7 @@ var secondModalButton = document.getElementById('secondModalButton') // Get the 
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
 var extraItems// track whether to allow selecting items after time has run out.
+var isNumber = 1
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -102,6 +103,12 @@ if (type === 'reading') {
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
+}
+
+if (type === 'numbers') {
+  columns = 2
+  isNumber = 2
+  type = 'reading'
 }
 
 // Set end after default to 10 for letters and 5 for words.
@@ -176,7 +183,11 @@ function createGrid (keys) {
       fieldset.setAttribute('id', fieldsetId) // Create id for the section.
       fieldset.classList.add(fieldsetClass, 'fieldset') // Add the fieldset CSS class to the section.
     } else {
-      fieldset.classList.add('pg') // Add the pg CSS class to the section for reading test on large screen.
+      if (isNumber === 2) {
+        // fieldset.classList.add('pgNumber')
+      } else {
+        fieldset.classList.add('pg') // Add the pg CSS class to the section for reading test on large screen.
+      }
       if (screenSize !== 'small') {
         finishButton.classList.remove('hidden') // Show the button.
       }
@@ -203,6 +214,9 @@ function createGrid (keys) {
       fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
     }
     div.append(fieldset) // Add the row to main container.
+  }
+  if (isNumber === 2) {
+    div.classList.add('pgNumber')
   }
   return true
 }
