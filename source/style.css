@@ -1,3 +1,6 @@
+
+* {box-sizing: border-box;}
+
 .buttonstop {
   display: flex;
   justify-content: center;
@@ -546,8 +549,6 @@ timer {
 .hideButton {
   visibility: hidden;
 }
-
-* {box-sizing: border-box;}
 
 /* Set a style for all buttons */
 button {
