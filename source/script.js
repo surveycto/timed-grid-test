@@ -1,4 +1,4 @@
-/* global fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
+/* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
 
 var continuity = getPluginParameter('continuity')
 var duration = getPluginParameter('duration')
