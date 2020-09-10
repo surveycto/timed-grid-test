@@ -539,151 +539,149 @@ $('#finishButton').click(function () {
   finishModal() // Open modal to confirm ending the test early.
 })
 
-if (true) {
-  var counter1 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend1').click(function () {
-    var clickedElement = $(this)
-    if (counter1 === 0) {
-      firstClick(clickedElement)
-    } else if (counter1 === 1) {
-      secondClick(clickedElement, 1)
-      openIncorrectItemsModal()
-    } else if (counter1 === 2) {
-      thirdClick(clickedElement, 1)
-      counter1 = -1
-    }
-    counter1++
-  })
+var counter1 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend1').click(function () {
+  var clickedElement = $(this)
+  if (counter1 === 0) {
+    firstClick(clickedElement)
+  } else if (counter1 === 1) {
+    secondClick(clickedElement, 1)
+    openIncorrectItemsModal()
+  } else if (counter1 === 2) {
+    thirdClick(clickedElement, 1)
+    counter1 = -1
+  }
+  counter1++
+})
 
-  var counter2 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend2').click(function () {
-    var clickedElement = $(this)
-    if (counter2 === 0) {
-      firstClick(clickedElement)
-    } else if (counter2 === 1) {
-      secondClick(clickedElement, 2)
-    } else if (counter2 === 2) {
-      thirdClick(clickedElement, 2)
-      counter2 = -1
-    }
-    counter2++
-  })
-  var counter3 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend3').click(function () {
-    var clickedElement = $(this)
-    if (counter3 === 0) {
-      firstClick(clickedElement)
-    } else if (counter3 === 1) {
-      secondClick(clickedElement, 3)
-    } else if (counter3 === 2) {
-      thirdClick(clickedElement, 3)
-      counter3 = -1
-    }
-    counter3++
-  })
-  var counter4 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend4').click(function () {
-    var clickedElement = $(this)
-    if (counter4 === 0) {
-      firstClick(clickedElement)
-    } else if (counter4 === 1) {
-      secondClick(clickedElement, 4)
-    } else if (counter4 === 2) {
-      thirdClick(clickedElement, 4)
-      counter4 = -1
-    }
-    counter4++
-  })
-  var counter5 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend5').click(function () {
-    var clickedElement = $(this)
-    if (counter5 === 0) {
-      firstClick(clickedElement)
-    } else if (counter5 === 1) {
-      secondClick(clickedElement, 5)
-    } else if (counter5 === 2) {
-      thirdClick(clickedElement, 5)
-      counter5 = -1
-    }
-    counter5++
-  })
-  var counter6 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend6').click(function () {
-    var clickedElement = $(this)
-    if (counter6 === 0) {
-      firstClick(clickedElement)
-    } else if (counter6 === 1) {
-      secondClick(clickedElement, 6)
-    } else if (counter6 === 2) {
-      thirdClick(clickedElement, 6)
-      counter6 = -1
-    }
-    counter6++
-  })
-  var counter7 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend7').click(function () {
-    var clickedElement = $(this)
-    if (counter7 === 0) {
-      firstClick(clickedElement)
-    } else if (counter7 === 1) {
-      secondClick(clickedElement, 7)
-    } else if (counter7 === 2) {
-      thirdClick(clickedElement, 7)
-      counter7 = -1
-    }
-    counter7++
-  })
-  var counter8 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend8').click(function () {
-    var clickedElement = $(this)
-    if (counter8 === 0) {
-      firstClick(clickedElement)
-    } else if (counter8 === 1) {
-      secondClick(clickedElement, 8)
-    } else if (counter8 === 2) {
-      thirdClick(clickedElement, 8)
-      counter8 = -1
-    }
-    counter8++
-  })
-  var counter9 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend9').click(function () {
-    var clickedElement = $(this)
-    if (counter9 === 0) {
-      firstClick(clickedElement)
-    } else if (counter9 === 1) {
-      secondClick(clickedElement, 9)
-    } else if (counter9 === 2) {
-      thirdClick(clickedElement, 9)
-      counter9 = -1
-    }
-    counter9++
-  })
+var counter2 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend2').click(function () {
+  var clickedElement = $(this)
+  if (counter2 === 0) {
+    firstClick(clickedElement)
+  } else if (counter2 === 1) {
+    secondClick(clickedElement, 2)
+  } else if (counter2 === 2) {
+    thirdClick(clickedElement, 2)
+    counter2 = -1
+  }
+  counter2++
+})
+var counter3 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend3').click(function () {
+  var clickedElement = $(this)
+  if (counter3 === 0) {
+    firstClick(clickedElement)
+  } else if (counter3 === 1) {
+    secondClick(clickedElement, 3)
+  } else if (counter3 === 2) {
+    thirdClick(clickedElement, 3)
+    counter3 = -1
+  }
+  counter3++
+})
+var counter4 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend4').click(function () {
+  var clickedElement = $(this)
+  if (counter4 === 0) {
+    firstClick(clickedElement)
+  } else if (counter4 === 1) {
+    secondClick(clickedElement, 4)
+  } else if (counter4 === 2) {
+    thirdClick(clickedElement, 4)
+    counter4 = -1
+  }
+  counter4++
+})
+var counter5 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend5').click(function () {
+  var clickedElement = $(this)
+  if (counter5 === 0) {
+    firstClick(clickedElement)
+  } else if (counter5 === 1) {
+    secondClick(clickedElement, 5)
+  } else if (counter5 === 2) {
+    thirdClick(clickedElement, 5)
+    counter5 = -1
+  }
+  counter5++
+})
+var counter6 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend6').click(function () {
+  var clickedElement = $(this)
+  if (counter6 === 0) {
+    firstClick(clickedElement)
+  } else if (counter6 === 1) {
+    secondClick(clickedElement, 6)
+  } else if (counter6 === 2) {
+    thirdClick(clickedElement, 6)
+    counter6 = -1
+  }
+  counter6++
+})
+var counter7 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend7').click(function () {
+  var clickedElement = $(this)
+  if (counter7 === 0) {
+    firstClick(clickedElement)
+  } else if (counter7 === 1) {
+    secondClick(clickedElement, 7)
+  } else if (counter7 === 2) {
+    thirdClick(clickedElement, 7)
+    counter7 = -1
+  }
+  counter7++
+})
+var counter8 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend8').click(function () {
+  var clickedElement = $(this)
+  if (counter8 === 0) {
+    firstClick(clickedElement)
+  } else if (counter8 === 1) {
+    secondClick(clickedElement, 8)
+  } else if (counter8 === 2) {
+    thirdClick(clickedElement, 8)
+    counter8 = -1
+  }
+  counter8++
+})
+var counter9 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend9').click(function () {
+  var clickedElement = $(this)
+  if (counter9 === 0) {
+    firstClick(clickedElement)
+  } else if (counter9 === 1) {
+    secondClick(clickedElement, 9)
+  } else if (counter9 === 2) {
+    thirdClick(clickedElement, 9)
+    counter9 = -1
+  }
+  counter9++
+})
 
-  var counter10 = 0
-  // Add click event to row numbers and allow selecting of the whole row
-  $('#legend10').click(function () {
-    var clickedElement = $(this)
-    if (counter10 === 0) {
-      firstClick(clickedElement)
-    } else if (counter10 === 1) {
-      secondClick(clickedElement, 10)
-    } else if (counter10 === 2) {
-      thirdClick(clickedElement, 10)
-      counter10 = -1
-    }
-    counter10++
-  })
-}
+var counter10 = 0
+// Add click event to row numbers and allow selecting of the whole row
+$('#legend10').click(function () {
+  var clickedElement = $(this)
+  if (counter10 === 0) {
+    firstClick(clickedElement)
+  } else if (counter10 === 1) {
+    secondClick(clickedElement, 10)
+  } else if (counter10 === 2) {
+    thirdClick(clickedElement, 10)
+    counter10 = -1
+  }
+  counter10++
+})
 
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
 
