@@ -1020,7 +1020,7 @@ function openThankYouModal () {
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
-  Array.from(gridItems, function (box) {// Make all grid unclickable once test is complete.
+  Array.from(gridItems, function (box) { // Make all grid unclickable once test is complete.
     if (!(box.classList.contains('pmBox'))) {
       box.removeEventListener('click', boxHandler, false)
     }
