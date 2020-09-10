@@ -540,7 +540,7 @@ timer {
 .paging {
   display: flex;
   justify-content: space-between;
-  padding-inline:25%;
+  padding-inline: 25%;
 }
 
 .hideButton {
