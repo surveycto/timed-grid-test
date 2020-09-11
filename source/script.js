@@ -200,7 +200,7 @@ $(document).ready(function () {
         if (rowPos >= 6) { // Check the number of rows so far.
           shouldPage = true // Add paging if more than 6 rows.
         }
-        if (rowPos % 6 === 0) { // Create a new page every 6 rows.
+        if (rowPos % 7 === 0) { // Create a new page every 6 rows.
           var temp = div1[0].classList.item(1).slice(4)
           pageArr.push(temp)
         }
