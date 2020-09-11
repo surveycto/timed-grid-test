@@ -1,3 +1,6 @@
+
+* {box-sizing: border-box;}
+
 .buttonstop {
   display: flex;
   justify-content: center;
@@ -540,14 +543,12 @@ timer {
 .paging {
   display: flex;
   justify-content: space-between;
-  padding-inline:25%;
+  padding-inline: 25%;
 }
 
 .hideButton {
   visibility: hidden;
 }
-
-* {box-sizing: border-box;}
 
 /* Set a style for all buttons */
 button {
