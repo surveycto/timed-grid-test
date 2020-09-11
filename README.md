@@ -7,6 +7,7 @@
 
 This field plug-in is designed to help execute the timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See feature list for a list of supported tests.
 
+
 [![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip)
 
 ### Features
@@ -70,8 +71,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 |---|---|
 |`type` (required)|Used to specify the kind of test the field plug-in is being used for. This determines the screen layout. You can specify any one of these values: `letters` - for the EGRA letter reading test. `words` - for the EGRA nonword or familiar word reading test. `reading` - for the EGRA reading/comprehension test. `numbers` - for the EGMA number identification test. `arithmetic` - for the EGMA addition/subtraction level 1 tests.|
 |`duration` (optional)|Used to specify the length of the test in seconds. Default is 60 seconds. Enter a custom value as required to override the default as required.|
-|`end-after` (optional)|Used to specify the limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test.
-The default is 10 for an EGRA letter reading test and 5 for an EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.|
+|`end-after` (optional)|Used to specify the limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test. The default is 10 for an EGRA letter reading test and 5 for an EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.|
 |`strict` (optional)|Enable to enforce strict adherence to the time limit in duration. When strict is enabled (strict = 1), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once the time runs out. This will allow slower users to catch up according to what they heard before finishing the activity.|
 |`pause` (optional)|The default behaviour is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify pause = 1.|
 |`continuity` (optional)|Applies only to smaller screens if the test becomes paginated. When enabled (continuity = 1), it provides some visual continuity as to where the user is on their screen in relation to print handout for the student being assessed. It achieves this by moving the bottom row on screen to the top of the next screen when you page forward. This feature is disabled by default, so specify nothing if you do not wish to use continuity.|
