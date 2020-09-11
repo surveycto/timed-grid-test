@@ -92,6 +92,10 @@ if (type === 'letters') {
   }
 }
 
+if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
+  type = 'words'
+}
+
 if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
@@ -106,7 +110,7 @@ if (type === 'reading') {
   }
 }
 
-if (type === 'numbers') {
+if (type === 'arithmetic') {
   columns = 2
   isNumber = 2
   type = 'reading'
