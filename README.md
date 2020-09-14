@@ -44,7 +44,7 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 ### Data format
 
-This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the EGRA test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
 
     16714|7 14 16|true|17|88|3|85|No|12
 
