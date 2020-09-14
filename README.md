@@ -62,7 +62,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 
 ## How to use
 
-1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
+1. Download the [sample form](https://github.com/surveycto/timed-grid-test/raw/egma-support/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
 1. Download the [timed-grid-test.fieldplugin.zip](https://github.com/surveycto/timed-grid-test/raw/egma-support/timed-grid-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
@@ -95,7 +95,7 @@ Similarly, an EGMA addition level 1 test that takes 50 seconds would have the fo
 ## More resources
 
 * **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx).
+You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/egma-support/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
 * **Developer documentation**  
 More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
 * **User documentation**  
