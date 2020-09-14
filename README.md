@@ -1,12 +1,17 @@
-
 # Timed grid test
 
 ![Screenshot](extras/egra-test.jpg)
 
 ## Description
 
-This field plug-in is designed to help execute the timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See features for a list of supported tests.
+This field plug-in is designed to help execute the Early Grade Reading Assessment (EGRA) on SurveyCTO. It supports the following tests:
 
+1. Letter identification
+1. Familiar word reading
+1. Nonword reading
+1. Oral reading fluency with comprehension
+
+For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf).
 
 [![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip)
 
@@ -44,7 +49,7 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 ### Data format
 
-This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the EGRA test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the `select_multiple` field type, though the EGRA test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
 
     16714|7 14 16|true|17|88|3|85|No|12
 
@@ -58,12 +63,12 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 * 7 - Whether the firstline was all incorrect
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
 
-See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) for details.
+See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20test%20sample%20form.xlsx) for details.
 
 ## How to use
 
-1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
-1. Download the [timed-grid-test.fieldplugin.zip](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
+1. Download the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/EGRA%20test%20sample%20form.xlsx) from this repo and upload it to your SurveyCTO server.
+1. Download the [egra-test.fieldplugin.zip](https://github.com/surveycto/egra-test/raw/master/egra-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
 ### Parameters
@@ -90,7 +95,6 @@ If you're using the online form designer, you could simply add the following to 
 Similarly, an EGMA addition level 1 test that takes 50 seconds would have the following in its appearance column.
 
     custom-timed-grid-test(type='arithmetic', duration = 50)
-
 
 ## More resources
 
