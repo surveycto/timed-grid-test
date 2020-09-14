@@ -8,7 +8,7 @@
 This field plug-in is designed to help execute the timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See features for a list of supported tests.
 
 
-[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/timed-grid-test/raw/develop/timed-grid-test.fieldplugin.zip)
+[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/timed-grid-test/raw/master/timed-grid-test.fieldplugin.zip)
 
 ### Features
 
@@ -58,12 +58,12 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 * 7 - Whether the firstline was all incorrect
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
 
-See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/egra-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) for details.
+See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) for details.
 
 ## How to use
 
-1. Download the [sample form](https://github.com/surveycto/timed-grid-test/raw/egma-support/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
-1. Download the [timed-grid-test.fieldplugin.zip](https://github.com/surveycto/timed-grid-test/raw/egma-support/timed-grid-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
+1. Download the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) from this repo and upload it to your SurveyCTO server.
+1. Download the [timed-grid-test.fieldplugin.zip](https://github.com/surveycto/timed-grid-test/raw/master/timed-grid-test.fieldplugin.zip) file from this repo, and attach it to the test form on your SurveyCTO server.
 1. Make sure to provide the correct parameters (see below).
 
 ### Parameters
@@ -95,7 +95,7 @@ Similarly, an EGMA addition level 1 test that takes 50 seconds would have the fo
 ## More resources
 
 * **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/egma-support/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
+You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
 * **Developer documentation**  
 More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
 * **User documentation**  
