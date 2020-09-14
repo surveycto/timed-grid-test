@@ -73,9 +73,9 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 |`type` (required)|Used to specify the kind of test the field plug-in is being used for. This determines the screen layout. You can specify any one of these values: <ul><li>`letters` - for the EGRA letter reading test. Creates 10 columns.</li><li> `words` - for the EGRA nonword or familiar word reading test. Creates 5 columns.</li><li>`reading` - for the EGRA reading/comprehension test. Arranges choice list in passage with variable button widths according to the size of words. </li><li>`numbers` - for the EGMA number identification test. Creates 5 columns.</li><li> `arithmetic` - for the EGMA addition/subtraction level 1 tests.Creates 2 columns.</li></ul>|
 |`duration` (optional)|Used to specify the length of the test in seconds. Default is 60 seconds. Enter a custom value as required to override the default as required.|
 |`end-after` (optional)|Used to specify the limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test. The default is 10 for an EGRA letter reading test and 5 for an EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.|
-|`strict` (optional)|Enable to enforce strict adherence to the time limit in duration. When strict is enabled (strict = 1), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once the time runs out. This will allow slower users to catch up according to what they heard before finishing the activity.|
-|`pause` (optional)|The default behaviour is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify pause = 1.|
-|`continuity` (optional)|Applies only to smaller screens if the test becomes paginated. When enabled (continuity = 1), it provides some visual continuity as to where the user is on their screen in relation to the print handout in front of the student being assessed. It achieves this by moving the bottom row on screen to the top of the next screen when you page forward. This feature is disabled by default, so specify nothing if you do not wish to use continuity.|
+|`strict` (optional)|Enable to enforce strict adherence to the time limit in duration. When strict is enabled (`strict = 1`), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once the time runs out. This will allow slower users to catch up according to what they heard before finishing the activity.|
+|`pause` (optional)|The default behaviour is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify `pause = 1`.|
+|`continuity` (optional)|Applies only to smaller screens if the test becomes paginated. When enabled (`continuity = 1`), it provides some visual continuity as to where the user is on their screen in relation to the print handout in front of the student being assessed. It achieves this by moving the bottom row on screen to the top of the next screen when you page forward. This feature is disabled by default, so specify nothing if you do not wish to use continuity.|
 
 ### Examples
 
@@ -89,7 +89,7 @@ If you're using the online form designer, you could simply add the following to 
 
 Similarly, an EGMA addition level 1 test that takes 50 seconds would have the following in its appearance column.
 
-    custom-timed-grid-test(type = 'arithmetic', duration = 50)
+    custom-timed-grid-test(type='arithmetic', duration = 50)
 
 
 ## More resources
