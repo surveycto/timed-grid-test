@@ -96,14 +96,17 @@ Similarly, an EGMA addition level 1 test that takes 50 seconds would have the fo
 ## More resources
 
 * **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
+You can find a form definition in this repo here: <br>
+[extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
 * **Developer documentation**  
-More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
+More instructions for developing and using field plug-ins can be found here: <br>
+[https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
 * **User documentation**  
-How to get started using field plug-ins in your SurveyCTO form. [https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
+How to get started using field plug-ins in your SurveyCTO form. <br>
+[https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
 * **Support Center guide to EGRA** 
-How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO.
+How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO. <br>
 [https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)
 * **Support Center guide to EGMA**
-How to administer the Early Grade Mathematics Assessment (EGMA) using SurveyCTO.
+How to administer the Early Grade Mathematics Assessment (EGMA) using SurveyCTO. <br>
 [https://support.surveycto.com/hc/en-us/articles/360052750634](https://support.surveycto.com/hc/en-us/articles/360052750634)
