@@ -1,4 +1,5 @@
 
+
 # Timed grid test
 
 ![Screenshot](extras/egra-test.jpg)
@@ -38,7 +39,7 @@ In the case of EGMA, this field plug-in can be used for these subtasks:
 * Addition Level 1
 * Subtraction Level 1
 
-For details on these tests, please consult the [USAID EGMA Toolkit](https://ierc-publicfiles.s3.amazonaws.com/public/resources/EGMA%20Toolkit_March2014.pdf). Also see the [Support Center Guide to EGRA on SurveyCTO](https://surveycto.zendesk.com/knowledge/articles/360052750634/).
+For details on these tests, please consult the [USAID EGMA Toolkit](https://ierc-publicfiles.s3.amazonaws.com/public/resources/EGMA%20Toolkit_March2014.pdf). Also see the [Support Center Guide to EGMA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052750634).
 
 The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master/README.md) field plug-in is also useful for certain EGRA and EGMA subtasks.
 
@@ -58,7 +59,7 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 * 7 - Whether the firstline was all incorrect
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
 
-See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20EGRA%20Test%20field%20plug-in.xlsx) for details.
+See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) for details.
 
 ## How to use
 
@@ -83,26 +84,29 @@ To create a EGRA letter reading test that takes 30 seconds, with a strictly obse
 
     custom-timed-grid-test(type='letters', duration=30, strict=1, ends-with=10)
 
-If you're using the online form designer, you could simply add the following to the _parameters_ field properties box:
+If you're using the online form designer, you could simply add the following to the _Plug-in parameters_ properties box:
 
     type='letters', duration=30, strict=1, ends-with=10
 
-Similarly, an EGMA addition level 1 test that takes 50 seconds would have the following in its appearance column.
+Similarly, an EGMA addition level 1 test that takes 50 seconds would have the following in its _appearance_ column of a spreadsheet form design:.
 
     custom-timed-grid-test(type='arithmetic', duration = 50)
 
 
 ## More resources
 
-* **Sample form**  
-You can find a form definition in this repo here: [extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
-* **Developer documentation**  
-More instructions for developing and using field plug-ins can be found here: [https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
-* **User documentation**  
-How to get started using field plug-ins in your SurveyCTO form. [https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
-* **Support Center guides** 
-How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO.
+* **Sample form** <br>
+You can find a form definition in this repo here: <br>
+[extras/sample_form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx).
+* **Developer documentation** <br>
+More instructions for developing and using field plug-ins can be found here: <br>
+[https://github.com/surveycto/Field-plug-in-resources](https://github.com/surveycto/Field-plug-in-resources)
+* **User documentation** <br>
+How to get started using field plug-ins in your SurveyCTO form. <br>
+[https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html](https://docs.surveycto.com/02-designing-forms/03-advanced-topics/06.using-field-plug-ins.html)
+* **Support Center guide to EGRA** <br>
+How to administer the Early Grade Reading Assessment (EGRA) using SurveyCTO. <br>
 [https://support.surveycto.com/hc/en-us/articles/360052796233](https://support.surveycto.com/hc/en-us/articles/360052796233)
-
-How to administer the Early Grade Mathematics Assessment (EGMA) using SurveyCTO.
-[https://surveycto.zendesk.com/knowledge/articles/360052750634](https://surveycto.zendesk.com/knowledge/articles/360052750634)
+* **Support Center guide to EGMA** <br>
+How to administer the Early Grade Mathematics Assessment (EGMA) using SurveyCTO. <br>
+[https://support.surveycto.com/hc/en-us/articles/360052750634](https://support.surveycto.com/hc/en-us/articles/360052750634)
