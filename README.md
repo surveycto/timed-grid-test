@@ -6,7 +6,7 @@
 
 ## Description
 
-This field plug-in is designed to help execute the timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See features for a list of supported tests.
+This field plug-in is designed to help execute timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See features for a list of supported tests.
 
 
 [![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/timed-grid-test/raw/master/timed-grid-test.fieldplugin.zip)
@@ -21,7 +21,7 @@ The timed-grid-test field plug-in has the following features:
 * Prompt to prematurely end the test after X number of incorrect answers in line/row 1 of assessed text.
 * Prompt to stop the test once the time runs out.
 * Prompt to pick the last attempted item for the purpose of scoring.
-* Stores sentence progress in an oral reading testing.
+* Stores sentence progress in the oral reading test.
 * Allows completing the test before allotted time has elapsed using the “Finish” button.
 
 For EGRA, the following subtasks are possible:
@@ -45,7 +45,7 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 ### Data format
 
-This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the test data is stored in the field plug-ins metadata. The data is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the test data is stored in the field plug-in's metadata. The data is stored in a pipe-separated (|) list. For example:
 
     16714|7 14 16|true|17|88|3|85|No|12
 
@@ -53,11 +53,11 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 
 * 0 to 2 - Reserved for internal processing (ignore these values)
 * 3 - Amount of time remaining in seconds
-* 4 - Total number of letters attempted
-* 5 - Number of incorrect letters
-* 6 - Number of correct letters
+* 4 - Total number of items attempted
+* 5 - Number of incorrect items
+* 6 - Number of correct items
 * 7 - Whether the firstline was all incorrect
-* 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading version of the test.
+* 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading test type.
 
 See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) for details.
 
@@ -73,22 +73,22 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 |---|---|
 |`type` (required)|Used to specify the kind of test the field plug-in is being used for. This determines the screen layout. You can specify any one of these values: <ul><li>`letters` - for the EGRA letter reading test. Creates 10 columns.</li><li> `words` - for the EGRA nonword or familiar word reading test. Creates 5 columns.</li><li>`reading` - for the EGRA reading/comprehension test. Arranges choice list in passage with variable button widths according to the size of words. </li><li>`numbers` - for the EGMA number identification test. Creates 5 columns.</li><li> `arithmetic` - for the EGMA addition/subtraction level 1 tests.Creates 2 columns.</li></ul>|
 |`duration` (optional)|Used to specify the length of the test in seconds. Default is 60 seconds. Enter a custom value as required to override the default as required.|
-|`end-after` (optional)|Used to specify the limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test. The default is 10 for an EGRA letter reading test and 5 for an EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.|
-|`strict` (optional)|Enable to enforce strict adherence to the time limit in duration. When strict is enabled (`strict = 1`), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once the time runs out. This will allow slower users to catch up according to what they heard before finishing the activity.|
-|`pause` (optional)|The default behaviour is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify `pause = 1`.|
+|`end-after` (optional)|Used to specify a limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test early. The default is 10 items for the EGRA letter reading test and 5 for the EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.|
+|`strict` (optional)|Enable to enforce strict adherence to the time limit specified in `duration`. When strict is enabled (`strict = 1`), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once time runs out. This will allow slower users to catch up according to what they heard just before time ran out.|
+|`pause` (optional)|The default behavior is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify `pause = 1`.|
 |`continuity` (optional)|Applies only to smaller screens if the test becomes paginated. When enabled (`continuity = 1`), it provides some visual continuity as to where the user is on their screen in relation to the print handout in front of the student being assessed. It achieves this by moving the bottom row on screen to the top of the next screen when you page forward. This feature is disabled by default, so specify nothing if you do not wish to use continuity.|
 
 ### Examples
 
-To create a EGRA letter reading test that takes 30 seconds, with a strictly observed time limit, and ends if the respondent gets the first 10 letters incorrect, the following would be placed in the appearance column of the spreadsheet form definition:
+To create an EGRA letter reading test that takes 30 seconds, with a strictly observed time limit, and ends if the respondent gets the first 10 letters incorrect, the following would be placed in the appearance column of the spreadsheet form definition:
 
-    custom-timed-grid-test(type='letters', duration=30, strict=1, ends-with=10)
+    custom-timed-grid-test(type='letters', duration=30, strict=1)
 
 If you're using the online form designer, you could simply add the following to the _Plug-in parameters_ properties box:
 
-    type='letters', duration=30, strict=1, ends-with=10
+    type='letters', duration=30, strict=1
 
-Similarly, an EGMA addition level 1 test that takes 50 seconds would have the following in its _appearance_ column of a spreadsheet form design:.
+Similarly, an EGMA addition level 1 test that allows 50 seconds would have the following in its _appearance_ column of a spreadsheet form design:.
 
     custom-timed-grid-test(type='arithmetic', duration = 50)
 
