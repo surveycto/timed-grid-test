@@ -80,7 +80,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 
 ### Examples
 
-To create an EGRA letter reading test that takes 30 seconds, with a strictly observed time limit, and ends if the respondent gets the first 10 letters incorrect, the following would be placed in the appearance column of the spreadsheet form definition:
+To create an EGRA letter reading test that allows 30 seconds, with a strictly observed time limit, and ends if the respondent gets the first 10 letters incorrect, the following would be placed in the appearance column of the spreadsheet form definition:
 
     custom-timed-grid-test(type='letters', duration=30, strict=1)
 
@@ -88,7 +88,7 @@ If you're using the online form designer, you could simply add the following to 
 
     type='letters', duration=30, strict=1
 
-Similarly, an EGMA addition level 1 test that allows 50 seconds would have the following in its _appearance_ column of a spreadsheet form design:.
+Similarly, an EGMA addition level 1 test that allows 50 seconds would have the following in its _appearance_ column of a spreadsheet form design:
 
     custom-timed-grid-test(type='arithmetic', duration = 50)
 
