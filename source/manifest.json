@@ -1,7 +1,7 @@
 {
 	"name" : "Timed grid test",
 	"author" : "Dobility",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"supportedFieldTypes": ["select_multiple"],
 	"externalCss":["bootstrap.min.css"],
 	"externalJs" : ["jquery-3.5.1.min.js", "bootstrap.min.js", "popper.min.js"]

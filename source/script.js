@@ -822,15 +822,6 @@ function timer () { // Timer function.
   }
   if (!isNaN(timeLeft)) {
     timerDisp.innerHTML = Math.ceil(timeLeft / 1000) // display the countdown timer.
-  } else {
-    // timerDisplay.classList.add('hidden')
-    // button.classList.remove('hidden')
-    // button.innerHTML = 'Start'
-    // button.onclick = function () {
-    //   timerRunning = false
-    //   startStopTimer()
-    //   button.classList.add('hidden')
-    // }
   }
 }
 
