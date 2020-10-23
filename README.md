@@ -47,11 +47,11 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the test data is stored in the field plug-in's metadata. The data is stored in a pipe-separated (|) list. For example:
 
-    16714|7 14 16|true|17|88|3|85|No|12
+    16714 0|7 14 16|true|17|88|3|85|No|12
 
 You can retrieve the specific values with the [plug-in-metadata() function](https://docs.surveycto.com/02-designing-forms/01-core-concepts/09.expressions.html#plug-in-metadata) in your form design to return the following from these positions in the metadata:
 
-* 0 to 2 - Reserved for internal processing (ignore these values)
+* 0 to 2 - Reserved for internal processing and can safely be ignored. Check [this wiki](https://github.com/surveycto/timed-grid-test/wiki/Extended-metadata-details) if you are interested in the more technical aspects.
 * 3 - Amount of time remaining in seconds
 * 4 - Total number of items attempted
 * 5 - Number of incorrect items

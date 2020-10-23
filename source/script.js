@@ -159,14 +159,14 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
-  var gridItems = document.querySelectorAll('.box') // Get all grid items - they all have the box class.
-  Array.from(gridItems, function (box) {
+  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
     }
     var it = box.classList.item(1) // Get the item class
     var itemIndex = it.slice(4) // Get the item number from the item class
-    if (previousSelectedItems != null && previousSelectedItems.includes(itemIndex)) { // If metadata exists check list of selected items.
+    if (previousSelectedItems != null && ($.inArray(itemIndex, previousSelectedItems) !== -1)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
   })
@@ -507,7 +507,7 @@ document.querySelector('.back').addEventListener('click', function () {
   if (type === 'reading' && screenSize === 'small') {
     aStart--
     aEnd--
-    Array.from(gridItems, function (box) {
+    $.map(gridItems, function (box) {
       var temp1 = parseInt(box.classList.item(1).slice(4))
       if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
         box.classList.add('hidden')
@@ -750,8 +750,8 @@ function createGrid (keys) {
         nextButton.classList.add('hideButton')
         secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
         var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-        for (const ch of textLabel) {
-          if (marks.includes(ch)) { // Check if the label is a punctuation mark.
+        for (var ch of textLabel) {
+          if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
             secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
           }
         }
@@ -761,7 +761,7 @@ function createGrid (keys) {
       secondDIV.appendChild(text) // add the text to the div.
       fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
     }
-    div.append(fieldset) // Add the row to main container.
+    div.appendChild(fieldset) // Add the row to main container.
   }
   if (isNumber === 2) {
     div.classList.add('pgNumber')
@@ -771,7 +771,7 @@ function createGrid (keys) {
 
 function passagePaging (pageArray, isPage) {
   if (isPage) {
-    Array.from(gridItems, function (box) {
+    $.map(gridItems, function (box) {
       var temp1 = parseInt(box.classList.item(1).slice(4))
       if (temp1 >= parseInt(pageArray[0])) {
         box.classList.add('hidden')
@@ -822,15 +822,6 @@ function timer () { // Timer function.
   }
   if (!isNaN(timeLeft)) {
     timerDisp.innerHTML = Math.ceil(timeLeft / 1000) // display the countdown timer.
-  } else {
-    // timerDisplay.classList.add('hidden')
-    // button.classList.remove('hidden')
-    // button.innerHTML = 'Start'
-    // button.onclick = function () {
-    //   timerRunning = false
-    //   startStopTimer()
-    //   button.classList.add('hidden')
-    // }
   }
 }
 
@@ -880,7 +871,7 @@ function endTimer () {
 
 function itemClicked (item, itemIndex) {
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
-    const classes = item.classList
+    var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
       classes.remove('selected')
     } else {
@@ -897,7 +888,7 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
       cell.classList.remove('lastSelected')
     }
     item.classList.add('lastSelected')
@@ -907,7 +898,7 @@ function itemClicked (item, itemIndex) {
       setResult() // Set the results.
       openThankYouModal()
     } else {
-      for (const cell of gridItems) { // This removes the red border in case another cell was previously selected
+      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
@@ -925,7 +916,7 @@ function checkLastItem () {
   var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item.
   if (indexLastClickedItem > (indexLastSelectedItem)) {
     openModal('Either pick the last incorrect item, or one after that.') // Prompt the user to select another item.
-    Array.from(gridItems, function (box) {
+    $.map(gridItems, function (box) {
       box.addEventListener('click', function () {
         var a = this.classList.item(1)
         var b = a.slice(4)
@@ -939,8 +930,8 @@ function checkLastItem () {
 
 // Function to get list of selected items.
 function getSelectedItems () {
-  const selectedLet = []
-  for (const cell of gridItems) {
+  var selectedLet = []
+  for (var cell of gridItems) {
     if (cell.classList.contains('selected')) { // Loop through all items checking those with the CSS selected class.
       var m = cell.classList.item(1)
       var n = m.slice(4) // Get the number of the selected item.
@@ -965,7 +956,7 @@ function setResult () {
   if (type === 'reading') { // For reading test.
     for (var x = 0; x < totalItems; x++) {
       var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
-      if (marks.includes(textLabel)) { // Check if the label is a punctuation mark.
+      if ($.inArray(textLabel, marks) !== -1) { // Check if the label is a punctuation mark.
         if (textLabel === '.') { // If the label is a full stop increase the count of sentences.
           sentenceCount++
         }
@@ -989,7 +980,7 @@ function setResult () {
 
 // Creates paging for the reading test.
 function pageReading () {
-  Array.from(gridItems, function (box) {
+  $.map(gridItems, function (box) {
     var temp1 = parseInt(box.classList.item(1).slice(4)) // Get the item number.
     if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
       box.classList.add('hidden') // Hide items greater than current page limits.
@@ -1024,7 +1015,7 @@ function openThankYouModal () {
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
-  Array.from(gridItems, function (box) { // Make all grid unclickable once test is complete.
+  $.map(gridItems, function (box) { // Make all grid unclickable once test is complete.
     if (!(box.classList.contains('pmBox'))) {
       box.removeEventListener('click', boxHandler, false)
     }
@@ -1080,13 +1071,13 @@ function finishModal () {
 }
 
 function makeActive () {
-  Array.from(gridItems, function (box) {
+  $.map(gridItems, function (box) {
     box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
   })
 }
 
 function makeInActive () {
-  Array.from(gridItems, function (box) {
+  $.map(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
   })
 }
