@@ -51,9 +51,7 @@ This field plug-in supports the [*select_multiple* field type]([https://docs.sur
 
 You can retrieve the specific values with the [plug-in-metadata() function](https://docs.surveycto.com/02-designing-forms/01-core-concepts/09.expressions.html#plug-in-metadata) in your form design to return the following from these positions in the metadata:
 
-* 0 - Space seperated list of time remaining in miliseconds and the page number. The page number keeps track paging on smaller screens where the test is displayed over a number of screens.
-* 1 - Space separated list of positions of selected items. Note that in the context of the test, these are the items marked as incorrect.
-* 2 - Boolean value marking whether the test has been completed or not. `true` means the test is complete. `false` means the test is not complete and on returning to the field, the test will revert to the state it was in before the user left the field.
+* 0 to 2 - Reserved for internal processing and can safely be ignored. Check [this wiki](https://github.com/surveycto/timed-grid-test/wiki/Extended-metadata-details) if you are interested in the more technical aspects.
 * 3 - Amount of time remaining in seconds
 * 4 - Total number of items attempted
 * 5 - Number of incorrect items
