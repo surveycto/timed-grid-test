@@ -10,7 +10,7 @@ var type = getPluginParameter('type')
 var previousMetaData = getMetaData() // Load Metadata.
 
 var choices = fieldProperties.CHOICES // Array of choices.
-var complete = false // Keep track of whether the test was completed
+var complete = 'false' // Keep track of whether the test was completed
 var currentAnswer
 var timePassed = 0 // Time passed so far.
 var timerRunning = false // Track whether the timer is running.
@@ -19,7 +19,7 @@ var timeLeft = timeStart // Starts this way for the display.
 var startTime = 0 // This will get an actual value when the timer starts in startStopTimer().
 var selectedItems // Track selected (incorrect) items.
 var lastSelectedIndex // Track index of last selected item.
-var ans = choices[0].CHOICE_VALUE // Dummy answer.
+var ans // Dummy answer.
 var timeRemaining = 0 // Keep track of test time.
 var endFirstLine = 'No' // Whether they ended on the firstline or not.
 var choiceValuesArray = [] // Array of choice labels.
@@ -132,6 +132,8 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
+  console.log('Value of complete is ' + complete)
+  console.log('Type of complete is ' + typeof (complete))
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
@@ -139,6 +141,7 @@ if (previousMetaData !== null) {
     }
   } else {
     timeLeft = 0 // For completed test
+    finishButton.classList.add('hidden')
   }
   timerRunning = true
   previousSelectedItems = previousSelected[1].split(' ') // Get list of items that had been selected before leaving the page.
@@ -171,20 +174,25 @@ if (createGrid) {
     }
   })
   updateGrid() // Draw grid based on selections and paging done so far.
+  if (complete === 'true') {
+    finishButton.classList.add('hidden')
+  }
   setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
+      finishButton.classList.remove('hidden')
       startStopTimer() // continue the test immediately on return
     } else {
       timerDisplay.classList.add('hidden')
       button.classList.remove('hidden')
-      button.innerHTML = 'Start'
-      button.onclick = function () {
-        timerRunning = false
-        startStopTimer()
-        // button.classList.add('hidden')
-      }
+      finishButton.classList.add('hidden')
+      button.innerHTML = 'Test complete'
+      // button.onclick = function () {
+      //   timerRunning = false
+      //   startStopTimer()
+      //   // button.classList.add('hidden')
+      // }
     }
   }
 }
@@ -541,6 +549,8 @@ $('#finishButton').click(function () {
   makeInActive()
   startStopTimer() // Pause the timer.
   finishModal() // Open modal to confirm ending the test early.
+  complete = 'true'
+  finishButton.classList.add('hidden') // Hide finish button.
 })
 
 var counter1 = 0
@@ -813,7 +823,7 @@ function timer () { // Timer function.
     timeLeft = timeStart - timePassed
   }
   selectedItems = getSelectedItems()
-  if (!complete) { // For incomplete tests.
+  if (complete !== 'true') { // For incomplete tests.
     currentAnswer = String(timeLeft) + ' ' + pageNumber + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
@@ -894,7 +904,7 @@ function itemClicked (item, itemIndex) {
     item.classList.add('lastSelected')
     lastSelectedIndex = itemIndex // Get index of last selected item.
     checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
-    if (complete) { // For a complete test.
+    if (complete === 'true') { // For a complete test.
       setResult() // Set the results.
       openThankYouModal()
     } else {
@@ -924,7 +934,7 @@ function checkLastItem () {
       })
     })
   } else {
-    complete = true
+    complete = 'true'
   }
 }
 
@@ -973,6 +983,14 @@ function setResult () {
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
   if (result != null) {
+    var finalAnswer = []
+    for (var i = 0; i < splitselectedItems.length; i++) {
+      var position = parseInt(splitselectedItems[i]) - 1
+      var choiceValue = choices[position].CHOICE_VALUE
+      finalAnswer.push(choiceValue)
+    }
+    ans = finalAnswer.join(' ')
+    console.log('The answer is ' + ans)
     setAnswer(ans) // set answer to dummy result
   }
   setMetaData(result) // make result accessible as plugin metadata
@@ -1060,7 +1078,7 @@ function finishModal () {
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
     lastSelectedIndex = choices.length
-    complete = true
+    complete = 'true'
     endEarly() // Confirm ending early.
     setResult() // Save current results.
   }
