@@ -181,18 +181,23 @@ if (createGrid) {
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
-      finishButton.classList.remove('hidden')
       startStopTimer() // continue the test immediately on return
+      if (screenSize !== 'small') {
+        finishButton.classList.remove('hidden')
+      }
     } else {
       timerDisplay.classList.add('hidden')
       button.classList.remove('hidden')
       finishButton.classList.add('hidden')
-      button.innerHTML = 'Test complete'
-      // button.onclick = function () {
-      //   timerRunning = false
-      //   startStopTimer()
-      //   // button.classList.add('hidden')
-      // }
+      if (complete == null) {
+        button.innerHTML = 'Start'
+        if (screenSize !== 'small') {
+          finishButton.classList.remove('hidden')
+        }
+      } else {
+        button.innerHTML = 'Test complete'
+        button.disabled = true
+      }
     }
   }
 }
@@ -302,7 +307,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Letters test on small screen with continuity.
@@ -340,7 +345,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Words test on small screen with no continuity.
@@ -362,7 +367,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Letters test on small screen with continuity.
@@ -382,7 +387,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Reading test on small screen.
@@ -545,12 +550,14 @@ window.onclick = function (event) {
 
 // Finish early
 $('#finishButton').click(function () {
-  finishEarly = 1 // Mark the test as finishing early.
-  makeInActive()
-  startStopTimer() // Pause the timer.
-  finishModal() // Open modal to confirm ending the test early.
-  complete = 'true'
-  finishButton.classList.add('hidden') // Hide finish button.
+  if (timerRunning) {
+    finishEarly = 1 // Mark the test as finishing early.
+    makeInActive()
+    startStopTimer() // Pause the timer.
+    finishModal() // Open modal to confirm ending the test early.
+    complete = 'true'
+    finishButton.classList.add('hidden') // Hide finish button.
+  }
 })
 
 var counter1 = 0
@@ -859,20 +866,24 @@ function endEarly () {
 // Ending the test.
 function endTimer () {
   button.innerHTML = 'Test Complete' // Change the button test.
+  button.disabled = true
   button.classList.remove('hidden') // Make the button visible.
   timerDisplay.classList.add('hidden') // Hide the timer.
   timeLeft = 0 // set time to 0.
   timerRunning = false // Stop the timer.
   if (finishEarly === 0 && complete !== 'true') { // If the test can end directly or is already complete.
     if (strict === 0) { // If the test allows selecting items once the timer has run out.
+      button.disabled = false
       finishButton.classList.add('hidden') // Hide finish button.
       button.innerHTML = 'Finished?'
       button.onclick = function () { // Confirm that the test is complete.
         extraItems = 0
         openLastItemModal() // Select the last attempted item after selecting extras.
         button.innerHTML = 'Test Complete'
+        button.disabled = true
       }
     } else {
+      finishButton.classList.add('hidden') // Hide finish button.
       openLastItemModal() // Select the last attempted item directly.
     }
   }
@@ -1008,7 +1019,7 @@ function pageReading () {
     }
     if (pageArr[aEnd] === undefined) { // If on the last page.
       nextButton.classList.add('hideButton') // Hide nex button.
-      finishButton.classList.remove('hidden') // Show the finish button.
+      hideFinishButton() // Show the finish button.
     }
   })
 }
@@ -1030,6 +1041,7 @@ function openThankYouModal () {
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
     button.innerText = 'Test Complete'
+    button.disabled = true
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
@@ -1100,6 +1112,14 @@ function makeInActive () {
   })
 }
 
+function hideFinishButton () {
+  if (screenSize !== 'small' && (complete === 'true' || complete == null)) {
+    finishButton.classList.add('hidden')
+  } else {
+    finishButton.classList.remove('hidden')
+  }
+}
+
 // Paging for letter and word tests that have already started or have been completed.
 function updateGrid () {
   var fieldset1 = document.querySelector('#fieldset1')
@@ -1164,7 +1184,7 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
         backButton.classList.remove('hideButton')
       }
     }
@@ -1271,7 +1291,7 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.add('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
         backButton.classList.remove('hideButton')
       }
     }
@@ -1300,7 +1320,7 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
         backButton.classList.remove('hideButton')
       }
     }
@@ -1329,7 +1349,7 @@ function updateGrid () {
         fieldset8.classList.remove('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
         backButton.classList.remove('hideButton')
       }
     }
