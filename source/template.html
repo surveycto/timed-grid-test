@@ -3,7 +3,14 @@
 <div class="buttonstop" id="changer">
   <span id="endearly" class="hidden timerDisplay"></span>
     <div id="timerDisplay" class="hidden timerDisplay">TIME LEFT : <span id="timer"></span></div>
-    <button onclick="startStopTimer()" type="button" class="startstop" id="startstop">Start</button>
+    <button onclick="startStopTimer()" type="button" class="startstop" id="startstop">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="icon play-icon">
+          <path d="M26.1351562,16.734375 L13.7601562,9.2109375 C12.6492187,8.5921875 11.25,9.38671875 11.25,10.6875 L11.25,25.3125 C11.25,26.60625 12.6421875,27.4078125 13.7601562,26.7890625 L26.1351562,19.6875 C27.2882812,19.0476562 27.2882812,17.38125 26.1351562,16.734375 Z"
+                fill-rule="nonzero"></path>
+          <path d="M18,0.5625 C27.6328125,0.5625 35.4375,8.3671875 35.4375,18 C35.4375,27.6328125 27.6328125,35.4375 18,35.4375 C8.3671875,35.4375 0.5625,27.6328125 0.5625,18 C0.5625,8.3671875 8.3671875,0.5625 18,0.5625 Z M18,3.9375 C10.2304688,3.9375 3.9375,10.2304688 3.9375,18 C3.9375,25.7695312 10.2304688,32.0625 18,32.0625 C25.7695312,32.0625 32.0625,25.7695312 32.0625,18 C32.0625,10.2304688 25.7695312,3.9375 18,3.9375 Z"
+                fill-rule="nonzero"></path>
+      </svg>
+    </button>
 </div>
 <div id="modal" class="modal">
     <span onclick="document.getElementById('modal').style.display='none'" class="close" title="Close Modal">×</span>
