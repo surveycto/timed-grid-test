@@ -76,6 +76,16 @@ timer {
   top:5px;
 }
 
+svg.checkmark {
+  display: block;
+  /* fill: #047cc2; */
+  position: absolute;
+  height: 35px;
+  width: 35px;
+  top: -23px;
+  left: -17px;
+}
+
 /* wrapper class */
 .wrapper {
   margin-bottom: 20px;
