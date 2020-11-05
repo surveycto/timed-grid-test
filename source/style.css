@@ -89,7 +89,6 @@ svg.icon {
 }
 
 svg.checkmark {
-  display: block;
   /* fill: #047cc2; */
   position: relative;
   height: 36px;
