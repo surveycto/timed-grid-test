@@ -51,6 +51,12 @@ button.startstop {
   width: 150px;
 }
 
+button.disabled {
+  background-color: #63727a;
+  color: #83928A;
+  pointer-events: none;
+}
+
 .timerDisplay {
   background-color: red;
   border: 2px solid black;
