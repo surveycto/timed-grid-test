@@ -82,14 +82,18 @@ timer {
   top:5px;
 }
 
+svg.icon {
+  height: 36px;
+  top: -13px;
+  position: relative;
+}
+
 svg.checkmark {
   display: block;
   /* fill: #047cc2; */
-  position: absolute;
-  height: 35px;
-  width: 35px;
-  top: -23px;
-  left: -17px;
+  position: relative;
+  height: 36px;
+  top: -13px;
 }
 
 /* wrapper class */
