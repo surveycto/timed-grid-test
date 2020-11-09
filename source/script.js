@@ -995,12 +995,16 @@ function setResult () {
   var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
   if (result != null) {
     var finalAnswer = []
-    for (var i = 0; i < splitselectedItems.length; i++) {
-      var position = parseInt(splitselectedItems[i]) - 1
-      var choiceValue = choices[position].CHOICE_VALUE
-      finalAnswer.push(choiceValue)
+    if (selectedItems.length === 0) {
+      ans = choices[0].CHOICE_VALUE
+    } else {
+      for (var i = 0; i < splitselectedItems.length; i++) {
+        var position = parseInt(splitselectedItems[i]) - 1
+        var choiceValue = choices[position].CHOICE_VALUE
+        finalAnswer.push(choiceValue)
+      }
+      ans = finalAnswer.join(' ')
     }
-    ans = finalAnswer.join(' ')
     console.log('The answer is ' + ans)
     setAnswer(ans) // set answer to dummy result
   }
@@ -1020,6 +1024,9 @@ function pageReading () {
     if (pageArr[aEnd] === undefined) { // If on the last page.
       nextButton.classList.add('hideButton') // Hide nex button.
       hideFinishButton() // Show the finish button.
+      if (complete === 'true') {
+        finishButton.classList.add('hidden')
+      }
     }
   })
 }
