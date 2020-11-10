@@ -6,6 +6,7 @@ var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
 var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
+var allAnswered = getPluginParameter('all-answered')
 
 var previousMetaData = getMetaData() // Load Metadata.
 
@@ -705,7 +706,7 @@ $('#legend10').click(function () {
 })
 
 function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-
+console.log('Length' + choices.length)
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
@@ -758,25 +759,27 @@ function createGrid (keys) {
       }
     }
     for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
-      secondDIV = document.createElement('div') // Create the div element.
-      var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
-      var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
-      var itemClass = 'item' + itemValue // CSS class to be applied.
-      secondDIV.classList.add('box', itemClass) // Add CSS class.
-      if (type === 'reading') { // for the reading test.
-        nextButton.classList.add('hideButton')
-        secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-        var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-        for (var ch of textLabel) {
-          if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
-            secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+      if (counter !== checkAllAnswered()) {
+        secondDIV = document.createElement('div') // Create the div element.
+        var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
+        var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
+        var itemClass = 'item' + itemValue // CSS class to be applied.
+        secondDIV.classList.add('box', itemClass) // Add CSS class.
+        if (type === 'reading') { // for the reading test.
+          nextButton.classList.add('hideButton')
+          secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
+          var textLabel = choices[counter].CHOICE_LABEL // Add the label.
+          for (var ch of textLabel) {
+            if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
+              secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+            }
           }
         }
+        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+        counter++ // increment counter.
+        secondDIV.appendChild(text) // add the text to the div.
+        fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
       }
-      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-      counter++ // increment counter.
-      secondDIV.appendChild(text) // add the text to the div.
-      fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
     }
     div.appendChild(fieldset) // Add the row to main container.
   }
@@ -945,6 +948,13 @@ function checkLastItem () {
       })
     })
   } else {
+    $.map(gridItems, function (box) {
+      box.addEventListener('click', function () {
+        var a = this.classList.item(1)
+        var b = a.slice(4)
+        itemClicked(this, b)
+      })
+    })
     complete = 'true'
   }
 }
@@ -986,17 +996,26 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
+  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+    totalItems = totalItems - 1
+  }
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+  var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
+  var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
+  var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
+  var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
+  var correctItemsList = correctItemsArray.join(' ')
   if (selectedItems.length === 0) {
     incorrectItems = 0
   }
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList
   if (result != null) {
     var finalAnswer = []
     if (selectedItems.length === 0) {
-      ans = choices[0].CHOICE_VALUE
+      checkAnswer()
     } else {
       for (var i = 0; i < splitselectedItems.length; i++) {
         var position = parseInt(splitselectedItems[i]) - 1
@@ -1009,6 +1028,9 @@ function setResult () {
     setAnswer(ans) // set answer to dummy result
   }
   setMetaData(result) // make result accessible as plugin metadata
+  console.log('Incorrect Items are ' + selectedItems)
+  console.log('Correct Items are ' + correctItemsList)
+  console.log('Not Answered Items are ' + notAnsweredItemsList)
 }
 
 // Creates paging for the reading test.
@@ -1125,6 +1147,26 @@ function hideFinishButton () {
   } else {
     finishButton.classList.remove('hidden')
   }
+}
+
+function checkAnswer () {
+  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+    ans = allAnswered
+  } else {
+    ans = choices[0].CHOICE_VALUE
+  }
+}
+
+function checkAllAnswered () {
+  var choiceListLength
+  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+    choiceListLength = choices.length - 1
+  } else if (allAnswered != null) {
+    choiceListLength = choices.length
+  } else {
+    choiceListLength = choices.length
+  }
+  return choiceListLength
 }
 
 // Paging for letter and word tests that have already started or have been completed.
