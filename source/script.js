@@ -27,6 +27,7 @@ var choiceValuesArray = [] // Array of choice labels.
 var columns = 10 // Number of columns on grid printout (letters).
 var finishEarly = 0 // Track whether the test is finished on time.
 var previousSelectedItems // Stores an array of previously selected values.
+var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 
@@ -133,6 +134,7 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
+  previousTotalItems = previousSelected[4]
   console.log('Value of complete is ' + complete)
   console.log('Type of complete is ' + typeof (complete))
   if (complete !== 'true' || complete == null) { // For incomplete test.
@@ -173,10 +175,14 @@ if (createGrid) {
     if (previousSelectedItems != null && ($.inArray(itemIndex, previousSelectedItems) !== -1)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
+    if (previousSelectedItems != null && complete === 'true' && itemIndex === previousTotalItems) {
+      box.classList.add('lastSelected')
+    }
   })
   updateGrid() // Draw grid based on selections and paging done so far.
   if (complete === 'true') {
     finishButton.classList.add('hidden')
+    makeInActive()
   }
   setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
@@ -552,12 +558,8 @@ window.onclick = function (event) {
 // Finish early
 $('#finishButton').click(function () {
   if (timerRunning) {
-    finishEarly = 1 // Mark the test as finishing early.
-    makeInActive()
     startStopTimer() // Pause the timer.
-    finishModal() // Open modal to confirm ending the test early.
-    complete = 'true'
-    finishButton.classList.add('hidden') // Hide finish button.
+    finishModal() // open finish modal
   }
 })
 
@@ -921,6 +923,7 @@ function itemClicked (item, itemIndex) {
     if (complete === 'true') { // For a complete test.
       setResult() // Set the results.
       openThankYouModal()
+      makeInActive()
     } else {
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
@@ -1048,6 +1051,7 @@ function pageReading () {
       hideFinishButton() // Show the finish button.
       if (complete === 'true') {
         finishButton.classList.add('hidden')
+        makeActive()
       }
     }
   })
@@ -1118,10 +1122,12 @@ function finishModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    lastSelectedIndex = choices.length
-    complete = 'true'
-    endEarly() // Confirm ending early.
-    setResult() // Save current results.
+    finishEarly = 0 // Mark the test as finishing early.
+    extraItems = 0
+    endEarly() // Pause the timer.
+    openLastItemModal() // Prompt user to select last item.
+    button.innerHTML = 'Test Complete'
+    finishButton.classList.add('hidden') // Hide finish button.
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
