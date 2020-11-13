@@ -134,7 +134,12 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
-  previousTotalItems = previousSelected[4]
+  var previousPunctuationCount = parseInt(previousSelected[11])
+  if (type === 'reading') {
+    previousTotalItems = previousSelected[4] + previousPunctuationCount
+  } else {
+    previousTotalItems = previousSelected[4]
+  }
   console.log('Value of complete is ' + complete)
   console.log('Type of complete is ' + typeof (complete))
   if (complete !== 'true' || complete == null) { // For incomplete test.
@@ -1014,7 +1019,7 @@ function setResult () {
     incorrectItems = 0
   }
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount
   if (result != null) {
     var finalAnswer = []
     if (selectedItems.length === 0) {
