@@ -47,19 +47,20 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)). The field stores the list of items selected, representing items marked incorrect, whilst other test data is stored in the field plug-in's metadata. The metadata is stored in a pipe-separated (|) list. For example:
 
-    16714 0|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20
+    16714 0|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20|0
 
 You can retrieve the specific values with the [plug-in-metadata() function](https://docs.surveycto.com/02-designing-forms/01-core-concepts/09.expressions.html#plug-in-metadata) in your form design to return the following from these positions in the metadata:
 
 * 0 to 2 - Reserved for internal processing and can safely be ignored. Check [this wiki](https://github.com/surveycto/timed-grid-test/wiki/Extended-metadata-details) if you are interested in the more technical aspects.
-* 3 - Amount of time remaining in seconds
-* 4 - Total number of items attempted
-* 5 - Number of incorrect items
-* 6 - Number of correct items
-* 7 - Whether the firstline was all incorrect
+* 3 - Amount of time remaining in seconds.
+* 4 - Total number of items attempted.
+* 5 - Number of incorrect items.
+* 6 - Number of correct items.
+* 7 - Whether the firstline was all incorrect.
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading test type.
-* 9 - The list of correct items
+* 9 - The list of correct items.
 * 10 - The list of items not attempted/answered.
+* 11 - The total number of punctuation marks.
 
 See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) for details.
 

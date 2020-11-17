@@ -131,6 +131,7 @@ if (endAfter == null && columns === 10) {
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
   complete = previousSelected[2] // Keeps track of whether the test was completed or not (accidental swipe).
+  currentAnswer = previousSelected[0] + '|' + previousSelected[1] // For a completed test
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
