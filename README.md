@@ -45,19 +45,22 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 ### Data format
 
-This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)), though the test data is stored in the field plug-in's metadata. The data is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)). The field stores the list of items selected, representing items marked incorrect, whilst other test data is stored in the field plug-in's metadata. The metadata is stored in a pipe-separated (|) list. For example:
 
-    16714 0|7 14 16|true|17|88|3|85|No|12
+    16714 0|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20|0
 
 You can retrieve the specific values with the [plug-in-metadata() function](https://docs.surveycto.com/02-designing-forms/01-core-concepts/09.expressions.html#plug-in-metadata) in your form design to return the following from these positions in the metadata:
 
 * 0 to 2 - Reserved for internal processing and can safely be ignored. Check [this wiki](https://github.com/surveycto/timed-grid-test/wiki/Extended-metadata-details) if you are interested in the more technical aspects.
-* 3 - Amount of time remaining in seconds
-* 4 - Total number of items attempted
-* 5 - Number of incorrect items
-* 6 - Number of correct items
-* 7 - Whether the firstline was all incorrect
+* 3 - Amount of time remaining in seconds.
+* 4 - Total number of items attempted.
+* 5 - Number of incorrect items.
+* 6 - Number of correct items.
+* 7 - Whether the firstline was all incorrect.
 * 8 - The number of sentence end marks (e.g. periods) passed, as indicated by the last attempted item when using the oral reading test type.
+* 9 - The list of correct items.
+* 10 - The list of items not attempted/answered.
+* 11 - The total number of punctuation marks.
 
 See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) for details.
 
@@ -77,6 +80,7 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 |`strict` (optional)|Enable to enforce strict adherence to the time limit specified in `duration`. When strict is enabled (`strict = 1`), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once time runs out. This will allow slower users to catch up according to what they heard just before time ran out.|
 |`pause` (optional)|The default behavior is to not allow pausing a timed EGRA test. You can omit the pause parameter if the default behavior is desirable. However, if you would like the user to be allowed to pause the test, specify `pause = 1`.|
 |`continuity` (optional)|Applies only to smaller screens if the test becomes paginated. When enabled (`continuity = 1`), it provides some visual continuity as to where the user is on their screen in relation to the print handout in front of the student being assessed. It achieves this by moving the bottom row on screen to the top of the next screen when you page forward. This feature is disabled by default, so specify nothing if you do not wish to use continuity.|
+|`all-answered` (optional)|Enables you to define a value to be stored as the fields answer if all the items are incorrect. The default is to store the first item in the choice list if this parameter is not specified.|
 
 ### Examples
 
