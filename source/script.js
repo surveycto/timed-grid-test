@@ -1005,15 +1005,18 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
-    totalItems = totalItems - 1
-  }
+  // if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
+  //   totalItems = totalItems - 1
+  // }
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
+  if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
+    notAnsweredItemsList = ''
+  }
   var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
   var correctItemsList = correctItemsArray.join(' ')
   if (selectedItems.length === 0) {
@@ -1162,7 +1165,7 @@ function hideFinishButton () {
 }
 
 function checkAnswer () {
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
     ans = allAnswered
   } else {
     ans = choices[0].CHOICE_VALUE
@@ -1171,11 +1174,16 @@ function checkAnswer () {
 
 function checkAllAnswered () {
   var choiceListLength
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+  console.log('All answered = ' + allAnswered)
+  console.log('Choice value is ' + choices[choices.length - 1].CHOICE_VALUE)
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
+    console.log('Answer 1')
     choiceListLength = choices.length - 1
   } else if (allAnswered != null) {
+    console.log('Answer 2')
     choiceListLength = choices.length
   } else {
+    console.log('Answer 3')
     choiceListLength = choices.length
   }
   return choiceListLength
