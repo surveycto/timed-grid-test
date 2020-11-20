@@ -137,7 +137,7 @@ if (previousMetaData !== null) {
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
-    previousTotalItems = previousSelected[4] + previousPunctuationCount
+    previousTotalItems = parseInt(previousSelected[4]) + parseInt(previousPunctuationCount)
   } else {
     previousTotalItems = previousSelected[4]
   }
@@ -171,6 +171,7 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
+  console.log('Last item ' + previousTotalItems)
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
@@ -181,7 +182,7 @@ if (createGrid) {
     if (previousSelectedItems != null && ($.inArray(itemIndex, previousSelectedItems) !== -1)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
-    if (previousSelectedItems != null && complete === 'true' && itemIndex === previousTotalItems) {
+    if (previousSelectedItems != null && itemIndex == previousTotalItems) {
       box.classList.add('lastSelected')
     }
   })
@@ -1013,6 +1014,9 @@ function setResult () {
   var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
+  if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
+    notAnsweredItemsArray.pop() // Remove last item from the array.
+  }
   var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
   if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
     notAnsweredItemsList = ''
