@@ -1064,7 +1064,7 @@ function pageReading () {
       hideFinishButton() // Show the finish button.
       if (complete === 'true') {
         finishButton.classList.add('hidden')
-        makeActive()
+        // makeActive()
       }
     }
   })
@@ -1157,6 +1157,7 @@ function makeActive () {
 function makeInActive () {
   $.map(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.add('disabled')
   })
 }
 

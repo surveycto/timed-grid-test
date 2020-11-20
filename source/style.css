@@ -51,7 +51,7 @@ button.startstop {
   width: 150px;
 }
 
-button.disabled {
+.disabled {
   background-color: #63727a;
   color: #83928A;
   pointer-events: none;
