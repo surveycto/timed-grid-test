@@ -52,13 +52,14 @@ var screenSize
 var pageNumber = 0
 var prevPageNumber = 0
 var marks = ['.', ',', '!', '?'] // List of punction marks.
+var totalItems // Keep track of the total number of items.
 // Check if the window size is 550px - this is treated as a small screen.
 var x = window.matchMedia('(max-width: 550px)')
-var totalItems // Keep track of the total number of items.
-
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
+
+console.log('Screen size is ' + screenSize)
 
 // Set parameter default values.
 if (duration == null) {
@@ -714,7 +715,11 @@ $('#legend10').click(function () {
   counter10++
 })
 
-function myFunction (x) { if (x.matches) { screenSize = 'small' } }
+function myFunction (x) {
+  if (x.matches) {
+    screenSize = 'small'
+  }
+}
 console.log('Length' + choices.length)
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
@@ -742,7 +747,11 @@ function createGrid (keys) {
         fieldsetClass = 'lg' + tracker // CSS class to be applied.
         if (tracker > 4) { // check whether there are four rows displayed.
           fieldset.classList.add('hidden') // Hide all other rows except the first four.
+          nextButton.classList.remove('hideButton') // hide next button.
+          finishButton.classList.add('hidden')
+          console.log('Tracker is greater than 4' + tracker)
         } else {
+          console.log('Tracker is smaller than 4')
           nextButton.classList.add('hideButton') // hide next button.
           finishButton.classList.remove('hidden')
         }
