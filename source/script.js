@@ -43,6 +43,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
+var punctuationArray = []
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 
@@ -108,6 +109,12 @@ if (type === 'words') {
 
 if (type === 'reading') {
   columns = choices.length // Number of columns on grid printout (words)
+  for (var x = 0; x < choices.length; x++) {
+    var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
+    if ($.inArray(textLabel, marks) !== -1) { // Check if the label is a punctuation mark.
+      punctuationArray.push(choices[x].CHOICE_VALUE)
+    }
+  }
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
@@ -135,6 +142,7 @@ if (previousMetaData !== null) {
   currentAnswer = previousSelected[0] + '|' + previousSelected[1] // For a completed test
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
+  var lastTimeNow = parseInt(s1[2])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
@@ -147,7 +155,16 @@ if (previousMetaData !== null) {
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
-      timeStart = timeLeft // Start timer from time left.
+      var timeWhileGone = Date.now() - lastTimeNow
+      var leftoverTime = timeLeft - timeWhileGone
+      console.log('Left over time is ' + leftoverTime)
+      if (leftoverTime < 0) {
+        complete = true
+        timeLeft = 0 // Completed test
+        timeStart = 0
+      } else {
+        timeStart = leftoverTime // Start timer from time left.
+      }
     }
   } else {
     timeLeft = 0 // For completed test
@@ -852,10 +869,10 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
-  if (timeLeft < 0) {
+  if (timeLeft <= 0) {
     endTimer() // End test if time is less than 0.
   }
   if (!isNaN(timeLeft)) {
@@ -1023,11 +1040,20 @@ function setResult () {
   var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
+  if (type === 'reading') {
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+  }
   if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
     notAnsweredItemsArray.pop() // Remove last item from the array.
   }
   var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
   if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
+    notAnsweredItemsList = ''
+  }
+  if (type === 'reading' && notAnsweredItemsArray.length === punctuationCount) {
+    console.log('not answered array is ' + notAnsweredItemsArray)
+    console.log('total items ' + totalItems)
     notAnsweredItemsList = ''
   }
   var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
