@@ -922,6 +922,10 @@ function endTimer () {
       }
     } else {
       finishButton.classList.add('hidden') // Hide finish button.
+      strict = 0
+      extraItems = 0
+      button.innerHTML = 'Test Complete'
+      button.disabled = true
       openLastItemModal() // Select the last attempted item directly.
     }
   }
@@ -1042,8 +1046,13 @@ function setResult () {
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   if (type === 'reading') {
     correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
+  console.log('CorrectIncorrectArray = ' + correctIncorrectArray)
+  console.log('NotAnsweredItemsArray = ' + notAnsweredItemsArray)
+  console.log('ArryValues = ' + arrayValues)
+  console.log('PunctuationArray = ' + punctuationArray)
   if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
     notAnsweredItemsArray.pop() // Remove last item from the array.
   }
