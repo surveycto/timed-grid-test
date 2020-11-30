@@ -1036,9 +1036,7 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-  // if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
-  //   totalItems = totalItems - 1
-  // }
+
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
