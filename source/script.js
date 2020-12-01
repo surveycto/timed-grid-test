@@ -1301,6 +1301,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1437,6 +1438,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1466,6 +1468,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
