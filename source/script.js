@@ -735,8 +735,14 @@ function myFunction (x) {
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
   var fieldsetClass
+  var rowCount
+  if (allAnswered != null) {
+    rowCount = keys.length - 1
+  } else {
+    rowCount = keys.length
+  }
   // Loop through list of choices.
-  for (var i = 0; i < keys.length / columns; i++) {
+  for (var i = 0; i < rowCount / columns; i++) {
     var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
     var tracker = i + 1 // tracker used for numbering the sections.
     if (type !== 'reading') { // applies to letter and word tests.
