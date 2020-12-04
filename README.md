@@ -47,7 +47,7 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)). The field stores the list of items selected, representing items marked incorrect, whilst other test data is stored in the field plug-in's metadata. The metadata is stored in a pipe-separated (|) list. For example:
 
-    16714 0|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20|0
+    16714 0 16700|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20|0
 
 You can retrieve the specific values with the [plug-in-metadata() function](https://docs.surveycto.com/02-designing-forms/01-core-concepts/09.expressions.html#plug-in-metadata) in your form design to return the following from these positions in the metadata:
 
