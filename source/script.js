@@ -12,7 +12,7 @@ var previousMetaData = getMetaData() // Load Metadata.
 
 var choices = fieldProperties.CHOICES // Array of choices.
 var complete = 'false' // Keep track of whether the test was completed
-var currentAnswer
+var currentAnswer // Keep track of the answer to be recorded.
 var timePassed = 0 // Time passed so far.
 var timerRunning = false // Track whether the timer is running.
 var timeStart // Track time limit on each field in milliseconds.
@@ -32,10 +32,10 @@ var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
-var backButton = document.getElementById('backButton')
+var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
-var finishButton = document.getElementById('finishButton')
-var nextButton = document.getElementById('nextButton')
+var finishButton = document.getElementById('finishButton') // finish button to end the interview
+var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
 var modal = document.getElementById('modal') // Get the modal.
 var modalContent = document.getElementById('modalContent') // Get the modal content.
@@ -43,6 +43,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
+var punctuationArray = [] // An array of the 
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 
@@ -52,10 +53,9 @@ var screenSize
 var pageNumber = 0
 var prevPageNumber = 0
 var marks = ['.', ',', '!', '?'] // List of punction marks.
+var totalItems // Keep track of the total number of items.
 // Check if the window size is 550px - this is treated as a small screen.
 var x = window.matchMedia('(max-width: 550px)')
-var totalItems // Keep track of the total number of items.
-
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
@@ -107,6 +107,12 @@ if (type === 'words') {
 
 if (type === 'reading') {
   columns = choices.length // Number of columns on grid printout (words)
+  for (var x = 0; x < choices.length; x++) {
+    var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
+    if ($.inArray(textLabel, marks) !== -1) { // Check if the label is a punctuation mark.
+      punctuationArray.push(choices[x].CHOICE_VALUE)
+    }
+  }
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
@@ -134,19 +140,26 @@ if (previousMetaData !== null) {
   currentAnswer = previousSelected[0] + '|' + previousSelected[1] // For a completed test
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
+  var lastTimeNow = parseInt(s1[2])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
-    previousTotalItems = previousSelected[4] + previousPunctuationCount
+    previousTotalItems = parseInt(previousSelected[4]) + parseInt(previousPunctuationCount)
   } else {
     previousTotalItems = previousSelected[4]
   }
-  console.log('Value of complete is ' + complete)
-  console.log('Type of complete is ' + typeof (complete))
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
-      timeStart = timeLeft // Start timer from time left.
+      var timeWhileGone = Date.now() - lastTimeNow
+      var leftoverTime = timeLeft - timeWhileGone
+      if (leftoverTime < 0) {
+        complete = true
+        timeLeft = 0 // Completed test
+        timeStart = 0
+      } else {
+        timeStart = leftoverTime // Start timer from time left.
+      }
     }
   } else {
     timeLeft = 0 // For completed test
@@ -181,7 +194,7 @@ if (createGrid) {
     if (previousSelectedItems != null && ($.inArray(itemIndex, previousSelectedItems) !== -1)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
-    if (previousSelectedItems != null && complete === 'true' && itemIndex === previousTotalItems) {
+    if (previousSelectedItems != null && itemIndex == previousTotalItems) {
       box.classList.add('lastSelected')
     }
   })
@@ -713,14 +726,23 @@ $('#legend10').click(function () {
   counter10++
 })
 
-function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-console.log('Length' + choices.length)
+function myFunction (x) {
+  if (x.matches) {
+    screenSize = 'small'
+  }
+}
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
   var fieldsetClass
+  var rowCount
+  if (allAnswered != null) {
+    rowCount = keys.length - 1
+  } else {
+    rowCount = keys.length
+  }
   // Loop through list of choices.
-  for (var i = 0; i < keys.length / columns; i++) {
+  for (var i = 0; i < rowCount / columns; i++) {
     var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
     var tracker = i + 1 // tracker used for numbering the sections.
     if (type !== 'reading') { // applies to letter and word tests.
@@ -741,6 +763,8 @@ function createGrid (keys) {
         fieldsetClass = 'lg' + tracker // CSS class to be applied.
         if (tracker > 4) { // check whether there are four rows displayed.
           fieldset.classList.add('hidden') // Hide all other rows except the first four.
+          nextButton.classList.remove('hideButton') // hide next button.
+          finishButton.classList.add('hidden')
         } else {
           nextButton.classList.add('hideButton') // hide next button.
           finishButton.classList.remove('hidden')
@@ -842,10 +866,10 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
-  if (timeLeft < 0) {
+  if (timeLeft <= 0) {
     endTimer() // End test if time is less than 0.
   }
   if (!isNaN(timeLeft)) {
@@ -895,6 +919,10 @@ function endTimer () {
       }
     } else {
       finishButton.classList.add('hidden') // Hide finish button.
+      strict = 0
+      extraItems = 0
+      button.innerHTML = 'Test Complete'
+      button.disabled = true
       openLastItemModal() // Select the last attempted item directly.
     }
   }
@@ -1005,15 +1033,27 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
-    totalItems = totalItems - 1
-  }
+
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
+  if (type === 'reading') {
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
+    notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+  }
+  if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
+    notAnsweredItemsArray.pop() // Remove last item from the array.
+  }
   var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
+  if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
+    notAnsweredItemsList = ''
+  }
+  if (type === 'reading' && notAnsweredItemsArray.length === punctuationCount) {
+    notAnsweredItemsList = ''
+  }
   var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
   var correctItemsList = correctItemsArray.join(' ')
   if (selectedItems.length === 0) {
@@ -1033,13 +1073,9 @@ function setResult () {
       }
       ans = finalAnswer.join(' ')
     }
-    console.log('The answer is ' + ans)
     setAnswer(ans) // set answer to dummy result
   }
   setMetaData(result) // make result accessible as plugin metadata
-  console.log('Incorrect Items are ' + selectedItems)
-  console.log('Correct Items are ' + correctItemsList)
-  console.log('Not Answered Items are ' + notAnsweredItemsList)
 }
 
 // Creates paging for the reading test.
@@ -1057,7 +1093,7 @@ function pageReading () {
       hideFinishButton() // Show the finish button.
       if (complete === 'true') {
         finishButton.classList.add('hidden')
-        makeActive()
+        // makeActive()
       }
     }
   })
@@ -1150,6 +1186,7 @@ function makeActive () {
 function makeInActive () {
   $.map(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.add('disabled')
   })
 }
 
@@ -1162,7 +1199,7 @@ function hideFinishButton () {
 }
 
 function checkAnswer () {
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
     ans = allAnswered
   } else {
     ans = choices[0].CHOICE_VALUE
@@ -1171,7 +1208,7 @@ function checkAnswer () {
 
 function checkAllAnswered () {
   var choiceListLength
-  if (allAnswered != null && allAnswered === choices[choices.length - 1].CHOICE_VALUE) {
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
     choiceListLength = choices.length - 1
   } else if (allAnswered != null) {
     choiceListLength = choices.length
@@ -1246,6 +1283,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1382,6 +1420,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1411,6 +1450,7 @@ function updateGrid () {
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
         hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
