@@ -12,7 +12,7 @@ var previousMetaData = getMetaData() // Load Metadata.
 
 var choices = fieldProperties.CHOICES // Array of choices.
 var complete = 'false' // Keep track of whether the test was completed
-var currentAnswer
+var currentAnswer // Keep track of the answer to be recorded.
 var timePassed = 0 // Time passed so far.
 var timerRunning = false // Track whether the timer is running.
 var timeStart // Track time limit on each field in milliseconds.
@@ -32,10 +32,10 @@ var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
-var backButton = document.getElementById('backButton')
+var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
-var finishButton = document.getElementById('finishButton')
-var nextButton = document.getElementById('nextButton')
+var finishButton = document.getElementById('finishButton') // finish button to end the interview
+var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
 var modal = document.getElementById('modal') // Get the modal.
 var modalContent = document.getElementById('modalContent') // Get the modal content.
@@ -43,7 +43,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
-var punctuationArray = []
+var punctuationArray = [] // An array of the 
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 
@@ -59,8 +59,6 @@ var x = window.matchMedia('(max-width: 550px)')
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
-
-console.log('Screen size is ' + screenSize)
 
 // Set parameter default values.
 if (duration == null) {
@@ -150,14 +148,11 @@ if (previousMetaData !== null) {
   } else {
     previousTotalItems = previousSelected[4]
   }
-  console.log('Value of complete is ' + complete)
-  console.log('Type of complete is ' + typeof (complete))
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
       var timeWhileGone = Date.now() - lastTimeNow
       var leftoverTime = timeLeft - timeWhileGone
-      console.log('Left over time is ' + leftoverTime)
       if (leftoverTime < 0) {
         complete = true
         timeLeft = 0 // Completed test
@@ -189,7 +184,6 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
-  console.log('Last item ' + previousTotalItems)
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
@@ -737,7 +731,6 @@ function myFunction (x) {
     screenSize = 'small'
   }
 }
-console.log('Length' + choices.length)
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
@@ -766,9 +759,7 @@ function createGrid (keys) {
           fieldset.classList.add('hidden') // Hide all other rows except the first four.
           nextButton.classList.remove('hideButton') // hide next button.
           finishButton.classList.add('hidden')
-          console.log('Tracker is greater than 4' + tracker)
         } else {
-          console.log('Tracker is smaller than 4')
           nextButton.classList.add('hideButton') // hide next button.
           finishButton.classList.remove('hidden')
         }
@@ -1047,10 +1038,6 @@ function setResult () {
     notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
-  console.log('CorrectIncorrectArray = ' + correctIncorrectArray)
-  console.log('NotAnsweredItemsArray = ' + notAnsweredItemsArray)
-  console.log('ArryValues = ' + arrayValues)
-  console.log('PunctuationArray = ' + punctuationArray)
   if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
     notAnsweredItemsArray.pop() // Remove last item from the array.
   }
@@ -1059,8 +1046,6 @@ function setResult () {
     notAnsweredItemsList = ''
   }
   if (type === 'reading' && notAnsweredItemsArray.length === punctuationCount) {
-    console.log('not answered array is ' + notAnsweredItemsArray)
-    console.log('total items ' + totalItems)
     notAnsweredItemsList = ''
   }
   var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
@@ -1082,13 +1067,9 @@ function setResult () {
       }
       ans = finalAnswer.join(' ')
     }
-    console.log('The answer is ' + ans)
     setAnswer(ans) // set answer to dummy result
   }
   setMetaData(result) // make result accessible as plugin metadata
-  console.log('Incorrect Items are ' + selectedItems)
-  console.log('Correct Items are ' + correctItemsList)
-  console.log('Not Answered Items are ' + notAnsweredItemsList)
 }
 
 // Creates paging for the reading test.
@@ -1221,16 +1202,11 @@ function checkAnswer () {
 
 function checkAllAnswered () {
   var choiceListLength
-  console.log('All answered = ' + allAnswered)
-  console.log('Choice value is ' + choices[choices.length - 1].CHOICE_VALUE)
   if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
-    console.log('Answer 1')
     choiceListLength = choices.length - 1
   } else if (allAnswered != null) {
-    console.log('Answer 2')
     choiceListLength = choices.length
   } else {
-    console.log('Answer 3')
     choiceListLength = choices.length
   }
   return choiceListLength
