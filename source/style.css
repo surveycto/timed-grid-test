@@ -36,7 +36,7 @@ button{
 }
 
 button.startstop {
-  background-color: green;
+  background-color: #047cc2;
   border: 2px solid black;
   border-radius: 10px;
   color: white;
@@ -49,6 +49,12 @@ button.startstop {
   padding-right: 10px;
   text-align: center;
   width: 150px;
+}
+
+button.disabled {
+  background-color: #63727a;
+  color: #83928A;
+  pointer-events: none;
 }
 
 .timerDisplay {
@@ -74,6 +80,19 @@ timer {
   position:absolute;
   right:5px;
   top:5px;
+}
+
+svg.icon {
+  height: 36px;
+  top: -13px;
+  position: relative;
+}
+
+svg.checkmark {
+  /* fill: #047cc2; */
+  position: relative;
+  height: 36px;
+  top: -13px;
 }
 
 /* wrapper class */

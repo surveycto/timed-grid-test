@@ -6,12 +6,13 @@ var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
 var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
+var allAnswered = getPluginParameter('all-answered')
 
 var previousMetaData = getMetaData() // Load Metadata.
 
 var choices = fieldProperties.CHOICES // Array of choices.
-var complete = false // Keep track of whether the test was completed
-var currentAnswer
+var complete = 'false' // Keep track of whether the test was completed
+var currentAnswer // Keep track of the answer to be recorded.
 var timePassed = 0 // Time passed so far.
 var timerRunning = false // Track whether the timer is running.
 var timeStart // Track time limit on each field in milliseconds.
@@ -19,21 +20,22 @@ var timeLeft = timeStart // Starts this way for the display.
 var startTime = 0 // This will get an actual value when the timer starts in startStopTimer().
 var selectedItems // Track selected (incorrect) items.
 var lastSelectedIndex // Track index of last selected item.
-var ans = choices[0].CHOICE_VALUE // Dummy answer.
+var ans // Dummy answer.
 var timeRemaining = 0 // Keep track of test time.
 var endFirstLine = 'No' // Whether they ended on the firstline or not.
 var choiceValuesArray = [] // Array of choice labels.
 var columns = 10 // Number of columns on grid printout (letters).
 var finishEarly = 0 // Track whether the test is finished on time.
 var previousSelectedItems // Stores an array of previously selected values.
+var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
-var backButton = document.getElementById('backButton')
+var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
-var finishButton = document.getElementById('finishButton')
-var nextButton = document.getElementById('nextButton')
+var finishButton = document.getElementById('finishButton') // finish button to end the interview
+var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
 var modal = document.getElementById('modal') // Get the modal.
 var modalContent = document.getElementById('modalContent') // Get the modal content.
@@ -41,6 +43,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
+var punctuationArray = [] // An array of the 
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 
@@ -50,10 +53,9 @@ var screenSize
 var pageNumber = 0
 var prevPageNumber = 0
 var marks = ['.', ',', '!', '?'] // List of punction marks.
+var totalItems // Keep track of the total number of items.
 // Check if the window size is 550px - this is treated as a small screen.
 var x = window.matchMedia('(max-width: 550px)')
-var totalItems // Keep track of the total number of items.
-
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
@@ -105,6 +107,12 @@ if (type === 'words') {
 
 if (type === 'reading') {
   columns = choices.length // Number of columns on grid printout (words)
+  for (var x = 0; x < choices.length; x++) {
+    var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
+    if ($.inArray(textLabel, marks) !== -1) { // Check if the label is a punctuation mark.
+      punctuationArray.push(choices[x].CHOICE_VALUE)
+    }
+  }
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
@@ -129,16 +137,33 @@ if (endAfter == null && columns === 10) {
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
   complete = previousSelected[2] // Keeps track of whether the test was completed or not (accidental swipe).
+  currentAnswer = previousSelected[0] + '|' + previousSelected[1] // For a completed test
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
+  var lastTimeNow = parseInt(s1[2])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
+  var previousPunctuationCount = parseInt(previousSelected[11])
+  if (type === 'reading') {
+    previousTotalItems = parseInt(previousSelected[4]) + parseInt(previousPunctuationCount)
+  } else {
+    previousTotalItems = previousSelected[4]
+  }
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
-      timeStart = timeLeft // Start timer from time left.
+      var timeWhileGone = Date.now() - lastTimeNow
+      var leftoverTime = timeLeft - timeWhileGone
+      if (leftoverTime < 0) {
+        complete = true
+        timeLeft = 0 // Completed test
+        timeStart = 0
+      } else {
+        timeStart = leftoverTime // Start timer from time left.
+      }
     }
   } else {
     timeLeft = 0 // For completed test
+    finishButton.classList.add('hidden')
   }
   timerRunning = true
   previousSelectedItems = previousSelected[1].split(' ') // Get list of items that had been selected before leaving the page.
@@ -169,21 +194,35 @@ if (createGrid) {
     if (previousSelectedItems != null && ($.inArray(itemIndex, previousSelectedItems) !== -1)) { // If metadata exists check list of selected items.
       box.classList.add('selected') // Add the CSS class selected.
     }
+    if (previousSelectedItems != null && itemIndex == previousTotalItems) {
+      box.classList.add('lastSelected')
+    }
   })
   updateGrid() // Draw grid based on selections and paging done so far.
+  if (complete === 'true') {
+    finishButton.classList.add('hidden')
+    makeInActive()
+  }
   setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
       startStopTimer() // continue the test immediately on return
+      if (screenSize !== 'small') {
+        finishButton.classList.remove('hidden')
+      }
     } else {
       timerDisplay.classList.add('hidden')
       button.classList.remove('hidden')
-      button.innerHTML = 'Start'
-      button.onclick = function () {
-        timerRunning = false
-        startStopTimer()
-        // button.classList.add('hidden')
+      finishButton.classList.add('hidden')
+      if (complete == null) {
+        button.innerHTML = 'Start'
+        if (screenSize !== 'small') {
+          finishButton.classList.remove('hidden')
+        }
+      } else {
+        button.innerHTML = 'Test complete'
+        button.disabled = true
       }
     }
   }
@@ -294,7 +333,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Letters test on small screen with continuity.
@@ -332,7 +371,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Words test on small screen with no continuity.
@@ -354,7 +393,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Letters test on small screen with continuity.
@@ -374,7 +413,7 @@ document.querySelector('.next').addEventListener('click', function () {
       fieldset9.classList.remove('hidden')
       fieldset10.classList.remove('hidden')
       nextButton.classList.add('hideButton')
-      finishButton.classList.remove('hidden')
+      hideFinishButton()
     }
   }
   // Reading test on small screen.
@@ -537,10 +576,10 @@ window.onclick = function (event) {
 
 // Finish early
 $('#finishButton').click(function () {
-  finishEarly = 1 // Mark the test as finishing early.
-  makeInActive()
-  startStopTimer() // Pause the timer.
-  finishModal() // Open modal to confirm ending the test early.
+  if (timerRunning) {
+    startStopTimer() // Pause the timer.
+    finishModal() // open finish modal
+  }
 })
 
 var counter1 = 0
@@ -687,14 +726,23 @@ $('#legend10').click(function () {
   counter10++
 })
 
-function myFunction (x) { if (x.matches) { screenSize = 'small' } }
-
+function myFunction (x) {
+  if (x.matches) {
+    screenSize = 'small'
+  }
+}
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
   var fieldsetClass
+  var rowCount
+  if (allAnswered != null) {
+    rowCount = keys.length - 1
+  } else {
+    rowCount = keys.length
+  }
   // Loop through list of choices.
-  for (var i = 0; i < keys.length / columns; i++) {
+  for (var i = 0; i < rowCount / columns; i++) {
     var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
     var tracker = i + 1 // tracker used for numbering the sections.
     if (type !== 'reading') { // applies to letter and word tests.
@@ -715,6 +763,8 @@ function createGrid (keys) {
         fieldsetClass = 'lg' + tracker // CSS class to be applied.
         if (tracker > 4) { // check whether there are four rows displayed.
           fieldset.classList.add('hidden') // Hide all other rows except the first four.
+          nextButton.classList.remove('hideButton') // hide next button.
+          finishButton.classList.add('hidden')
         } else {
           nextButton.classList.add('hideButton') // hide next button.
           finishButton.classList.remove('hidden')
@@ -741,25 +791,27 @@ function createGrid (keys) {
       }
     }
     for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
-      secondDIV = document.createElement('div') // Create the div element.
-      var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
-      var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
-      var itemClass = 'item' + itemValue // CSS class to be applied.
-      secondDIV.classList.add('box', itemClass) // Add CSS class.
-      if (type === 'reading') { // for the reading test.
-        nextButton.classList.add('hideButton')
-        secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-        var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-        for (var ch of textLabel) {
-          if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
-            secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+      if (counter !== checkAllAnswered()) {
+        secondDIV = document.createElement('div') // Create the div element.
+        var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
+        var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
+        var itemClass = 'item' + itemValue // CSS class to be applied.
+        secondDIV.classList.add('box', itemClass) // Add CSS class.
+        if (type === 'reading') { // for the reading test.
+          nextButton.classList.add('hideButton')
+          secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
+          var textLabel = choices[counter].CHOICE_LABEL // Add the label.
+          for (var ch of textLabel) {
+            if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
+              secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+            }
           }
         }
+        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+        counter++ // increment counter.
+        secondDIV.appendChild(text) // add the text to the div.
+        fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
       }
-      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-      counter++ // increment counter.
-      secondDIV.appendChild(text) // add the text to the div.
-      fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
     }
     div.appendChild(fieldset) // Add the row to main container.
   }
@@ -813,11 +865,11 @@ function timer () { // Timer function.
     timeLeft = timeStart - timePassed
   }
   selectedItems = getSelectedItems()
-  if (!complete) { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + '|' + selectedItems // Save progress whilst the timer is running.
+  if (complete !== 'true') { // For incomplete tests.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
-  if (timeLeft < 0) {
+  if (timeLeft <= 0) {
     endTimer() // End test if time is less than 0.
   }
   if (!isNaN(timeLeft)) {
@@ -849,20 +901,28 @@ function endEarly () {
 // Ending the test.
 function endTimer () {
   button.innerHTML = 'Test Complete' // Change the button test.
+  button.disabled = true
   button.classList.remove('hidden') // Make the button visible.
   timerDisplay.classList.add('hidden') // Hide the timer.
   timeLeft = 0 // set time to 0.
   timerRunning = false // Stop the timer.
   if (finishEarly === 0 && complete !== 'true') { // If the test can end directly or is already complete.
     if (strict === 0) { // If the test allows selecting items once the timer has run out.
+      button.disabled = false
       finishButton.classList.add('hidden') // Hide finish button.
       button.innerHTML = 'Finished?'
       button.onclick = function () { // Confirm that the test is complete.
         extraItems = 0
         openLastItemModal() // Select the last attempted item after selecting extras.
         button.innerHTML = 'Test Complete'
+        button.disabled = true
       }
     } else {
+      finishButton.classList.add('hidden') // Hide finish button.
+      strict = 0
+      extraItems = 0
+      button.innerHTML = 'Test Complete'
+      button.disabled = true
       openLastItemModal() // Select the last attempted item directly.
     }
   }
@@ -894,9 +954,10 @@ function itemClicked (item, itemIndex) {
     item.classList.add('lastSelected')
     lastSelectedIndex = itemIndex // Get index of last selected item.
     checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
-    if (complete) { // For a complete test.
+    if (complete === 'true') { // For a complete test.
       setResult() // Set the results.
       openThankYouModal()
+      makeInActive()
     } else {
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
@@ -924,7 +985,14 @@ function checkLastItem () {
       })
     })
   } else {
-    complete = true
+    $.map(gridItems, function (box) {
+      box.addEventListener('click', function () {
+        var a = this.classList.item(1)
+        var b = a.slice(4)
+        itemClicked(this, b)
+      })
+    })
+    complete = 'true'
   }
 }
 
@@ -965,14 +1033,46 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
+
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
+  var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+  var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
+  var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
+  if (type === 'reading') {
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
+    notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+  }
+  if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
+    notAnsweredItemsArray.pop() // Remove last item from the array.
+  }
+  var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
+  if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
+    notAnsweredItemsList = ''
+  }
+  if (type === 'reading' && notAnsweredItemsArray.length === punctuationCount) {
+    notAnsweredItemsList = ''
+  }
+  var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
+  var correctItemsList = correctItemsArray.join(' ')
   if (selectedItems.length === 0) {
     incorrectItems = 0
   }
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount
   if (result != null) {
+    var finalAnswer = []
+    if (selectedItems.length === 0) {
+      checkAnswer()
+    } else {
+      for (var i = 0; i < splitselectedItems.length; i++) {
+        var position = parseInt(splitselectedItems[i]) - 1
+        var choiceValue = choices[position].CHOICE_VALUE
+        finalAnswer.push(choiceValue)
+      }
+      ans = finalAnswer.join(' ')
+    }
     setAnswer(ans) // set answer to dummy result
   }
   setMetaData(result) // make result accessible as plugin metadata
@@ -990,7 +1090,11 @@ function pageReading () {
     }
     if (pageArr[aEnd] === undefined) { // If on the last page.
       nextButton.classList.add('hideButton') // Hide nex button.
-      finishButton.classList.remove('hidden') // Show the finish button.
+      hideFinishButton() // Show the finish button.
+      if (complete === 'true') {
+        finishButton.classList.add('hidden')
+        // makeActive()
+      }
     }
   })
 }
@@ -1012,6 +1116,7 @@ function openThankYouModal () {
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
     button.innerText = 'Test Complete'
+    button.disabled = true
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
@@ -1059,10 +1164,12 @@ function finishModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    lastSelectedIndex = choices.length
-    complete = true
-    endEarly() // Confirm ending early.
-    setResult() // Save current results.
+    finishEarly = 0 // Mark the test as finishing early.
+    extraItems = 0
+    endEarly() // Pause the timer.
+    openLastItemModal() // Prompt user to select last item.
+    button.innerHTML = 'Test Complete'
+    finishButton.classList.add('hidden') // Hide finish button.
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
@@ -1079,7 +1186,36 @@ function makeActive () {
 function makeInActive () {
   $.map(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.add('disabled')
   })
+}
+
+function hideFinishButton () {
+  if (screenSize !== 'small' && (complete === 'true' || complete == null)) {
+    finishButton.classList.add('hidden')
+  } else {
+    finishButton.classList.remove('hidden')
+  }
+}
+
+function checkAnswer () {
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
+    ans = allAnswered
+  } else {
+    ans = choices[0].CHOICE_VALUE
+  }
+}
+
+function checkAllAnswered () {
+  var choiceListLength
+  if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
+    choiceListLength = choices.length - 1
+  } else if (allAnswered != null) {
+    choiceListLength = choices.length
+  } else {
+    choiceListLength = choices.length
+  }
+  return choiceListLength
 }
 
 // Paging for letter and word tests that have already started or have been completed.
@@ -1146,7 +1282,8 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1253,7 +1390,7 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.add('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
         backButton.classList.remove('hideButton')
       }
     }
@@ -1282,7 +1419,8 @@ function updateGrid () {
         fieldset8.classList.add('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
@@ -1311,7 +1449,8 @@ function updateGrid () {
         fieldset8.classList.remove('hidden')
         fieldset9.classList.remove('hidden')
         fieldset10.classList.remove('hidden')
-        finishButton.classList.remove('hidden')
+        hideFinishButton()
+        nextButton.classList.add('hideButton')
         backButton.classList.remove('hideButton')
       }
     }
