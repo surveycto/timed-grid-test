@@ -962,6 +962,8 @@ function itemClicked (item, itemIndex) {
       lastSelectedIndex = itemIndex // Get index of last selected item
       // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
       complete = 'true'
+      finishEarly = 1
+      setResult()
     }
   }
 }
