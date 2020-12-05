@@ -951,9 +951,9 @@ function itemClicked (item, itemIndex) {
     // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
 
     // CANCEL HERE IF INVALID
-    var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-    var lastClicked = selectedItemsArray[selectedItemsArray.length - 1] // Item before last clicked
-    if (itemIndex < lastClicked) {
+    // var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+    // var lastClicked = selectedItemsArray[selectedItemsArray.length - 1] // Item before last clicked
+    if (item.classList.contains('notLastItem')) {
       console.log('Invalid')
     } else {
       if (complete === 'true') { // For a complete test.
