@@ -585,6 +585,10 @@ button {
   outline: none;
 }
 
+button:focus {
+  outline: none;
+}
+
 button:hover {
   opacity:1;
 }
