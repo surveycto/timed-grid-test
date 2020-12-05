@@ -1139,6 +1139,14 @@ function openLastItemModal () {
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
   }
+
+  // DISABLE HERE
+  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+  var beforeLastClicked - 1 = selectedItemsArray[selectedItemsArray.length - 1] // Item before last clicked
+  for (var i = 0; i < beforeLastClicked; i++) {
+    var thisBox = gridItems[i]
+    thisBox.classList.add('notLastItem')
+  }
 }
 
 function openIncorrectItemsModal () {

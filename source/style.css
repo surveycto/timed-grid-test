@@ -662,3 +662,13 @@ hr {
   clear: both;
   display: table;
 }
+
+
+.notLastItem {
+  background-color: #474e5d;
+  cursor: not-allowed;
+}
+
+.selected.notLastItem {
+  background-color: #e29f9a !important;
+}
