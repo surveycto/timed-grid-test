@@ -948,23 +948,27 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-      cell.classList.remove('lastSelected')
-    }
-    item.classList.add('lastSelected')
-    lastSelectedIndex = itemIndex // Get index of last selected item.
-    checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
-    if (complete === 'true') { // For a complete test.
-      setResult() // Set the results.
-      openThankYouModal()
-      makeInActive()
+    // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
+
+    // CANCEL HERE IF INVALID
+    var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+    var lastClicked = selectedItemsArray[selectedItemsArray.length - 1] // Item before last clicked
+    if (itemIndex < lastClicked) {
+      console.log('Invalid')
     } else {
-      for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-        cell.classList.remove('lastSelected')
+      if (complete === 'true') { // For a complete test.
+        setResult() // Set the results.
+        openThankYouModal()
+        makeInActive()
+      } else {
+        for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
+          cell.classList.remove('lastSelected')
+        }
+        item.classList.add('lastSelected')
+        lastSelectedIndex = itemIndex // Get index of last selected item.
+        lastSelectedIndex = itemIndex // Get index of last selected item
+        // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
       }
-      item.classList.add('lastSelected')
-      lastSelectedIndex = itemIndex // Get index of last selected item
-      checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
     }
   }
 }
