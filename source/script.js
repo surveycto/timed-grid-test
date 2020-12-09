@@ -933,6 +933,7 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
+  console.log('Item clicked')
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
@@ -951,12 +952,10 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
+    console.log('Selecting last letter')
     if (item.classList.contains('notLastItem')) {
       openModal('Either pick the last incorrect item, or one after that.') // Prompt the user to select another item.
     } else {
-      setResult() // Set the results.
-      openThankYouModal()
-      makeInActive()
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
@@ -967,6 +966,7 @@ function itemClicked (item, itemIndex) {
       complete = 'true'
       finishEarly = 1
       setResult()
+      openThankYouModal()
     }
   }
 }
@@ -1095,11 +1095,6 @@ function openThankYouModal () {
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
-  $.map(gridItems, function (box) { // Make all grid unclickable once test is complete.
-    if (!(box.classList.contains('pmBox'))) {
-      box.removeEventListener('click', boxHandler, false)
-    }
-  })
 }
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
