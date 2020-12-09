@@ -953,8 +953,15 @@ function itemClicked (item, itemIndex) {
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     console.log('Selecting last letter')
-    if (item.classList.contains('notLastItem')) {
-      openModal('Either pick the last incorrect item, or one after that.') // Prompt the user to select another item.
+    if (item.classList.contains('notLastItem')) { // Shows modal warning user that that item cannot be selected
+      modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
+      firstModalButton.innerText = 'Okay'
+      secondModalButton.classList.add('hidden')
+      firstModalButton.style.width = '100%'
+      modal.style.display = 'block'
+      firstModalButton.onclick = function () {
+        modal.style.display = 'none'
+      }
     } else {
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
