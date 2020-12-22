@@ -95,6 +95,13 @@ svg.checkmark {
   top: -13px;
 }
 
+.scrolling {
+  display: block;
+  height: 400px;
+  margin: 0;
+  overflow-y:scroll;
+}
+
 /* wrapper class */
 .wrapper {
   margin-bottom: 20px;
