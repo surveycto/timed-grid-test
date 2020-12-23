@@ -1142,16 +1142,22 @@ function openLastItemModal () {
 }
 
 function openIncorrectItemsModal () {
-  modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
-  if (strict === 1) {
+  if (strict === 1 && endAfter != null) {
+    modalContent.innerText = endAfter + ' wrong answers on row 1.'
     firstModalButton.innerText = 'Okay'
     secondModalButton.classList.add('hidden')
     firstModalButton.style.width = '100%'
     modal.style.display = 'block'
     firstModalButton.onclick = function () {
+      finishEarly = 1
+      timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+      startStopTimer()
+      lastSelectedIndex = endAfter
+      setResult()
       goToNextField(true)
     }
   } else {
+    modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
     firstModalButton.innerText = 'Yes'
     secondModalButton.innerText = 'No'
     modal.style.display = 'block'
