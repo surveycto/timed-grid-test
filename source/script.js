@@ -1143,7 +1143,7 @@ function openLastItemModal () {
 
 function openIncorrectItemsModal () {
   if (strict === 1 && endAfter != null) {
-    modalContent.innerText = endAfter + ' wrong answers on row 1.'
+    modalContent.innerText = 'Early ending rule: ' + endAfter + ' wrong answers.'
     firstModalButton.innerText = 'Okay'
     secondModalButton.classList.add('hidden')
     firstModalButton.style.width = '100%'
