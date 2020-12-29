@@ -729,6 +729,10 @@ $('#legend10').click(function () {
   counter10++
 })
 
+makeInActive() // Make all buttons inactive
+
+// START FUNCTIONS
+
 function myFunction (x) {
   if (x.matches) {
     screenSize = 'small'
@@ -889,7 +893,9 @@ function startStopTimer () {
   if (timerRunning) { // If the timer is running.
     timerRunning = false // Pause the timer.
     button.innerHTML = 'Resume' // Change the button text to Resume.
+    // makeInactive() // This is optional later. Un-comment to diable all grid buttons when the timer is not running. However, I (Max) do not recommend this, since the enumerator may need to catch up with the user even when  the timer is not running.
   } else {
+    makeActive()
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
     button.innerHTML = 'Pause' // Change the button text to Pause.
@@ -953,7 +959,7 @@ function itemClicked (item, itemIndex) {
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     console.log('Selecting last letter')
-    if (item.classList.contains('notLastItem')) { // Shows modal warning user that that item cannot be selected
+    if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
       modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
       firstModalButton.innerText = 'Okay'
       secondModalButton.classList.add('hidden')
@@ -1122,7 +1128,7 @@ function openLastItemModal () {
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
   for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
-    thisBox.classList.add('notLastItem')
+    thisBox.classList.add('disabled')
   }
 }
 
@@ -1165,6 +1171,7 @@ function finishModal () {
 function makeActive () {
   $.map(gridItems, function (box) {
     box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.remove('disabled')
   })
 }
 
