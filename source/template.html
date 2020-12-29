@@ -2,53 +2,65 @@
 <div class="hint default-hint-text-size">{{{HINT}}}</div>
 <div class="buttonstop" id="changer">
   <span id="endearly" class="hidden timerDisplay"></span>
-    <div id="timerDisplay" class="hidden timerDisplay">TIME LEFT : <span id="timer"></span></div>
-    <button onclick="startStopTimer()" type="button" class="startstop" id="startstop">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="icon play-icon">
-          <path d="M26.1351562,16.734375 L13.7601562,9.2109375 C12.6492187,8.5921875 11.25,9.38671875 11.25,10.6875 L11.25,25.3125 C11.25,26.60625 12.6421875,27.4078125 13.7601562,26.7890625 L26.1351562,19.6875 C27.2882812,19.0476562 27.2882812,17.38125 26.1351562,16.734375 Z"
-                fill-rule="nonzero"></path>
-          <path d="M18,0.5625 C27.6328125,0.5625 35.4375,8.3671875 35.4375,18 C35.4375,27.6328125 27.6328125,35.4375 18,35.4375 C8.3671875,35.4375 0.5625,27.6328125 0.5625,18 C0.5625,8.3671875 8.3671875,0.5625 18,0.5625 Z M18,3.9375 C10.2304688,3.9375 3.9375,10.2304688 3.9375,18 C3.9375,25.7695312 10.2304688,32.0625 18,32.0625 C25.7695312,32.0625 32.0625,25.7695312 32.0625,18 C32.0625,10.2304688 25.7695312,3.9375 18,3.9375 Z"
-                fill-rule="nonzero"></path>
-      </svg>
-      <svg class="icon pause-icon" style="display:none;" id="icon-pause" viewBox="0 0 36 36">
-        <path d="M18,0.5625 C27.6328125,0.5625 35.4375,8.3671875 35.4375,18 C35.4375,27.6328125 27.6328125,35.4375 18,35.4375 C8.3671875,35.4375 0.5625,27.6328125 0.5625,18 C0.5625,8.3671875 8.3671875,0.5625 18,0.5625 Z M18,3.9375 C10.2304688,3.9375 3.9375,10.2304688 3.9375,18 C3.9375,25.7695312 10.2304688,32.0625 18,32.0625 C25.7695312,32.0625 32.0625,25.7695312 32.0625,18 C32.0625,10.2304688 25.7695312,3.9375 18,3.9375 Z"
-              fill-rule="nonzero"></path>
-        <path d="M24.75,12.375 L24.75,23.625 C24.75,24.24375 24.24375,24.75 23.625,24.75 L20.25,24.75 C19.63125,24.75 19.125,24.24375 19.125,23.625 L19.125,12.375 C19.125,11.75625 19.63125,11.25 20.25,11.25 L23.625,11.25 C24.24375,11.25 24.75,11.75625 24.75,12.375 Z"
-              fill-rule="nonzero"></path>
-        <path d="M16.875,12.375 L16.875,23.625 C16.875,24.24375 16.36875,24.75 15.75,24.75 L12.375,24.75 C11.75625,24.75 11.25,24.24375 11.25,23.625 L11.25,12.375 C11.25,11.75625 11.75625,11.25 12.375,11.25 L15.75,11.25 C16.36875,11.25 16.875,11.75625 16.875,12.375 Z"
-              fill-rule="nonzero"></path>
-      </svg>
-    </button>
+  <div id="timerDisplay" class="hidden timerDisplay">TIME LEFT : <span id="timer"></span></div>
+  <button onclick="startStopTimer()" type="button" class="startstop" id="startstop">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="icon play-icon">
+      <path d="M26.1351562,16.734375 L13.7601562,9.2109375 C12.6492187,8.5921875 11.25,9.38671875 11.25,10.6875 L11.25,25.3125 C11.25,26.60625 12.6421875,27.4078125 13.7601562,26.7890625 L26.1351562,19.6875 C27.2882812,19.0476562 27.2882812,17.38125 26.1351562,16.734375 Z"
+            fill-rule="nonzero"></path>
+      <path d="M18,0.5625 C27.6328125,0.5625 35.4375,8.3671875 35.4375,18 C35.4375,27.6328125 27.6328125,35.4375 18,35.4375 C8.3671875,35.4375 0.5625,27.6328125 0.5625,18 C0.5625,8.3671875 8.3671875,0.5625 18,0.5625 Z M18,3.9375 C10.2304688,3.9375 3.9375,10.2304688 3.9375,18 C3.9375,25.7695312 10.2304688,32.0625 18,32.0625 C25.7695312,32.0625 32.0625,25.7695312 32.0625,18 C32.0625,10.2304688 25.7695312,3.9375 18,3.9375 Z"
+            fill-rule="nonzero"></path>
+    </svg>
+    <svg class="icon pause-icon" style="display:none;" id="icon-pause" viewBox="0 0 36 36">
+      <path d="M18,0.5625 C27.6328125,0.5625 35.4375,8.3671875 35.4375,18 C35.4375,27.6328125 27.6328125,35.4375 18,35.4375 C8.3671875,35.4375 0.5625,27.6328125 0.5625,18 C0.5625,8.3671875 8.3671875,0.5625 18,0.5625 Z M18,3.9375 C10.2304688,3.9375 3.9375,10.2304688 3.9375,18 C3.9375,25.7695312 10.2304688,32.0625 18,32.0625 C25.7695312,32.0625 32.0625,25.7695312 32.0625,18 C32.0625,10.2304688 25.7695312,3.9375 18,3.9375 Z"
+            fill-rule="nonzero"></path>
+      <path d="M24.75,12.375 L24.75,23.625 C24.75,24.24375 24.24375,24.75 23.625,24.75 L20.25,24.75 C19.63125,24.75 19.125,24.24375 19.125,23.625 L19.125,12.375 C19.125,11.75625 19.63125,11.25 20.25,11.25 L23.625,11.25 C24.24375,11.25 24.75,11.75625 24.75,12.375 Z"
+            fill-rule="nonzero"></path>
+      <path d="M16.875,12.375 L16.875,23.625 C16.875,24.24375 16.36875,24.75 15.75,24.75 L12.375,24.75 C11.75625,24.75 11.25,24.24375 11.25,23.625 L11.25,12.375 C11.25,11.75625 11.75625,11.25 12.375,11.25 L15.75,11.25 C16.36875,11.25 16.875,11.75625 16.875,12.375 Z"
+            fill-rule="nonzero"></path>
+    </svg>
+  </button>
 </div>
 <div id="modal" class="modal">
-    <span onclick="document.getElementById('modal').style.display='none'" class="close" title="Close Modal">×</span>
-    <form class="modal-content">
-      <div class="container">
-        <p id="modalContent"></p>
-        <div class="clearfix">
-          <button type="button" id="firstModalButton" class="cancelbtn"></button>
-          <button type="button" id="secondModalButton" class="deletebtn"></button>
-        </div>
+  <span onclick="document.getElementById('modal').style.display='none'" class="close" title="Close Modal">×</span>
+  <form class="modal-content">
+    <div class="container">
+      <p id="modalContent"></p>
+      <div class="clearfix">
+        <button type="button" id="firstModalButton" class="cancelbtn"></button>
+        <button type="button" id="secondModalButton" class="deletebtn"></button>
       </div>
-    </form>
+    </div>
+  </form>
+</div>
+<div class="scrolling">
+  <div class="wrapper">
+    <div id='button-holder'>
+    </div>
   </div>
-<div class="wrapper">
-<div id='button-holder'>
-</div>
-</div>
-<div class="buttonstop paging">
+  <div class="buttonstop paging">
     <button id="backButton" class="startstop back hideButton">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><g><path transform="rotate(180 12,12)" d="m12,2c5.514,0 10,4.486 10,10s-4.486,10 -10,10s-10,-4.486 -10,-10s4.486,-10 10,-10zm0,-2c-6.627,0 -12,5.373 -12,12s5.373,12 12,12s12,-5.373 12,-12s-5.373,-12 -12,-12zm2,12l-4.5,4.5l1.527,1.5l5.973,-6l-5.973,-6l-1.527,1.5l4.5,4.5z"/></g></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+        <g>
+          <path transform="rotate(180 12,12)"
+                d="m12,2c5.514,0 10,4.486 10,10s-4.486,10 -10,10s-10,-4.486 -10,-10s4.486,-10 10,-10zm0,-2c-6.627,0 -12,5.373 -12,12s5.373,12 12,12s12,-5.373 12,-12s-5.373,-12 -12,-12zm2,12l-4.5,4.5l1.527,1.5l5.973,-6l-5.973,-6l-1.527,1.5l4.5,4.5z" />
+        </g>
+      </svg>
     </button>
     <button id="nextButton" type="button" class="startstop next">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm2 12l-4.5 4.5 1.527 1.5 5.973-6-5.973-6-1.527 1.5 4.5 4.5z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+        <path
+              d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm2 12l-4.5 4.5 1.527 1.5 5.973-6-5.973-6-1.527 1.5 4.5 4.5z" />
+      </svg>
     </button>
     <button id="finishButton" type="button" class="startstop next hidden">
       <svg class="checkmark" id="checkmark" viewBox="0 0 1024 1024">
-        <g><path class="st0" d="M300.4,795.3L126.3,533.7L93.7,649l155.1,371.6h132C546.9,325.7,930.3,3.4,930.3,3.4
-          C452.9,279.9,300.4,795.3,300.4,795.3"/></g>
+        <g>
+          <path class="st0" d="M300.4,795.3L126.3,533.7L93.7,649l155.1,371.6h132C546.9,325.7,930.3,3.4,930.3,3.4
+          C452.9,279.9,300.4,795.3,300.4,795.3" />
+        </g>
       </svg>
     </button>
+  </div>
+  <div id="dispselected"></div>
+  <div id="lastselected"></div>
 </div>
-<div id="dispselected"></div>
-<div id="lastselected"></div>
