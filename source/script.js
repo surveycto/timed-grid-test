@@ -893,7 +893,7 @@ function startStopTimer () {
   if (timerRunning) { // If the timer is running.
     timerRunning = false // Pause the timer.
     button.innerHTML = 'Resume' // Change the button text to Resume.
-    // makeInactive() // This is optional later. Un-comment to diable all grid buttons when the timer is not running. However, I (Max) do not recommend this, since the enumerator may need to catch up with the user even when  the timer is not running.
+    makeInActive()
   } else {
     makeActive()
     startTime = Date.now() - timePassed
