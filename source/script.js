@@ -730,7 +730,7 @@ $('#legend10').click(function () {
   counter10++
 })
 
-if ((previousMetaData == null) || (s1[0] === 'undefined')) { // The second check is to see if the timer had actually been started or not
+if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
   makeInActive() // Make all buttons inactive
 } else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
   if (!timerRunning) {
