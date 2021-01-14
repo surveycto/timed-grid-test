@@ -1152,6 +1152,7 @@ function openIncorrectItemsModal () {
       finishEarly = 1
       timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
       startStopTimer()
+      complete = true
       lastSelectedIndex = endAfter
       setResult()
       goToNextField(true)
