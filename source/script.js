@@ -34,6 +34,8 @@ var aEnd = 0 // Counter for paging for reading test.
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
+var pauseIcon = button.querySelector('#icon-pause')
+var playIcon = button.querySelector('#icon-play')
 var finishButton = document.getElementById('finishButton') // finish button to end the interview
 var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
@@ -892,13 +894,15 @@ function startStopTimer () {
   }
   if (timerRunning) { // If the timer is running.
     timerRunning = false // Pause the timer.
-    button.innerHTML = 'Resume' // Change the button text to Resume.
+    playIcon.style.display = ''
+    pauseIcon.style.display = 'none'
     makeInActive()
   } else {
     makeActive()
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
-    button.innerHTML = 'Pause' // Change the button text to Pause.
+    playIcon.style.display = 'none'
+    pauseIcon.style.display = ''
   }
 }
 
