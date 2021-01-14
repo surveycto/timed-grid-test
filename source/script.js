@@ -1115,6 +1115,7 @@ function openThankYouModal () {
 }
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
+  makeActive()
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
