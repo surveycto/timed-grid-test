@@ -1185,6 +1185,9 @@ function makeInActive () {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
     box.classList.add('disabled')
   })
+  if (timerRunning) {
+    startStopTimer()
+  }
 }
 
 function hideFinishButton () {
