@@ -218,7 +218,6 @@ if (createGrid) {
       button.classList.remove('hidden')
       finishButton.classList.add('hidden')
       if (complete == null) {
-        button.innerHTML = 'Start'
         if (screenSize !== 'small') {
           finishButton.classList.remove('hidden')
         }
