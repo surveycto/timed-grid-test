@@ -570,6 +570,9 @@ document.querySelector('.back').addEventListener('click', function () {
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
   if (event.target === modal) {
+    if (modalContent.innerText === 'Do you want to end the test now?') {
+      startStopTimer() // On cancel, continue the timer.
+    }
     modal.style.display = 'none'
   }
 }
@@ -930,6 +933,7 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
+  console.log('Item clicked')
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
@@ -948,51 +952,28 @@ function itemClicked (item, itemIndex) {
       }
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-      cell.classList.remove('lastSelected')
-    }
-    item.classList.add('lastSelected')
-    lastSelectedIndex = itemIndex // Get index of last selected item.
-    checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
-    if (complete === 'true') { // For a complete test.
-      setResult() // Set the results.
-      openThankYouModal()
-      makeInActive()
+    console.log('Selecting last letter')
+    if (item.classList.contains('notLastItem')) { // Shows modal warning user that that item cannot be selected
+      modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
+      firstModalButton.innerText = 'Okay'
+      secondModalButton.classList.add('hidden')
+      firstModalButton.style.width = '100%'
+      modal.style.display = 'block'
+      firstModalButton.onclick = function () {
+        modal.style.display = 'none'
+      }
     } else {
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
-      lastSelectedIndex = itemIndex // Get index of last selected item
-      checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
+      lastSelectedIndex = itemIndex // Get index of last selected item.
+      // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
+      complete = 'true'
+      finishEarly = 1
+      setResult()
+      openThankYouModal()
     }
-  }
-}
-
-// Check that the selected last item is not before the last clicked item as part of the test.
-function checkLastItem () {
-  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect.
-  var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item.
-  var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item.
-  if (indexLastClickedItem > (indexLastSelectedItem)) {
-    openModal('Either pick the last incorrect item, or one after that.') // Prompt the user to select another item.
-    $.map(gridItems, function (box) {
-      box.addEventListener('click', function () {
-        var a = this.classList.item(1)
-        var b = a.slice(4)
-        itemClicked(this, b)
-      })
-    })
-  } else {
-    $.map(gridItems, function (box) {
-      box.addEventListener('click', function () {
-        var a = this.classList.item(1)
-        var b = a.slice(4)
-        itemClicked(this, b)
-      })
-    })
-    complete = 'true'
   }
 }
 
@@ -1120,11 +1101,6 @@ function openThankYouModal () {
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
-  $.map(gridItems, function (box) { // Make all grid unclickable once test is complete.
-    if (!(box.classList.contains('pmBox'))) {
-      box.removeEventListener('click', boxHandler, false)
-    }
-  })
 }
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
@@ -1138,6 +1114,14 @@ function openLastItemModal () {
   }
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
+  }
+
+  // DISABLE HERE
+  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+  var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
+  for (var i = 0; i < beforeLastClicked; i++) {
+    var thisBox = gridItems[i]
+    thisBox.classList.add('notLastItem')
   }
 }
 
