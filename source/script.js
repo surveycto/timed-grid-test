@@ -34,6 +34,8 @@ var aEnd = 0 // Counter for paging for reading test.
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
+var pauseIcon = button.querySelector('#icon-pause')
+var playIcon = button.querySelector('#icon-play')
 var finishButton = document.getElementById('finishButton') // finish button to end the interview
 var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
@@ -216,7 +218,6 @@ if (createGrid) {
       button.classList.remove('hidden')
       finishButton.classList.add('hidden')
       if (complete == null) {
-        button.innerHTML = 'Start'
         if (screenSize !== 'small') {
           finishButton.classList.remove('hidden')
         }
@@ -729,6 +730,18 @@ $('#legend10').click(function () {
   counter10++
 })
 
+if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
+  makeInActive() // Make all buttons inactive
+} else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
+  if (!timerRunning) {
+    startStopTimer()
+  } else {
+    makeActive()
+  }
+}
+
+// START FUNCTIONS
+
 function myFunction (x) {
   if (x.matches) {
     screenSize = 'small'
@@ -888,11 +901,15 @@ function startStopTimer () {
   }
   if (timerRunning) { // If the timer is running.
     timerRunning = false // Pause the timer.
-    button.innerHTML = 'Resume' // Change the button text to Resume.
+    playIcon.style.display = ''
+    pauseIcon.style.display = 'none'
+    makeInActive()
   } else {
+    makeActive()
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
-    button.innerHTML = 'Pause' // Change the button text to Pause.
+    playIcon.style.display = 'none'
+    pauseIcon.style.display = ''
   }
 }
 
@@ -953,7 +970,7 @@ function itemClicked (item, itemIndex) {
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     console.log('Selecting last letter')
-    if (item.classList.contains('notLastItem')) { // Shows modal warning user that that item cannot be selected
+    if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
       modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
       firstModalButton.innerText = 'Okay'
       secondModalButton.classList.add('hidden')
@@ -1105,6 +1122,7 @@ function openThankYouModal () {
 }
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
+  makeActive()
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -1122,7 +1140,7 @@ function openLastItemModal () {
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
   for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
-    thisBox.classList.add('notLastItem')
+    thisBox.classList.add('disabled')
   }
 }
 
@@ -1165,6 +1183,7 @@ function finishModal () {
 function makeActive () {
   $.map(gridItems, function (box) {
     box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.remove('disabled')
   })
 }
 
@@ -1173,6 +1192,9 @@ function makeInActive () {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
     box.classList.add('disabled')
   })
+  if (timerRunning) {
+    startStopTimer()
+  }
 }
 
 function hideFinishButton () {

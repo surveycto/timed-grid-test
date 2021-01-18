@@ -51,12 +51,6 @@ button.startstop {
   width: 150px;
 }
 
-button.disabled {
-  background-color: #63727a;
-  color: #83928A;
-  pointer-events: none;
-}
-
 .timerDisplay {
   background-color: red;
   border: 2px solid black;
@@ -93,13 +87,6 @@ svg.checkmark {
   position: relative;
   height: 36px;
   top: -13px;
-}
-
-.scrolling {
-  display: block;
-  height: 400px;
-  margin: 0;
-  overflow-y:scroll;
 }
 
 /* wrapper class */
@@ -676,11 +663,11 @@ hr {
 }
 
 
-.notLastItem {
+.disabled {
   background-color: #474e5d;
   cursor: not-allowed;
 }
 
-.selected.notLastItem {
+.selected.disabled {
   background-color: #e29f9a !important;
 }
