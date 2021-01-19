@@ -26,10 +26,11 @@ var endFirstLine = 'No' // Whether they ended on the firstline or not.
 var choiceValuesArray = [] // Array of choice labels.
 var columns = 10 // Number of columns on grid printout (letters).
 var finishEarly = 0 // Track whether the test is finished on time.
-var previousSelectedItems // Stores an array of previously selected values.
+var previousSelectedItems = []// Stores an array of previously selected values.
 var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
+var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
@@ -168,7 +169,16 @@ if (previousMetaData !== null) {
     finishButton.classList.add('hidden')
   }
   timerRunning = true
-  previousSelectedItems = previousSelected[1].split(' ') // Get list of items that had been selected before leaving the page.
+  var t = previousSelected[1].split(' ')
+  var y
+  var q
+  var o
+  for (q = 0; q < t.length; q++) {
+    y = arrayValues.indexOf(t[q]) + 1
+    o = o + ' ' + y
+  }
+  previousSelectedItems = o.split(' ')
+  console.log('PSI is ' + previousSelectedItems)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -1002,7 +1012,8 @@ function getSelectedItems () {
     if (cell.classList.contains('selected')) { // Loop through all items checking those with the CSS selected class.
       var m = cell.classList.item(1)
       var n = m.slice(4) // Get the number of the selected item.
-      selectedLet.push(n) // Add the item to the array.
+      var v = arrayValues[n - 1]
+      selectedLet.push(v) // Add the item to the array.
     }
   }
   return selectedLet.join(' ') // Convert array to string.
@@ -1035,7 +1046,7 @@ function setResult () {
 
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
-  var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+  arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   if (type === 'reading') {
@@ -1138,7 +1149,8 @@ function openLastItemModal () {
   // DISABLE HERE
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  for (var i = 0; i < beforeLastClicked; i++) {
+  var actual = arrayValues.indexOf(beforeLastClicked)
+  for (var i = 0; i < actual; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
