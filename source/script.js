@@ -1173,6 +1173,7 @@ function openIncorrectItemsModal () {
       modal.style.display = 'none'
       startStopTimer()
     }
+  }
 }
 
 // Modal to confirm finishing a test early.
