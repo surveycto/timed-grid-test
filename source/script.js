@@ -6,6 +6,7 @@ var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
 var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
+var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
 
 var previousMetaData = getMetaData() // Load Metadata.
@@ -90,6 +91,11 @@ if (strict == null) {
   extraItems = 0
 }
 
+if (finishParameter == null) {
+  finishParameter = 1
+} else {
+  finishParameter = parseInt(finishParameter)
+}
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
@@ -592,7 +598,11 @@ window.onclick = function (event) {
 $('#finishButton').click(function () {
   if (timerRunning) {
     startStopTimer() // Pause the timer.
-    finishModal() // open finish modal
+    if (finishParameter !== 1) {
+      endTest()
+    } else {
+      finishModal() // open finish modal
+    }
   }
 })
 
@@ -1170,6 +1180,8 @@ function openIncorrectItemsModal () {
       complete = true
       lastSelectedIndex = endAfter
       setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
       goToNextField(true)
     }
   } else {
@@ -1185,6 +1197,38 @@ function openIncorrectItemsModal () {
       modal.style.display = 'none'
       startStopTimer()
     }
+  }
+}
+
+function endTest () {
+  if (finishParameter === 2) {
+    modalContent.innerText = 'Do you want to end the test now?'
+    firstModalButton.innerText = 'Yes'
+    secondModalButton.innerText = 'No'
+    modal.style.display = 'block'
+    firstModalButton.onclick = function () {
+      finishEarly = 1
+      timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+      complete = true
+      lastSelectedIndex = choices.length - 1
+      setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
+      goToNextField(true)
+    }
+    secondModalButton.onclick = function () {
+      modal.style.display = 'none'
+      startStopTimer() // On cancel, continue the timer.
+    }
+  } else {
+    finishEarly = 1
+    timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+    complete = true
+    lastSelectedIndex = choices.length - 1
+    setResult()
+    button.innerHTML = 'Test Complete'
+    finishButton.classList.add('hidden') // Hide finish button.
+    goToNextField(true)
   }
 }
 
