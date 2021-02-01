@@ -1036,6 +1036,7 @@ function clearAnswer () {
 
 // set the results to published
 function setResult () {
+  console.log('Last index is ' + lastSelectedIndex)
   if (finishEarly === 0) {
     totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   } else {
@@ -1053,7 +1054,7 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-
+  console.log('Total Items is ' + totalItems)
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
@@ -1210,7 +1211,11 @@ function endTest () {
       finishEarly = 1
       timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
       complete = true
-      lastSelectedIndex = choices.length - 1
+      if (type === 'reading') {
+        lastSelectedIndex = choices.length - 1
+      } else {
+        lastSelectedIndex = choices.length
+      }
       setResult()
       button.innerHTML = 'Test Complete'
       finishButton.classList.add('hidden') // Hide finish button.
@@ -1224,7 +1229,11 @@ function endTest () {
     finishEarly = 1
     timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
     complete = true
-    lastSelectedIndex = choices.length - 1
+    if (type === 'reading') {
+      lastSelectedIndex = choices.length - 1
+    } else {
+      lastSelectedIndex = choices.length
+    }
     setResult()
     button.innerHTML = 'Test Complete'
     finishButton.classList.add('hidden') // Hide finish button.
