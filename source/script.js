@@ -1215,6 +1215,9 @@ function endTest () {
         lastSelectedIndex = choices.length - 1
       } else {
         lastSelectedIndex = choices.length
+        if (allAnswered != null) {
+          lastSelectedIndex = choices.length - 1
+        }
       }
       setResult()
       button.innerHTML = 'Test Complete'
@@ -1233,6 +1236,9 @@ function endTest () {
       lastSelectedIndex = choices.length - 1
     } else {
       lastSelectedIndex = choices.length
+      if (allAnswered != null) {
+        lastSelectedIndex = choices.length - 1
+      }
     }
     setResult()
     button.innerHTML = 'Test Complete'
