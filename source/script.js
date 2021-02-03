@@ -1160,8 +1160,10 @@ function openLastItemModal () {
   // DISABLE HERE
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  var actual = arrayValues.indexOf(beforeLastClicked)
-  for (var i = 0; i < actual; i++) {
+  // console.log('Before last clicked ' + beforeLastClicked)
+  // var actual = arrayValues.indexOf(beforeLastClicked)
+  // console.log('Actual last clicked ' + actual)
+  for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
