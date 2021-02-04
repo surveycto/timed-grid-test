@@ -585,14 +585,14 @@ document.querySelector('.back').addEventListener('click', function () {
 })
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    if (modalContent.innerText === 'Do you want to end the test now?') {
-      startStopTimer() // On cancel, continue the timer.
-    }
-    modal.style.display = 'none'
-  }
-}
+// window.onclick = function (event) {
+//   if (event.target === modal) {
+//     if (modalContent.innerText === 'Do you want to end the test now?') {
+//       startStopTimer() // On cancel, continue the timer.
+//     }
+//     // modal.style.display = 'none'
+//   }
+// }
 
 // Finish early
 $('#finishButton').click(function () {
