@@ -975,18 +975,25 @@ function itemClicked (item, itemIndex) {
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
       classes.remove('selected')
+      var index = items.indexOf(itemIndex)
+      if (index > -1) {
+        items.splice(index, 1) // Remove item from list when deselected.
+      }
     } else {
       classes.add('selected')
-      if (itemCounter <= 9) { // Check number of items selected.
-        itemCounter++
+      // if (itemCounter <= 9) { // Check number of items selected.
+      itemCounter++
+      if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
-        var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
-        if (isSame) {
-          timerRunning = false // Stop timer
-          endFirstLine = 'Yes' // Indicate that the first line was all incorrect
-          openIncorrectItemsModal() // Inform user of wrong responses.
-        }
       }
+    }
+    console.log('firstten is ' + firstTenItems)
+    console.log('items is ' + items)
+    var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
+    if (isSame) {
+      timerRunning = false // Stop timer
+      endFirstLine = 'Yes' // Indicate that the first line was all incorrect
+      openIncorrectItemsModal() // Inform user of wrong responses.
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     console.log('Selecting last letter')
