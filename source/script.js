@@ -6,6 +6,7 @@ var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
 var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
+var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
 
 var previousMetaData = getMetaData() // Load Metadata.
@@ -31,6 +32,7 @@ var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+var items = [] // Array to keep the selected items.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
@@ -90,6 +92,11 @@ if (strict == null) {
   extraItems = 0
 }
 
+if (finishParameter == null) {
+  finishParameter = 1
+} else {
+  finishParameter = parseInt(finishParameter)
+}
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
@@ -177,8 +184,18 @@ if (previousMetaData !== null) {
     y = arrayValues.indexOf(t[q]) + 1
     o = o + ' ' + y
   }
-  previousSelectedItems = o.split(' ')
+  previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
   console.log('PSI is ' + previousSelectedItems)
+  items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
+  // items = previousSelectedItems.filter(function (element) {
+  //   return element !== undefined
+  // })
+  // // if (previousSelectedItems != null) {
+  // //   items = previousSelectedItems.filter(function (element) {
+  // //     return element !== undefined
+  // //   })
+  // // }
+  console.log('Items is ' + items)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -291,16 +308,16 @@ $(document).ready(function () {
     }
   }
 })
-
-var topTen = choices.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
+var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
+console.log('No pun array ' + noPunctuationsArray)
+var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
 
 for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE) // Get the values of the first x items and put them in the array.
+  firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
 
 var itemCounter = 0 // Count the number of items.
-var items = [] // Array to keep the selected items.
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
@@ -579,20 +596,24 @@ document.querySelector('.back').addEventListener('click', function () {
 })
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    if (modalContent.innerText === 'Do you want to end the test now?') {
-      startStopTimer() // On cancel, continue the timer.
-    }
-    modal.style.display = 'none'
-  }
-}
+// window.onclick = function (event) {
+//   if (event.target === modal) {
+//     if (modalContent.innerText === 'Do you want to end the test now?') {
+//       startStopTimer() // On cancel, continue the timer.
+//     }
+//     // modal.style.display = 'none'
+//   }
+// }
 
 // Finish early
 $('#finishButton').click(function () {
   if (timerRunning) {
     startStopTimer() // Pause the timer.
-    finishModal() // open finish modal
+    if (finishParameter !== 1) {
+      endTest()
+    } else {
+      finishModal() // open finish modal
+    }
   }
 })
 
@@ -965,18 +986,25 @@ function itemClicked (item, itemIndex) {
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
       classes.remove('selected')
+      var index = items.indexOf(itemIndex)
+      if (index > -1) {
+        items.splice(index, 1) // Remove item from list when deselected.
+      }
     } else {
       classes.add('selected')
-      if (itemCounter <= 9) { // Check number of items selected.
-        itemCounter++
+      // if (itemCounter <= 9) { // Check number of items selected.
+      // itemCounter++
+      if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
-        var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
-        if (isSame) {
-          timerRunning = false // Stop timer
-          endFirstLine = 'Yes' // Indicate that the first line was all incorrect
-          openIncorrectItemsModal() // Inform user of wrong responses.
-        }
       }
+    }
+    console.log('firstten is ' + firstTenItems)
+    console.log('items is ' + items)
+    var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
+    if (isSame) {
+      timerRunning = false // Stop timer
+      endFirstLine = 'Yes' // Indicate that the first line was all incorrect
+      openIncorrectItemsModal() // Inform user of wrong responses.
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     console.log('Selecting last letter')
@@ -1026,6 +1054,7 @@ function clearAnswer () {
 
 // set the results to published
 function setResult () {
+  console.log('Last index is ' + lastSelectedIndex)
   if (finishEarly === 0) {
     totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   } else {
@@ -1043,14 +1072,14 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-
+  console.log('Total Items is ' + totalItems)
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   if (type === 'reading') {
-    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 }) // Correct items without any punctuation marks.
     notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
@@ -1149,8 +1178,10 @@ function openLastItemModal () {
   // DISABLE HERE
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  var actual = arrayValues.indexOf(beforeLastClicked)
-  for (var i = 0; i < actual; i++) {
+  // console.log('Before last clicked ' + beforeLastClicked)
+  // var actual = arrayValues.indexOf(beforeLastClicked)
+  // console.log('Actual last clicked ' + actual)
+  for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
@@ -1170,6 +1201,8 @@ function openIncorrectItemsModal () {
       complete = true
       lastSelectedIndex = endAfter
       setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
       goToNextField(true)
     }
   } else {
@@ -1185,6 +1218,52 @@ function openIncorrectItemsModal () {
       modal.style.display = 'none'
       startStopTimer()
     }
+  }
+}
+
+function endTest () {
+  if (finishParameter === 2) {
+    modalContent.innerText = 'Do you want to end the test now?'
+    firstModalButton.innerText = 'Yes'
+    secondModalButton.innerText = 'No'
+    modal.style.display = 'block'
+    firstModalButton.onclick = function () {
+      finishEarly = 1
+      timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+      complete = true
+      if (type === 'reading') {
+        lastSelectedIndex = choices.length - 1
+      } else {
+        lastSelectedIndex = choices.length
+        if (allAnswered != null) {
+          lastSelectedIndex = choices.length - 1
+        }
+      }
+      setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
+      goToNextField(true)
+    }
+    secondModalButton.onclick = function () {
+      modal.style.display = 'none'
+      startStopTimer() // On cancel, continue the timer.
+    }
+  } else {
+    finishEarly = 1
+    timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+    complete = true
+    if (type === 'reading') {
+      lastSelectedIndex = choices.length - 1
+    } else {
+      lastSelectedIndex = choices.length
+      if (allAnswered != null) {
+        lastSelectedIndex = choices.length - 1
+      }
+    }
+    setResult()
+    button.innerHTML = 'Test Complete'
+    finishButton.classList.add('hidden') // Hide finish button.
+    goToNextField(true)
   }
 }
 
