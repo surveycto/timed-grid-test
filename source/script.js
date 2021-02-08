@@ -308,12 +308,13 @@ $(document).ready(function () {
     }
   }
 })
-
-var topTen = choices.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
+var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
+console.log('No pun array ' + noPunctuationsArray)
+var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
 
 for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE) // Get the values of the first x items and put them in the array.
+  firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
 
 var itemCounter = 0 // Count the number of items.
@@ -1078,7 +1079,7 @@ function setResult () {
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   if (type === 'reading') {
-    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 }) // Correct items without any punctuation marks.
     notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
