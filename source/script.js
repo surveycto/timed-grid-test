@@ -32,6 +32,7 @@ var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+var items = [] // Array to keep the selected items.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
@@ -183,8 +184,18 @@ if (previousMetaData !== null) {
     y = arrayValues.indexOf(t[q]) + 1
     o = o + ' ' + y
   }
-  previousSelectedItems = o.split(' ')
+  previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
   console.log('PSI is ' + previousSelectedItems)
+  items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
+  // items = previousSelectedItems.filter(function (element) {
+  //   return element !== undefined
+  // })
+  // // if (previousSelectedItems != null) {
+  // //   items = previousSelectedItems.filter(function (element) {
+  // //     return element !== undefined
+  // //   })
+  // // }
+  console.log('Items is ' + items)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -306,7 +317,6 @@ for (x = 0; x < topTen.length; x++) {
 }
 
 var itemCounter = 0 // Count the number of items.
-var items = [] // Array to keep the selected items.
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
@@ -982,7 +992,7 @@ function itemClicked (item, itemIndex) {
     } else {
       classes.add('selected')
       // if (itemCounter <= 9) { // Check number of items selected.
-      itemCounter++
+      // itemCounter++
       if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
       }
