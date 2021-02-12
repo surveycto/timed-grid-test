@@ -51,12 +51,6 @@ button.startstop {
   width: 150px;
 }
 
-button.disabled {
-  background-color: #63727a;
-  color: #83928A;
-  pointer-events: none;
-}
-
 .timerDisplay {
   background-color: red;
   border: 2px solid black;
@@ -582,6 +576,11 @@ button {
   cursor: pointer;
   width: 100%;
   opacity: 0.9;
+  outline: none;
+}
+
+button:focus {
+  outline: none;
 }
 
 button:hover {
@@ -621,7 +620,7 @@ button:hover {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  background-color: #474e5d;
+  background-color: #474e5dbf;
   /* opacity: 0.1; */
   padding-top: 50px;
 }
@@ -661,4 +660,14 @@ hr {
   content: "";
   clear: both;
   display: table;
+}
+
+
+.disabled {
+  background-color: #474e5d;
+  cursor: not-allowed;
+}
+
+.selected.disabled {
+  background-color: #e29f9a !important;
 }

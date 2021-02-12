@@ -6,6 +6,7 @@ var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
 var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
+var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
 
 var previousMetaData = getMetaData() // Load Metadata.
@@ -26,14 +27,18 @@ var endFirstLine = 'No' // Whether they ended on the firstline or not.
 var choiceValuesArray = [] // Array of choice labels.
 var columns = 10 // Number of columns on grid printout (letters).
 var finishEarly = 0 // Track whether the test is finished on time.
-var previousSelectedItems // Stores an array of previously selected values.
+var previousSelectedItems = []// Stores an array of previously selected values.
 var previousTotalItems // Store the last selected item
 var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
+var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+var items = [] // Array to keep the selected items.
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
 var button = document.querySelector('#startstop') // Button to start, stop, pause and resume test.
+var pauseIcon = button.querySelector('#icon-pause')
+var playIcon = button.querySelector('#icon-play')
 var finishButton = document.getElementById('finishButton') // finish button to end the interview
 var nextButton = document.getElementById('nextButton') // next button for navigation
 var timerDisplay = document.querySelector('#timerDisplay') // div displaying the timer.
@@ -87,6 +92,11 @@ if (strict == null) {
   extraItems = 0
 }
 
+if (finishParameter == null) {
+  finishParameter = 1
+} else {
+  finishParameter = parseInt(finishParameter)
+}
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
@@ -166,7 +176,26 @@ if (previousMetaData !== null) {
     finishButton.classList.add('hidden')
   }
   timerRunning = true
-  previousSelectedItems = previousSelected[1].split(' ') // Get list of items that had been selected before leaving the page.
+  var t = previousSelected[1].split(' ')
+  var y
+  var q
+  var o
+  for (q = 0; q < t.length; q++) {
+    y = arrayValues.indexOf(t[q]) + 1
+    o = o + ' ' + y
+  }
+  previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
+  console.log('PSI is ' + previousSelectedItems)
+  items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
+  // items = previousSelectedItems.filter(function (element) {
+  //   return element !== undefined
+  // })
+  // // if (previousSelectedItems != null) {
+  // //   items = previousSelectedItems.filter(function (element) {
+  // //     return element !== undefined
+  // //   })
+  // // }
+  console.log('Items is ' + items)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -216,7 +245,6 @@ if (createGrid) {
       button.classList.remove('hidden')
       finishButton.classList.add('hidden')
       if (complete == null) {
-        button.innerHTML = 'Start'
         if (screenSize !== 'small') {
           finishButton.classList.remove('hidden')
         }
@@ -280,16 +308,16 @@ $(document).ready(function () {
     }
   }
 })
-
-var topTen = choices.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
+var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
+console.log('No pun array ' + noPunctuationsArray)
+var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
 
 for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(choices[x].CHOICE_VALUE) // Get the values of the first x items and put them in the array.
+  firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
 
 var itemCounter = 0 // Count the number of items.
-var items = [] // Array to keep the selected items.
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
@@ -568,17 +596,24 @@ document.querySelector('.back').addEventListener('click', function () {
 })
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-  if (event.target === modal) {
-    modal.style.display = 'none'
-  }
-}
+// window.onclick = function (event) {
+//   if (event.target === modal) {
+//     if (modalContent.innerText === 'Do you want to end the test now?') {
+//       startStopTimer() // On cancel, continue the timer.
+//     }
+//     // modal.style.display = 'none'
+//   }
+// }
 
 // Finish early
 $('#finishButton').click(function () {
   if (timerRunning) {
     startStopTimer() // Pause the timer.
-    finishModal() // open finish modal
+    if (finishParameter !== 1) {
+      endTest()
+    } else {
+      finishModal() // open finish modal
+    }
   }
 })
 
@@ -725,6 +760,18 @@ $('#legend10').click(function () {
   }
   counter10++
 })
+
+if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
+  makeInActive() // Make all buttons inactive
+} else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
+  if (!timerRunning) {
+    startStopTimer()
+  } else {
+    makeActive()
+  }
+}
+
+// START FUNCTIONS
 
 function myFunction (x) {
   if (x.matches) {
@@ -885,11 +932,15 @@ function startStopTimer () {
   }
   if (timerRunning) { // If the timer is running.
     timerRunning = false // Pause the timer.
-    button.innerHTML = 'Resume' // Change the button text to Resume.
+    playIcon.style.display = ''
+    pauseIcon.style.display = 'none'
+    makeInActive()
   } else {
+    makeActive()
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
-    button.innerHTML = 'Pause' // Change the button text to Pause.
+    playIcon.style.display = 'none'
+    pauseIcon.style.display = ''
   }
 }
 
@@ -930,69 +981,55 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
+  console.log('Item clicked')
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
       classes.remove('selected')
+      var index = items.indexOf(itemIndex)
+      if (index > -1) {
+        items.splice(index, 1) // Remove item from list when deselected.
+      }
     } else {
       classes.add('selected')
-      if (itemCounter <= 9) { // Check number of items selected.
-        itemCounter++
+      // if (itemCounter <= 9) { // Check number of items selected.
+      // itemCounter++
+      if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
-        var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
-        if (isSame) {
-          timerRunning = false // Stop timer
-          endFirstLine = 'Yes' // Indicate that the first line was all incorrect
-          openIncorrectItemsModal() // Inform user of wrong responses.
-        }
       }
     }
-  } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
-      cell.classList.remove('lastSelected')
+    console.log('firstten is ' + firstTenItems)
+    console.log('items is ' + items)
+    var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
+    if (isSame) {
+      timerRunning = false // Stop timer
+      endFirstLine = 'Yes' // Indicate that the first line was all incorrect
+      openIncorrectItemsModal() // Inform user of wrong responses.
     }
-    item.classList.add('lastSelected')
-    lastSelectedIndex = itemIndex // Get index of last selected item.
-    checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
-    if (complete === 'true') { // For a complete test.
-      setResult() // Set the results.
-      openThankYouModal()
-      makeInActive()
+  } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
+    console.log('Selecting last letter')
+    if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
+      modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
+      firstModalButton.innerText = 'Okay'
+      secondModalButton.classList.add('hidden')
+      firstModalButton.style.width = '100%'
+      modal.style.display = 'block'
+      firstModalButton.onclick = function () {
+        modal.style.display = 'none'
+      }
     } else {
       for (var cell of gridItems) { // This removes the red border in case another cell was previously selected
         cell.classList.remove('lastSelected')
       }
       item.classList.add('lastSelected')
+      lastSelectedIndex = itemIndex // Get index of last selected item.
       lastSelectedIndex = itemIndex // Get index of last selected item
-      checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
+      // checkLastItem() // Check that the selected last item is not before the last clicked item as part of the test.
+      complete = 'true'
+      finishEarly = 1
+      setResult()
+      openThankYouModal()
     }
-  }
-}
-
-// Check that the selected last item is not before the last clicked item as part of the test.
-function checkLastItem () {
-  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  var lastClickedItem = selectedItemsArray[selectedItemsArray.length - 1] // Get the last item that was incorrect.
-  var indexLastClickedItem = choiceValuesArray.lastIndexOf(lastClickedItem) // Get index of last clicked item.
-  var indexLastSelectedItem = choiceValuesArray.lastIndexOf(lastSelectedIndex) // Get index of last selected item.
-  if (indexLastClickedItem > (indexLastSelectedItem)) {
-    openModal('Either pick the last incorrect item, or one after that.') // Prompt the user to select another item.
-    $.map(gridItems, function (box) {
-      box.addEventListener('click', function () {
-        var a = this.classList.item(1)
-        var b = a.slice(4)
-        itemClicked(this, b)
-      })
-    })
-  } else {
-    $.map(gridItems, function (box) {
-      box.addEventListener('click', function () {
-        var a = this.classList.item(1)
-        var b = a.slice(4)
-        itemClicked(this, b)
-      })
-    })
-    complete = 'true'
   }
 }
 
@@ -1003,7 +1040,8 @@ function getSelectedItems () {
     if (cell.classList.contains('selected')) { // Loop through all items checking those with the CSS selected class.
       var m = cell.classList.item(1)
       var n = m.slice(4) // Get the number of the selected item.
-      selectedLet.push(n) // Add the item to the array.
+      var v = arrayValues[n - 1]
+      selectedLet.push(v) // Add the item to the array.
     }
   }
   return selectedLet.join(' ') // Convert array to string.
@@ -1016,6 +1054,7 @@ function clearAnswer () {
 
 // set the results to published
 function setResult () {
+  console.log('Last index is ' + lastSelectedIndex)
   if (finishEarly === 0) {
     totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   } else {
@@ -1033,14 +1072,14 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-
+  console.log('Total Items is ' + totalItems)
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
-  var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
+  arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
   var correctIncorrectArray = arrayValues.slice(0, lastSelectedIndex)
   var notAnsweredItemsArray = arrayValues.slice(totalItems, arrayValues.length)
   if (type === 'reading') {
-    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
+    correctIncorrectArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, punctuationArray) < 0 }) // Correct items without any punctuation marks.
     notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
@@ -1120,14 +1159,10 @@ function openThankYouModal () {
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
-  $.map(gridItems, function (box) { // Make all grid unclickable once test is complete.
-    if (!(box.classList.contains('pmBox'))) {
-      box.removeEventListener('click', boxHandler, false)
-    }
-  })
 }
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
+  makeActive()
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -1139,20 +1174,96 @@ function openLastItemModal () {
   secondModalButton.onclick = function () {
     modal.style.display = 'none'
   }
+
+  // DISABLE HERE
+  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+  var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
+  // console.log('Before last clicked ' + beforeLastClicked)
+  // var actual = arrayValues.indexOf(beforeLastClicked)
+  // console.log('Actual last clicked ' + actual)
+  for (var i = 0; i < beforeLastClicked; i++) {
+    var thisBox = gridItems[i]
+    thisBox.classList.add('disabled')
+  }
 }
 
 function openIncorrectItemsModal () {
-  modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'No'
-  modal.style.display = 'block'
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    endEarly()
+  if (strict === 1 && endAfter != null) {
+    modalContent.innerText = endAfter + ' wrong answers on row 1.'
+    firstModalButton.innerText = 'Okay'
+    secondModalButton.classList.add('hidden')
+    firstModalButton.style.width = '100%'
+    modal.style.display = 'block'
+    firstModalButton.onclick = function () {
+      finishEarly = 1
+      timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+      startStopTimer()
+      complete = true
+      lastSelectedIndex = endAfter
+      setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
+      goToNextField(true)
+    }
+  } else {
+    modalContent.innerText = 'End now? ' + endAfter + ' wrong answers on row 1.'
+    firstModalButton.innerText = 'Yes'
+    secondModalButton.innerText = 'No'
+    modal.style.display = 'block'
+    firstModalButton.onclick = function () {
+      modal.style.display = 'none'
+      endEarly()
+    }
+    secondModalButton.onclick = function () {
+      modal.style.display = 'none'
+      startStopTimer()
+    }
   }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-    startStopTimer()
+}
+
+function endTest () {
+  if (finishParameter === 2) {
+    modalContent.innerText = 'Do you want to end the test now?'
+    firstModalButton.innerText = 'Yes'
+    secondModalButton.innerText = 'No'
+    modal.style.display = 'block'
+    firstModalButton.onclick = function () {
+      finishEarly = 1
+      timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+      complete = true
+      if (type === 'reading') {
+        lastSelectedIndex = choices.length - 1
+      } else {
+        lastSelectedIndex = choices.length
+        if (allAnswered != null) {
+          lastSelectedIndex = choices.length - 1
+        }
+      }
+      setResult()
+      button.innerHTML = 'Test Complete'
+      finishButton.classList.add('hidden') // Hide finish button.
+      goToNextField(true)
+    }
+    secondModalButton.onclick = function () {
+      modal.style.display = 'none'
+      startStopTimer() // On cancel, continue the timer.
+    }
+  } else {
+    finishEarly = 1
+    timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
+    complete = true
+    if (type === 'reading') {
+      lastSelectedIndex = choices.length - 1
+    } else {
+      lastSelectedIndex = choices.length
+      if (allAnswered != null) {
+        lastSelectedIndex = choices.length - 1
+      }
+    }
+    setResult()
+    button.innerHTML = 'Test Complete'
+    finishButton.classList.add('hidden') // Hide finish button.
+    goToNextField(true)
   }
 }
 
@@ -1180,6 +1291,7 @@ function finishModal () {
 function makeActive () {
   $.map(gridItems, function (box) {
     box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    box.classList.remove('disabled')
   })
 }
 
@@ -1188,6 +1300,9 @@ function makeInActive () {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
     box.classList.add('disabled')
   })
+  if (timerRunning) {
+    startStopTimer()
+  }
 }
 
 function hideFinishButton () {
