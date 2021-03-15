@@ -33,6 +33,7 @@ var aStart = -1 // Counter for paging for reading test.
 var aEnd = 0 // Counter for paging for reading test.
 var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
 var items = [] // Array to keep the selected items.
+var intervalId
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
@@ -84,7 +85,7 @@ if (pause == null) {
   pause = parseInt(pause) // Parameterized pause set to value entered.
 }
 
-if (strict == null) {
+if (strict == null || strict == '0') {
   strict = 0 // Default strict set to false.
   extraItems = 1
 } else {
@@ -232,7 +233,7 @@ if (createGrid) {
     finishButton.classList.add('hidden')
     makeInActive()
   }
-  setInterval(timer, 1) // Start the timer.
+  intervalId = setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
@@ -951,17 +952,20 @@ function endEarly () {
 
 // Ending the test.
 function endTimer () {
+  clearInterval(intervalId)
   button.innerHTML = 'Test Complete' // Change the button test.
   button.disabled = true
   button.classList.remove('hidden') // Make the button visible.
   timerDisplay.classList.add('hidden') // Hide the timer.
   timeLeft = 0 // set time to 0.
   timerRunning = false // Stop the timer.
+  console.log('I am here')
   if (finishEarly === 0 && complete !== 'true') { // If the test can end directly or is already complete.
     if (strict === 0) { // If the test allows selecting items once the timer has run out.
       button.disabled = false
       finishButton.classList.add('hidden') // Hide finish button.
-      button.innerHTML = 'Finished?'
+      button.innerHTML = 'Finished'
+      openExtraItemsModal()
       button.onclick = function () { // Confirm that the test is complete.
         extraItems = 0
         openLastItemModal() // Select the last attempted item after selecting extras.
@@ -1139,11 +1143,16 @@ function pageReading () {
 }
 
 // Incorrect last item modal
-function openModal (content) {
-  modalContent.innerText = content
-  firstModalButton.innerText = 'Yes'
-  secondModalButton.innerText = 'No'
+function openExtraItemsModal () {
+  console.log('Test')
+  modalContent.innerText = 'Make any corrections now. Tap the Finished when you are finished.'
+  firstModalButton.innerText = 'Okay'
+  secondModalButton.classList.add('hidden')
+  firstModalButton.style.width = '100%'
   modal.style.display = 'block'
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+  }
 }
 // Thank you note modal
 function openThankYouModal () {
@@ -1163,6 +1172,16 @@ function openThankYouModal () {
 // Modal to prompt user to select the last item.
 function openLastItemModal () {
   makeActive()
+  // DISABLE HERE
+  selectedItems = getSelectedItems()
+  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
+  console.log('selected items is ' + selectedItemsArray)
+  var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
+  console.log('before last clicked ' + beforeLastClicked)
+  for (var i = 0; i < beforeLastClicked; i++) {
+    var thisBox = gridItems[i]
+    thisBox.classList.add('disabled')
+  }
   modalContent.innerText = 'Please tap the last item attempted'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -1170,20 +1189,6 @@ function openLastItemModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-  }
-  secondModalButton.onclick = function () {
-    modal.style.display = 'none'
-  }
-
-  // DISABLE HERE
-  var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  // console.log('Before last clicked ' + beforeLastClicked)
-  // var actual = arrayValues.indexOf(beforeLastClicked)
-  // console.log('Actual last clicked ' + actual)
-  for (var i = 0; i < beforeLastClicked; i++) {
-    var thisBox = gridItems[i]
-    thisBox.classList.add('disabled')
   }
 }
 
