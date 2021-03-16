@@ -49,7 +49,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
-var punctuationArray = [] // An array of the 
+var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 
@@ -1145,7 +1145,7 @@ function pageReading () {
 // Incorrect last item modal
 function openExtraItemsModal () {
   console.log('Test')
-  modalContent.innerText = 'Make any corrections now. Tap the Finished when you are finished.'
+  modalContent.innerHTML = 'Make any corrections now. Tap the <strong>Finished</strong> button when you are finished.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
