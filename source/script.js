@@ -250,8 +250,7 @@ if (createGrid) {
           finishButton.classList.remove('hidden')
         }
       } else {
-        button.innerHTML = 'Test complete'
-        button.disabled = true
+        moveForward()
       }
     }
   }
@@ -953,13 +952,11 @@ function endEarly () {
 // Ending the test.
 function endTimer () {
   clearInterval(intervalId)
-  button.innerHTML = 'Test Complete' // Change the button test.
-  button.disabled = true
+  moveForward()
   button.classList.remove('hidden') // Make the button visible.
   timerDisplay.classList.add('hidden') // Hide the timer.
   timeLeft = 0 // set time to 0.
   timerRunning = false // Stop the timer.
-  console.log('I am here')
   if (finishEarly === 0 && complete !== 'true') { // If the test can end directly or is already complete.
     if (strict === 0) { // If the test allows selecting items once the timer has run out.
       button.disabled = false
@@ -969,15 +966,13 @@ function endTimer () {
       button.onclick = function () { // Confirm that the test is complete.
         extraItems = 0
         openLastItemModal() // Select the last attempted item after selecting extras.
-        button.innerHTML = 'Test Complete'
-        button.disabled = true
+        moveForward()
       }
     } else {
       finishButton.classList.add('hidden') // Hide finish button.
       strict = 0
       extraItems = 0
-      button.innerHTML = 'Test Complete'
-      button.disabled = true
+      moveForward()
       openLastItemModal() // Select the last attempted item directly.
     }
   }
@@ -1163,8 +1158,7 @@ function openThankYouModal () {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    button.innerText = 'Test Complete'
-    button.disabled = true
+    moveForward()
     secondModalButton.classList.remove('hidden')
     firstModalButton.style.width = '50%'
   }
@@ -1206,7 +1200,7 @@ function openIncorrectItemsModal () {
       complete = true
       lastSelectedIndex = endAfter
       setResult()
-      button.innerHTML = 'Test Complete'
+      moveForward()
       finishButton.classList.add('hidden') // Hide finish button.
       goToNextField(true)
     }
@@ -1245,7 +1239,7 @@ function endTest () {
         }
       }
       setResult()
-      button.innerHTML = 'Test Complete'
+      moveForward()
       finishButton.classList.add('hidden') // Hide finish button.
       goToNextField(true)
     }
@@ -1266,7 +1260,7 @@ function endTest () {
       }
     }
     setResult()
-    button.innerHTML = 'Test Complete'
+    moveForward()
     finishButton.classList.add('hidden') // Hide finish button.
     goToNextField(true)
   }
@@ -1284,7 +1278,7 @@ function finishModal () {
     extraItems = 0
     endEarly() // Pause the timer.
     openLastItemModal() // Prompt user to select last item.
-    button.innerHTML = 'Test Complete'
+    moveForward()
     finishButton.classList.add('hidden') // Hide finish button.
   }
   secondModalButton.onclick = function () {
@@ -1574,5 +1568,13 @@ function updateGrid () {
         backButton.classList.remove('hideButton')
       }
     }
+  }
+}
+
+function moveForward () {
+  button.innerHTML = 'Test complete'
+  button.onclick = function () {
+    goToNextField()
+    console.log('Test complete')
   }
 }
