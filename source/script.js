@@ -1151,7 +1151,7 @@ function openExtraItemsModal () {
 }
 // Thank you note modal
 function openThankYouModal () {
-  modalContent.innerText = 'Thank you! You can continue.' // Text to display on the modal.
+  modalContent.innerHTML = 'Thank you! You can continue. <br> Tap on Test Complete or the Next button below.' // Text to display on the modal.
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
