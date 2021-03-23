@@ -215,6 +215,15 @@ var boxHandler = function () {
 // Once the grid is created.
 if (createGrid) {
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  console.log(gridItems)
+  var i
+  for (i = 1; i <= gridItems.length; i++) {
+    var tempItemClass = '.' + 'item' + i
+    $(tempItemClass).textfill({
+      widthOnly: true,
+      maxFontPixels: 28
+    })
+  }
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -783,6 +792,7 @@ function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
   var fieldsetClass
   var rowCount
+  //var span = document.createElement('span')
   if (allAnswered != null) {
     rowCount = keys.length - 1
   } else {
@@ -840,6 +850,7 @@ function createGrid (keys) {
     for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
       if (counter !== checkAllAnswered()) {
         secondDIV = document.createElement('div') // Create the div element.
+        var span = document.createElement('span')
         var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
         var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
         var itemClass = 'item' + itemValue // CSS class to be applied.
@@ -851,12 +862,18 @@ function createGrid (keys) {
           for (var ch of textLabel) {
             if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
               secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+              span.classList.add('disabled')
             }
           }
         }
         choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
         counter++ // increment counter.
-        secondDIV.appendChild(text) // add the text to the div.
+        // var span = document.createElement('span')
+        span.appendChild(text)
+        secondDIV.appendChild(span) // add the text to the div.
+        // $(secondDIV).textfill({
+        //   widthOnly: true
+        // })
         fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
       }
     }
@@ -1289,8 +1306,12 @@ function finishModal () {
 
 function makeActive () {
   $.map(gridItems, function (box) {
-    box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
-    box.classList.remove('disabled')
+    if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
+      box.addEventListener('click', boxHandler, false) // Make it clickable.
+      box.classList.remove('disabled')
+    }
+    // box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
+    // box.classList.remove('disabled')
   })
 }
 
