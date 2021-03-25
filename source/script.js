@@ -214,16 +214,17 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
+  resizeText()
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  console.log(gridItems)
-  var i
-  for (i = 1; i <= gridItems.length; i++) {
-    var tempItemClass = '.' + 'item' + i
-    $(tempItemClass).textfill({
-      widthOnly: true,
-      maxFontPixels: 28
-    })
-  }
+  // console.log(gridItems)
+  // var i
+  // for (i = 1; i <= gridItems.length; i++) {
+  //   var tempItemClass = '.' + 'item' + i
+  //   $(tempItemClass).textfill({
+  //     widthOnly: true,
+  //     maxFontPixels: 28
+  //   })
+  // }
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -460,6 +461,7 @@ document.querySelector('.next').addEventListener('click', function () {
     aEnd++
     pageReading()
   }
+  resizeText()
 })
 
 // get back button and bind click event handler
@@ -602,6 +604,7 @@ document.querySelector('.back').addEventListener('click', function () {
       }
     })
   }
+  resizeText()
 })
 
 // When the user clicks anywhere outside of the modal, close it
@@ -1355,6 +1358,7 @@ function checkAllAnswered () {
 
 // Paging for letter and word tests that have already started or have been completed.
 function updateGrid () {
+  resizeText()
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -1597,5 +1601,18 @@ function moveForward () {
   button.onclick = function () {
     goToNextField()
     console.log('Test complete')
+  }
+}
+
+function resizeText () {
+  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  console.log(gridItems)
+  var i
+  for (i = 1; i <= gridItems.length; i++) {
+    var tempItemClass = '.' + 'item' + i
+    $(tempItemClass).textfill({
+      widthOnly: true,
+      maxFontPixels: 28
+    })
   }
 }
