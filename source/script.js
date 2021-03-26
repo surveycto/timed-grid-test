@@ -1358,7 +1358,6 @@ function checkAllAnswered () {
 
 // Paging for letter and word tests that have already started or have been completed.
 function updateGrid () {
-  resizeText()
   var fieldset1 = document.querySelector('#fieldset1')
   var fieldset2 = document.querySelector('#fieldset2')
   var fieldset3 = document.querySelector('#fieldset3')
@@ -1594,6 +1593,7 @@ function updateGrid () {
       }
     }
   }
+  resizeText()
 }
 
 function moveForward () {
@@ -1604,15 +1604,16 @@ function moveForward () {
   }
 }
 
+// Resize the text to fit the button
 function resizeText () {
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  console.log(gridItems)
-  var i
+  var i // Temporary counter
+  // Loop through all the buttons
   for (i = 1; i <= gridItems.length; i++) {
-    var tempItemClass = '.' + 'item' + i
-    $(tempItemClass).textfill({
-      widthOnly: true,
-      maxFontPixels: 28
+    var tempItemClass = '.' + 'item' + i // Get the item (button) class to refer to individual buttons
+    $(tempItemClass).textfill({ // Use the textfill.js library to resize the button text.
+      widthOnly: true, // Resize only text width
+      maxFontPixels: 28 // Set maximum font size
     })
   }
 }
