@@ -1,3 +1,9 @@
+html, body{
+  min-height: 100%;
+}
+body{
+  position: relative;
+}
 
 * {
   box-sizing: border-box;
@@ -610,10 +616,16 @@ button:hover {
   text-align: center;
 }
 
+.test {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
+  position: absolute; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
   top: 0;
@@ -627,8 +639,11 @@ button:hover {
 
 /* Modal Content/Box */
 .modal-content {
+  position: absolute;
   background-color: #fefefe;
-  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  bottom: 40%;
+  left: 10%;
+  /* margin: 50% auto 15% auto; 5% from the top, 15% from the bottom and centered */
   border: 1px solid #888;
   width: 80%; /* Could be more or less, depending on screen size */
 }
