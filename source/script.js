@@ -392,7 +392,6 @@ document.querySelector('.next').addEventListener('click', function () {
     temp7 = '#fieldset' + (temp5 + 5)
     temp8 = '#fieldset' + (temp5 + 6)
     temp9 = '#fieldset' + (temp5 + 7)
-    temp10 = '#fieldset' + (temp5 + 8)
     if (!$(temp1).hasClass('hidden')) {
       $(temp1).addClass('hidden')
       $(temp2).addClass('hidden')
@@ -402,12 +401,11 @@ document.querySelector('.next').addEventListener('click', function () {
       $(temp7).removeClass('hidden')
       $(temp8).removeClass('hidden')
       $(temp9).removeClass('hidden')
-      $(temp10).removeClass('hidden')
-      if (temp5 + 5 >= numRows) {
+      if (temp5 + 6 >= numRows) {
         nextButton.classList.add('hideButton')
         hideFinishButton()
       }
-      temp5 = temp5 + 5
+      temp5 = temp5 + 4
     }
     // if (!fieldset1.classList.contains('hidden')) {
     //   fieldset1.classList.add('hidden')
@@ -545,7 +543,7 @@ document.querySelector('.back').addEventListener('click', function () {
       if (temp5 - 5 <= 1) {
         backButton.classList.add('hideButton')
       }
-      temp5 = temp5 - 5
+      temp5 = temp5 - 4
     }
     // if (!fieldset10.classList.contains('hidden')) {
     //   fieldset10.classList.add('hidden')
