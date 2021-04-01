@@ -52,6 +52,7 @@ var punctuationCount = 0 // count number of punctuation marks in reading passage
 var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
+var rowCount
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -328,131 +329,145 @@ for (x = 0; x < topTen.length; x++) {
 }
 
 var itemCounter = 0 // Count the number of items.
+var numRows = rowCount / columns
+var temp5 = 1
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
   ++pageNumber
+  console.log('clicked')
+  console.log('Page' + pageNumber)
   backButton.classList.remove('hideButton') // Make back button visible on click.
-
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
+  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9, temp10
 
   /*  For each test, show and hide rows on button click using CSS classes. Continuity allows the last row on a page
       to become the first row on the next page */
 
   // Letters test on small screen with no continuity.
   if (type === 'letters' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
+    console.log('Next temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    temp4 = '#fieldset' + (temp5 + 3)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).removeClass('hidden')
+      $(temp4).removeClass('hidden')
+      if (temp5 + 3 >= numRows) {
+        nextButton.classList.add('hideButton')
+        hideFinishButton()
+      }
+      temp5 = temp5 + 2
     }
   }
   // Letters test on small screen with continuity.
   if (type === 'letters' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset2.classList.contains('hidden')) {
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
+    console.log('Next temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    // temp4 = '#fieldset' + (temp5 + 3)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).removeClass('hidden')
+      $(temp3).removeClass('hidden')
+      // $(temp4).removeClass('hidden')
+      if (temp5 + 2 >= numRows) {
+        nextButton.classList.add('hideButton')
+        hideFinishButton()
+      }
+      temp5 = temp5 + 1
     }
   }
   // Words test on small screen with no continuity.
   if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
+    console.log('Next temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    temp4 = '#fieldset' + (temp5 + 3)
+    temp6 = '#fieldset' + (temp5 + 4)
+    temp7 = '#fieldset' + (temp5 + 5)
+    temp8 = '#fieldset' + (temp5 + 6)
+    temp9 = '#fieldset' + (temp5 + 7)
+    temp10 = '#fieldset' + (temp5 + 8)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).addClass('hidden')
+      $(temp4).addClass('hidden')
+      $(temp6).removeClass('hidden')
+      $(temp7).removeClass('hidden')
+      $(temp8).removeClass('hidden')
+      $(temp9).removeClass('hidden')
+      $(temp10).removeClass('hidden')
+      if (temp5 + 5 >= numRows) {
+        nextButton.classList.add('hideButton')
+        hideFinishButton()
+      }
+      temp5 = temp5 + 5
     }
+    // if (!fieldset1.classList.contains('hidden')) {
+    //   fieldset1.classList.add('hidden')
+    //   fieldset2.classList.add('hidden')
+    //   fieldset3.classList.add('hidden')
+    //   fieldset4.classList.add('hidden')
+    //   fieldset5.classList.remove('hidden')
+    //   fieldset6.classList.remove('hidden')
+    //   fieldset7.classList.remove('hidden')
+    //   fieldset8.classList.remove('hidden')
+    // } else if (!fieldset5.classList.contains('hidden')) {
+    //   fieldset5.classList.add('hidden')
+    //   fieldset6.classList.add('hidden')
+    //   fieldset7.classList.add('hidden')
+    //   fieldset8.classList.add('hidden')
+    //   fieldset9.classList.remove('hidden')
+    //   fieldset10.classList.remove('hidden')
+    //   nextButton.classList.add('hideButton')
+    //   hideFinishButton()
+    // }
   }
   // Letters test on small screen with continuity.
   if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
+    console.log('Next temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    temp4 = '#fieldset' + (temp5 + 3)
+    temp6 = '#fieldset' + (temp5 + 4)
+    temp7 = '#fieldset' + (temp5 + 5)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).addClass('hidden')
+      $(temp4).removeClass('hidden')
+      $(temp6).removeClass('hidden')
+      $(temp7).removeClass('hidden')
+      if (temp5 + 4 >= numRows) {
+        nextButton.classList.add('hideButton')
+        hideFinishButton()
+      }
+      temp5 = temp5 + 3
     }
+    // if (!fieldset1.classList.contains('hidden')) {
+    //   fieldset1.classList.add('hidden')
+    //   fieldset2.classList.add('hidden')
+    //   fieldset3.classList.add('hidden')
+    //   fieldset5.classList.remove('hidden')
+    //   fieldset6.classList.remove('hidden')
+    //   fieldset7.classList.remove('hidden')
+    // } else if (!fieldset4.classList.contains('hidden')) {
+    //   fieldset4.classList.add('hidden')
+    //   fieldset5.classList.add('hidden')
+    //   fieldset6.classList.add('hidden')
+    //   fieldset8.classList.remove('hidden')
+    //   fieldset9.classList.remove('hidden')
+    //   fieldset10.classList.remove('hidden')
+    //   nextButton.classList.add('hideButton')
+    //   hideFinishButton()
+    // }
   }
   // Reading test on small screen.
   if (type === 'reading' && screenSize === 'small') {
@@ -461,7 +476,6 @@ document.querySelector('.next').addEventListener('click', function () {
     aEnd++
     pageReading()
   }
-  resizeText()
 })
 
 // get back button and bind click event handler
@@ -469,117 +483,126 @@ document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton') // Show the next button.
   finishButton.classList.add('hidden') // Hide the next button.
   --pageNumber
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
+
+  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9
 
   if (type === 'letters' && continuity === 0) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
+    var p = (temp5 == rowCount) ? rowCount : temp5 - 1
+    console.log('p ' + p)
+    console.log('Back temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 - 1)
+    temp4 = '#fieldset' + (temp5 - 2)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).removeClass('hidden')
+      $(temp4).removeClass('hidden')
+      if (temp5 - 3 <= 1) {
+        backButton.classList.add('hideButton')
+      }
+      temp5 = temp5 - 2
     }
   }
 
   if (type === 'letters' && continuity === 1) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset9.classList.contains('hidden')) {
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
+    console.log('Back temp5 is ' + temp5)
+    temp3 = '#fieldset' + (temp5 + 1)
+    temp1 = '#fieldset' + temp5
+    // temp3 = '#fieldset' + (temp5 - 1)
+    temp4 = '#fieldset' + (temp5 - 1)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).removeClass('hidden')
+      $(temp3).addClass('hidden')
+      $(temp4).removeClass('hidden')
+      if (temp5 - 1 <= 1) {
+        backButton.classList.add('hideButton')
+      }
+      temp5 = temp5 - 1
     }
   }
 
   if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
+    console.log('Back temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    temp4 = '#fieldset' + (temp5 + 3)
+    temp6 = '#fieldset' + (temp5 - 1)
+    temp7 = '#fieldset' + (temp5 - 2)
+    temp8 = '#fieldset' + (temp5 - 3)
+    temp9 = '#fieldset' + (temp5 - 4)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).addClass('hidden')
+      $(temp4).addClass('hidden')
+      $(temp6).removeClass('hidden')
+      $(temp7).removeClass('hidden')
+      $(temp8).removeClass('hidden')
+      $(temp9).removeClass('hidden')
+      if (temp5 - 5 <= 1) {
+        backButton.classList.add('hideButton')
+      }
+      temp5 = temp5 - 5
     }
+    // if (!fieldset10.classList.contains('hidden')) {
+    //   fieldset10.classList.add('hidden')
+    //   fieldset9.classList.add('hidden')
+    //   fieldset8.classList.remove('hidden')
+    //   fieldset7.classList.remove('hidden')
+    //   fieldset6.classList.remove('hidden')
+    //   fieldset5.classList.remove('hidden')
+    // } else if (!fieldset5.classList.contains('hidden')) {
+    //   fieldset8.classList.add('hidden')
+    //   fieldset7.classList.add('hidden')
+    //   fieldset6.classList.add('hidden')
+    //   fieldset5.classList.add('hidden')
+    //   fieldset4.classList.remove('hidden')
+    //   fieldset3.classList.remove('hidden')
+    //   fieldset2.classList.remove('hidden')
+    //   fieldset1.classList.remove('hidden')
+    //   backButton.classList.add('hideButton')
+    // }
   }
 
   if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
+    console.log('Back temp5 is ' + temp5)
+    temp1 = '#fieldset' + temp5
+    temp2 = '#fieldset' + (temp5 + 1)
+    temp3 = '#fieldset' + (temp5 + 2)
+    temp6 = '#fieldset' + (temp5 - 1)
+    temp7 = '#fieldset' + (temp5 - 2)
+    temp8 = '#fieldset' + (temp5 - 3)
+    if (!$(temp1).hasClass('hidden')) {
+      $(temp1).addClass('hidden')
+      $(temp2).addClass('hidden')
+      $(temp3).addClass('hidden')
+      $(temp6).removeClass('hidden')
+      $(temp7).removeClass('hidden')
+      $(temp8).removeClass('hidden')
+      if (temp5 - 4 <= 1) {
+        backButton.classList.add('hideButton')
+      }
+      temp5 = temp5 - 3
     }
+    // if (!fieldset10.classList.contains('hidden')) {
+    //   fieldset10.classList.add('hidden')
+    //   fieldset9.classList.add('hidden')
+    //   fieldset8.classList.add('hidden')
+    //   fieldset6.classList.remove('hidden')
+    //   fieldset5.classList.remove('hidden')
+    //   fieldset4.classList.remove('hidden')
+    // } else if (!fieldset7.classList.contains('hidden')) {
+    //   fieldset7.classList.add('hidden')
+    //   fieldset6.classList.add('hidden')
+    //   fieldset5.classList.add('hidden')
+    //   fieldset3.classList.remove('hidden')
+    //   fieldset2.classList.remove('hidden')
+    //   fieldset1.classList.remove('hidden')
+    //   backButton.classList.add('hideButton')
+    // }
   }
 
   if (type === 'reading' && screenSize === 'small') {
@@ -604,9 +627,7 @@ document.querySelector('.back').addEventListener('click', function () {
       }
     })
   }
-  resizeText()
 })
-
 // When the user clicks anywhere outside of the modal, close it
 // window.onclick = function (event) {
 //   if (event.target === modal) {
