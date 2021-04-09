@@ -334,12 +334,12 @@ var temp5 = 1
 
 // get next button and bind click event handler
 document.querySelector('.next').addEventListener('click', function () {
+  resizeText()
   ++pageNumber
   console.log('clicked')
   console.log('Page' + pageNumber)
   backButton.classList.remove('hideButton') // Make back button visible on click.
-  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9, temp10
-
+  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9
   /*  For each test, show and hide rows on button click using CSS classes. Continuity allows the last row on a page
       to become the first row on the next page */
 
@@ -407,25 +407,6 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       temp5 = temp5 + 4
     }
-    // if (!fieldset1.classList.contains('hidden')) {
-    //   fieldset1.classList.add('hidden')
-    //   fieldset2.classList.add('hidden')
-    //   fieldset3.classList.add('hidden')
-    //   fieldset4.classList.add('hidden')
-    //   fieldset5.classList.remove('hidden')
-    //   fieldset6.classList.remove('hidden')
-    //   fieldset7.classList.remove('hidden')
-    //   fieldset8.classList.remove('hidden')
-    // } else if (!fieldset5.classList.contains('hidden')) {
-    //   fieldset5.classList.add('hidden')
-    //   fieldset6.classList.add('hidden')
-    //   fieldset7.classList.add('hidden')
-    //   fieldset8.classList.add('hidden')
-    //   fieldset9.classList.remove('hidden')
-    //   fieldset10.classList.remove('hidden')
-    //   nextButton.classList.add('hideButton')
-    //   hideFinishButton()
-    // }
   }
   // Letters test on small screen with continuity.
   if (type === 'words' && screenSize === 'small' && continuity === 1) {
@@ -449,23 +430,6 @@ document.querySelector('.next').addEventListener('click', function () {
       }
       temp5 = temp5 + 3
     }
-    // if (!fieldset1.classList.contains('hidden')) {
-    //   fieldset1.classList.add('hidden')
-    //   fieldset2.classList.add('hidden')
-    //   fieldset3.classList.add('hidden')
-    //   fieldset5.classList.remove('hidden')
-    //   fieldset6.classList.remove('hidden')
-    //   fieldset7.classList.remove('hidden')
-    // } else if (!fieldset4.classList.contains('hidden')) {
-    //   fieldset4.classList.add('hidden')
-    //   fieldset5.classList.add('hidden')
-    //   fieldset6.classList.add('hidden')
-    //   fieldset8.classList.remove('hidden')
-    //   fieldset9.classList.remove('hidden')
-    //   fieldset10.classList.remove('hidden')
-    //   nextButton.classList.add('hideButton')
-    //   hideFinishButton()
-    // }
   }
   // Reading test on small screen.
   if (type === 'reading' && screenSize === 'small') {
@@ -478,6 +442,7 @@ document.querySelector('.next').addEventListener('click', function () {
 
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
+  resizeText()
   nextButton.classList.remove('hideButton') // Show the next button.
   finishButton.classList.add('hidden') // Hide the next button.
   --pageNumber
@@ -540,7 +505,7 @@ document.querySelector('.back').addEventListener('click', function () {
       $(temp7).removeClass('hidden')
       $(temp8).removeClass('hidden')
       $(temp9).removeClass('hidden')
-      if (temp5 - 5 <= 1) {
+      if (temp5 - 6 <= 1) {
         backButton.classList.add('hideButton')
       }
       temp5 = temp5 - 4
