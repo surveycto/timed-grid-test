@@ -903,10 +903,11 @@ svg.checkmark {
 }
 
 .pgBox {
-  height: 42px;
+  /* height: 42px; */
   width: auto;
   padding: 2%;
   margin: 3px;
+  display: flex;
 }
 
 .pmBox {

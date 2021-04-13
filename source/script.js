@@ -788,72 +788,72 @@ function createGrid (keys) {
   } else {
     rowCount = keys.length
   }
-  var table = '<table class="lettertable notrunning">'
-  var numOfRows = parseInt(rowCount / columns)
 
-  for (var i = 1; i <= numOfRows; i++) {
-    table += '\n\t<tr class="rowsss">'
-    for (var j = 1; j <= columns; j++) {
-      var item = 'item' + counter
-      var t = '\n\t\t<td class="cell box ' + item + '"' + '><span>'
+  if (type === 'reading') {
+    for (var i = 0; i < rowCount / columns; i++) {
+      var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
+      fieldset.setAttribute('class', 'pg')
+      for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
+        if (counter !== checkAllAnswered()) {
+          secondDIV = document.createElement('div') // Create the div element.
+          var span = document.createElement('span')
+          var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
+          var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
+          var itemClass = 'item' + itemValue // CSS class to be applied.
+          secondDIV.classList.add('box', itemClass) // Add CSS class.
+          if (type === 'reading') { // for the reading test.
+            nextButton.classList.add('hideButton')
+            secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
+            var textLabel = choices[counter].CHOICE_LABEL // Add the label.
+            for (var ch of textLabel) {
+              if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
+                secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+                span.classList.add('disabled')
+              }
+            }
+          }
+          choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+          counter++ // increment counter.
+          span.appendChild(text)
+          secondDIV.appendChild(span) // add the text to the div.
+          fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
+        }
+      }
+      div.appendChild(fieldset) // Add the row to main container.
+    }
+  } else {
+    if (screenSize !== 'small') {
+      $('#nextButton').addClass('hideButton')
+    }
+    var table = '<table class="lettertable notrunning">'
+    var numOfRows = parseInt(rowCount / columns)
+    for (var i = 1; i <= numOfRows; i++) {
+      table += '\n\t<tr class="rowsss">'
+      for (var j = 1; j <= columns; j++) {
+        var item = 'item' + counter
+        var t = '\n\t\t<td class="cell box ' + item + '"' + '><span>'
+      }
       console.log(t)
       table += t
       table += choices[counter].CHOICE_LABEL
       table += '</span></td>'
+      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
       counter++
+      table += '\n\t</tr>'
     }
-    table += '\n\t</tr>'
+    table += '</table>'
+    div.innerHTML = table // Add the row to main container.
   }
-  table += '</table>'
+  if (isNumber === 2) {
+    div.classList.add('pgNumber')
+  }
+  return true
+}
+  
   // Loop through list of choices.
   // for (var i = 0; i < rowCount / columns; i++) {
   //   var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
   //   var tracker = i + 1 // tracker used for numbering the sections.
-  //   if (type !== 'reading') { // applies to letter and word tests.
-  //     var legend = document.createElement('h1') // Create h1 element to label the row.
-  //     var legendId = 'legend' + tracker // Create and id for the legend based on the section number (tracker).
-  //     legend.setAttribute('id', legendId) // Sets the id for the legend.
-  //     var text1 = '(' + tracker + ')' // Add the row number.
-  //     var legendText = document.createTextNode(text1) // Create text element for the row number.
-  //     legend.appendChild(legendText) // Add the text to the legend.
-  //     fieldset.appendChild(legend) // Add the legend to the fieldset.
-  //     var fieldsetId = 'fieldset' + tracker // Create id for the section.
-  //     if (screenSize === 'small' && type === 'letters') { // for small screens and the letter test.
-  //       fieldsetClass = 'sm' + tracker // CSS class to be applied.
-  //       if (tracker > 2) { // checker whether there are two rows displayed already.
-  //         fieldset.classList.add('hidden') // Hide all other rows except the first two.
-  //       }
-  //     } else if (screenSize === 'small' && type === 'words') { // for small screen and the words test.
-  //       fieldsetClass = 'lg' + tracker // CSS class to be applied.
-  //       if (tracker > 4) { // check whether there are four rows displayed.
-  //         fieldset.classList.add('hidden') // Hide all other rows except the first four.
-  //         nextButton.classList.remove('hideButton') // hide next button.
-  //         finishButton.classList.add('hidden')
-  //       } else {
-  //         nextButton.classList.add('hideButton') // hide next button.
-  //         finishButton.classList.remove('hidden')
-  //       }
-  //     } else if (screenSize === 'medium') { // this is really a large screen for the words test *NEED TO RENAME THIS*
-  //       fieldsetClass = 'ms' + tracker // CSS class to be applied.
-  //       nextButton.classList.add('hideButton') // Hide the next button.
-  //       finishButton.classList.remove('hidden') // Show the finish button.
-  //     } else if (screenSize === 'large') { // this is for a large screen.
-  //       fieldsetClass = 'lg' + tracker // CSS class to be applied.
-  //       nextButton.classList.add('hideButton') // Hide the next button.
-  //       finishButton.classList.remove('hidden') // Show the finish button.
-  //     }
-  //     fieldset.setAttribute('id', fieldsetId) // Create id for the section.
-  //     fieldset.classList.add(fieldsetClass, 'fieldset') // Add the fieldset CSS class to the section.
-  //   } else {
-  //     if (isNumber === 2) {
-  //       // fieldset.classList.add('pgNumber')
-  //     } else {
-  //       fieldset.classList.add('pg') // Add the pg CSS class to the section for reading test on large screen.
-  //     }
-  //     if (screenSize !== 'small') {
-  //       finishButton.classList.remove('hidden') // Show the button.
-  //     }
-  //   }
   //   for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
   //     if (counter !== checkAllAnswered()) {
   //       secondDIV = document.createElement('div') // Create the div element.
@@ -886,13 +886,8 @@ function createGrid (keys) {
   //   }
   //   div.appendChild(fieldset) // Add the row to main container.
   // }
-  div.innerHTML = table // Add the row to main container.
   // console.log(table)
-  if (isNumber === 2) {
-    div.classList.add('pgNumber')
-  }
-  return true
-}
+
 
 function passagePaging (pageArray, isPage) {
   if (isPage) {
