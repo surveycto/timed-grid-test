@@ -1,11 +1,12 @@
 html, body{
   min-height: 100%;
 }
-body{
+
+body {
   position: relative;
 }
 
-* {
+*{
   box-sizing: border-box;
 }
 
@@ -56,6 +57,20 @@ button.startstop {
   text-align: center;
   width: 150px;
 }
+
+.lettertable {
+  border-spacing: 15px;
+  border-collapse: separate;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.cell {
+  width: 100%;
+  padding: 15px;
+  height: 42px;
+  text-align: center;
+ }
 
 .timerDisplay {
   background-color: red;
@@ -110,10 +125,10 @@ svg.checkmark {
   border-radius: 5px;
   color: black;
   cursor: pointer;
-  display: flex;
+  /* display: flex; */
   font-size: 4vw;
   justify-content: center;
-  width: 100%;
+  /* width: 100%; */
 }
 
 /* small screen first page */
@@ -902,7 +917,7 @@ svg.checkmark {
   display: none;
 }
 /* individual grid elements */
-.item1{grid-area:ms1;}
+/* .item1{grid-area:ms1;}
 .item2{grid-area:ms2;}
 .item3{grid-area:ms3;}
 .item4{grid-area:ms4;}
@@ -1101,7 +1116,7 @@ svg.checkmark {
 .item197{grid-area:ms197;}
 .item198{grid-area:ms198;}
 .item199{grid-area:ms199;}
-.item200{grid-area:ms200;}
+.item200{grid-area:ms200;} */
 
 .fieldset {
   position: relative;
