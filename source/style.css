@@ -406,6 +406,96 @@ svg.checkmark {
   "ms46 ms47 ms48 ms49 ms50";
 }
 
+.lg11 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms51 ms52 ms53 ms54 ms55";
+}
+
+.lg12 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms56 ms57 ms58 ms59 ms60";
+}
+
+.lg13 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms61 ms62 ms63 ms64 ms65";
+}
+
+.lg14 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms66 ms67 ms68 ms69 ms70";
+}
+
+.lg15 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms71 ms72 ms73 ms74 ms75";
+}
+
+.lg16 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms76 ms77 ms78 ms79 ms80";
+}
+
+.lg17 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms81 ms82 ms83 ms84 ms85";
+}
+
+.lg18 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms86 ms87 ms88 ms89 ms90";
+}
+
+.lg19 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms91 ms92 ms93 ms94 ms95";
+}
+
+.lg20 {
+  display: grid;
+  grid-template-columns: repeat( 5, minmax(42px, 1fr) );
+  grid-auto-rows: 42px;
+  grid-gap: 5px;
+  grid-template-areas:
+  "ms96 ms97 ms98 ms99 ms100";
+}
+
 .pg {
   display: flex;
   flex-wrap: wrap;
