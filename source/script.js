@@ -220,15 +220,6 @@ var boxHandler = function () {
 if (createGrid) {
   resizeText()
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  // console.log(gridItems)
-  // var i
-  // for (i = 1; i <= gridItems.length; i++) {
-  //   var tempItemClass = '.' + 'item' + i
-  //   $(tempItemClass).textfill({
-  //     widthOnly: true,
-  //     maxFontPixels: 28
-  //   })
-  // }
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -268,6 +259,7 @@ if (createGrid) {
       }
     }
   }
+  // addPagination()
 }
 
 // For reading test.
@@ -825,20 +817,20 @@ function createGrid (keys) {
     if (screenSize !== 'small') {
       $('#nextButton').addClass('hideButton')
     }
-    var table = '<table class="lettertable notrunning">'
+    var table = '<table id="gridTable" class="gridTable">'
     var numOfRows = parseInt(rowCount / columns)
     for (var i = 1; i <= numOfRows; i++) {
       table += '\n\t<tr class="rowsss">'
       for (var j = 1; j <= columns; j++) {
         var item = 'item' + counter
         var t = '\n\t\t<td class="cell box ' + item + '"' + '><span>'
+        console.log(t)
+        table += t
+        table += choices[counter].CHOICE_LABEL
+        table += '</span></td>'
+        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+        counter++
       }
-      console.log(t)
-      table += t
-      table += choices[counter].CHOICE_LABEL
-      table += '</span></td>'
-      choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-      counter++
       table += '\n\t</tr>'
     }
     table += '</table>'
@@ -1617,4 +1609,19 @@ function resizeText () {
       maxFontPixels: 28 // Set maximum font size
     })
   }
+}
+
+function addPagination () {
+
+  $('#gridTable').smpSortableTable(false, 5);
+  // Add pagination to table if on a small screen
+  // if (screenSize === 'small' && type !== 'reading') {
+  // var numOfRows = parseInt(rowCount / columns)
+  
+  // $('#gridTable').pagination({
+  //   items: 1,
+  //   itemsOnPage: 4
+  //   // cssStyle: 'light-theme'
+  // })
+// }
 }
