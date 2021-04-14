@@ -1176,7 +1176,7 @@ function openLastItemModal () {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
-  modalContent.innerText = 'Please tap the last item attempted'
+  modalContent.innerText = 'Please tap the last item attempted.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
