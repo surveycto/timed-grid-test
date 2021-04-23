@@ -218,6 +218,8 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
+  console.log('gridtable is' + document.getElementById('gridTable'))
+  addPagination()
   resizeText()
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
@@ -819,19 +821,32 @@ function createGrid (keys) {
     }
     var table = '<table id="gridTable" class="gridTable">'
     var numOfRows = parseInt(rowCount / columns)
-    for (var i = 1; i <= numOfRows; i++) {
-      table += '\n\t<tr class="rowsss">'
-      for (var j = 1; j <= columns; j++) {
-        var item = 'item' + counter
-        var t = '\n\t\t<td class="cell box ' + item + '"' + '><span>'
-        console.log(t)
-        table += t
-        table += choices[counter].CHOICE_LABEL
-        table += '</span></td>'
-        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-        counter++
+    for (var i = 0; i <= numOfRows; i++) {
+      if (i === 0) {
+        table += '<thead>'
       }
-      table += '\n\t</tr>'
+      table += '<tr>'
+      for (var j = 1; j <= columns; j++) {
+        if (i === 0) {
+          var h = ' id = head' + j
+          var hId = '<th' + h + '></th>'
+          console.log('hID is ' + hId)
+          table += hId
+        } else {
+          var item = 'item' + counter
+          var t = '<td class="cell box ' + item + '"' + '><span>'
+          console.log(t)
+          table += t
+          table += choices[counter].CHOICE_LABEL
+          table += '</span></td>'
+          choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+          counter++
+        }
+      }
+      table += '</tr>'
+      if (i === 0) {
+        table += '</thead>'
+      }
     }
     table += '</table>'
     div.innerHTML = table // Add the row to main container.
@@ -1612,12 +1627,25 @@ function resizeText () {
 }
 
 function addPagination () {
-
-  $('#gridTable').smpSortableTable(false, 5);
+  $('#gridTable').dataTable({
+    drawCallback: function (settings) {
+      $('#gridTable thead').remove()
+    },
+    searching: false,
+    info: false,
+    lengthChange: false,
+    pageLength: 4,
+    pagingType: 'simple',
+    language: {
+      paginate: {
+        previous: 'Before',
+        next: 'After'
+      }
+    }
+  })
   // Add pagination to table if on a small screen
   // if (screenSize === 'small' && type !== 'reading') {
   // var numOfRows = parseInt(rowCount / columns)
-  
   // $('#gridTable').pagination({
   //   items: 1,
   //   itemsOnPage: 4

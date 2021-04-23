@@ -44,6 +44,22 @@ button{
 
 button.startstop {
   background-color: #047cc2;
+  border: 2px solid black !important;
+  border-radius: 10px;
+  color: white !important;
+  font-size: 100%;
+  font-weight: bold;
+  height: 42px;
+  line-height: 4px;
+  margin: 5px;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  text-align: center !important;
+  width: 150px;
+}
+
+.next {
+  background-color: #047cc2;
   border: 2px solid black;
   border-radius: 10px;
   color: white;
@@ -59,10 +75,11 @@ button.startstop {
 }
 
 .gridTable {
-  border-spacing: 15px;
-  border-collapse: separate;
-  width: 100%;
-  table-layout: fixed;
+  border-spacing: 15px !important; 
+  border-collapse: separate !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-bottom: 0 !important;
 }
 
 .cell {
