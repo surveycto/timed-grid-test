@@ -218,9 +218,9 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
-  console.log('gridtable is' + document.getElementById('gridTable'))
-  addPagination()
-  resizeText()
+  // console.log('gridtable is' + document.getElementById('gridTable'))
+  // addPagination()
+  // resizeText()
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
@@ -261,7 +261,8 @@ if (createGrid) {
       }
     }
   }
-  // addPagination()
+  resizeText()
+  addPagination()
 }
 
 // For reading test.
@@ -856,45 +857,6 @@ function createGrid (keys) {
   }
   return true
 }
-  
-  // Loop through list of choices.
-  // for (var i = 0; i < rowCount / columns; i++) {
-  //   var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
-  //   var tracker = i + 1 // tracker used for numbering the sections.
-  //   for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
-  //     if (counter !== checkAllAnswered()) {
-  //       secondDIV = document.createElement('div') // Create the div element.
-  //       var span = document.createElement('span')
-  //       var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
-  //       var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
-  //       var itemClass = 'item' + itemValue // CSS class to be applied.
-  //       secondDIV.classList.add('box', itemClass) // Add CSS class.
-  //       if (type === 'reading') { // for the reading test.
-  //         nextButton.classList.add('hideButton')
-  //         secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-  //         var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-  //         for (var ch of textLabel) {
-  //           if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
-  //             secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
-  //             span.classList.add('disabled')
-  //           }
-  //         }
-  //       }
-  //       choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-  //       counter++ // increment counter.
-  //       // var span = document.createElement('span')
-  //       span.appendChild(text)
-  //       secondDIV.appendChild(span) // add the text to the div.
-  //       // $(secondDIV).textfill({
-  //       //   widthOnly: true
-  //       // })
-  //       fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
-  //     }
-  //   }
-  //   div.appendChild(fieldset) // Add the row to main container.
-  // }
-  // console.log(table)
-
 
 function passagePaging (pageArray, isPage) {
   if (isPage) {
@@ -1638,18 +1600,9 @@ function addPagination () {
     pagingType: 'simple',
     language: {
       paginate: {
-        previous: 'Before',
-        next: 'After'
+        previous: '<button id="backButton" class="startstop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><g><path transform="rotate(180 12,12)" d="m12,2c5.514,0 10,4.486 10,10s-4.486,10 -10,10s-10,-4.486 -10,-10s4.486,-10 10,-10zm0,-2c-6.627,0 -12,5.373 -12,12s5.373,12 12,12s12,-5.373 12,-12s-5.373,-12 -12,-12zm2,12l-4.5,4.5l1.527,1.5l5.973,-6l-5.973,-6l-1.527,1.5l4.5,4.5z"></path></g></svg></button>',
+        next: '<button id="nextButton" class="startstop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm2 12l-4.5 4.5 1.527 1.5 5.973-6-5.973-6-1.527 1.5 4.5 4.5z"></path></svg></button>'
       }
     }
   })
-  // Add pagination to table if on a small screen
-  // if (screenSize === 'small' && type !== 'reading') {
-  // var numOfRows = parseInt(rowCount / columns)
-  // $('#gridTable').pagination({
-  //   items: 1,
-  //   itemsOnPage: 4
-  //   // cssStyle: 'light-theme'
-  // })
-// }
 }

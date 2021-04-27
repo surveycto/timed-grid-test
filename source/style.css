@@ -58,22 +58,6 @@ button.startstop {
   width: 150px;
 }
 
-.next {
-  background-color: #047cc2;
-  border: 2px solid black;
-  border-radius: 10px;
-  color: white;
-  font-size: 100%;
-  font-weight: bold;
-  height: 42px;
-  line-height: 4px;
-  margin: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  text-align: center;
-  width: 150px;
-}
-
 .gridTable {
   border-spacing: 15px !important; 
   border-collapse: separate !important;
@@ -1277,4 +1261,17 @@ hr {
 
 .selected.disabled {
   background-color: #e29f9a !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: none !important;
+  color: black!important; /*change the hover text color*/
+}
+
+
+/*below block of css for change style when active*/
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:active {
+  background: none !important;
+  color: black!important;
 }
