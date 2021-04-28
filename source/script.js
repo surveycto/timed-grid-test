@@ -326,109 +326,18 @@ for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
 
-var itemCounter = 0 // Count the number of items.
-var numRows = rowCount / columns
-var temp5 = 1
+// var itemCounter = 0 // Count the number of items.
+// var numRows = rowCount / columns
+// var temp5 = 1
 
 // get next button and bind click event handler
-document.querySelector('.next').addEventListener('click', function () {
+document.querySelector('.forward').addEventListener('click', function () {
   resizeText()
   ++pageNumber
   console.log('clicked')
   console.log('Page' + pageNumber)
   backButton.classList.remove('hideButton') // Make back button visible on click.
-  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9
-  /*  For each test, show and hide rows on button click using CSS classes. Continuity allows the last row on a page
-      to become the first row on the next page */
 
-  // Letters test on small screen with no continuity.
-  if (type === 'letters' && screenSize === 'small' && continuity === 0) {
-    console.log('Next temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    temp4 = '#fieldset' + (temp5 + 3)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).removeClass('hidden')
-      $(temp4).removeClass('hidden')
-      if (temp5 + 3 >= numRows) {
-        nextButton.classList.add('hideButton')
-        hideFinishButton()
-      }
-      temp5 = temp5 + 2
-    }
-  }
-  // Letters test on small screen with continuity.
-  if (type === 'letters' && screenSize === 'small' && continuity === 1) {
-    console.log('Next temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    // temp4 = '#fieldset' + (temp5 + 3)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).removeClass('hidden')
-      $(temp3).removeClass('hidden')
-      // $(temp4).removeClass('hidden')
-      if (temp5 + 2 >= numRows) {
-        nextButton.classList.add('hideButton')
-        hideFinishButton()
-      }
-      temp5 = temp5 + 1
-    }
-  }
-  // Words test on small screen with no continuity.
-  if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    console.log('Next temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    temp4 = '#fieldset' + (temp5 + 3)
-    temp6 = '#fieldset' + (temp5 + 4)
-    temp7 = '#fieldset' + (temp5 + 5)
-    temp8 = '#fieldset' + (temp5 + 6)
-    temp9 = '#fieldset' + (temp5 + 7)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).addClass('hidden')
-      $(temp4).addClass('hidden')
-      $(temp6).removeClass('hidden')
-      $(temp7).removeClass('hidden')
-      $(temp8).removeClass('hidden')
-      $(temp9).removeClass('hidden')
-      if (temp5 + 6 >= numRows) {
-        nextButton.classList.add('hideButton')
-        hideFinishButton()
-      }
-      temp5 = temp5 + 4
-    }
-  }
-  // Letters test on small screen with continuity.
-  if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    console.log('Next temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    temp4 = '#fieldset' + (temp5 + 3)
-    temp6 = '#fieldset' + (temp5 + 4)
-    temp7 = '#fieldset' + (temp5 + 5)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).addClass('hidden')
-      $(temp4).removeClass('hidden')
-      $(temp6).removeClass('hidden')
-      $(temp7).removeClass('hidden')
-      if (temp5 + 4 >= numRows) {
-        nextButton.classList.add('hideButton')
-        hideFinishButton()
-      }
-      temp5 = temp5 + 3
-    }
-  }
   // Reading test on small screen.
   if (type === 'reading' && screenSize === 'small') {
     // Increment page counters.
@@ -444,127 +353,6 @@ document.querySelector('.back').addEventListener('click', function () {
   nextButton.classList.remove('hideButton') // Show the next button.
   finishButton.classList.add('hidden') // Hide the next button.
   --pageNumber
-
-  var temp1, temp2, temp3, temp4, temp6, temp7, temp8, temp9
-
-  if (type === 'letters' && continuity === 0) {
-    var p = (temp5 == rowCount) ? rowCount : temp5 - 1
-    console.log('p ' + p)
-    console.log('Back temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 - 1)
-    temp4 = '#fieldset' + (temp5 - 2)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).removeClass('hidden')
-      $(temp4).removeClass('hidden')
-      if (temp5 - 3 <= 1) {
-        backButton.classList.add('hideButton')
-      }
-      temp5 = temp5 - 2
-    }
-  }
-
-  if (type === 'letters' && continuity === 1) {
-    console.log('Back temp5 is ' + temp5)
-    temp3 = '#fieldset' + (temp5 + 1)
-    temp1 = '#fieldset' + temp5
-    // temp3 = '#fieldset' + (temp5 - 1)
-    temp4 = '#fieldset' + (temp5 - 1)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).removeClass('hidden')
-      $(temp3).addClass('hidden')
-      $(temp4).removeClass('hidden')
-      if (temp5 - 1 <= 1) {
-        backButton.classList.add('hideButton')
-      }
-      temp5 = temp5 - 1
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    console.log('Back temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    temp4 = '#fieldset' + (temp5 + 3)
-    temp6 = '#fieldset' + (temp5 - 1)
-    temp7 = '#fieldset' + (temp5 - 2)
-    temp8 = '#fieldset' + (temp5 - 3)
-    temp9 = '#fieldset' + (temp5 - 4)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).addClass('hidden')
-      $(temp4).addClass('hidden')
-      $(temp6).removeClass('hidden')
-      $(temp7).removeClass('hidden')
-      $(temp8).removeClass('hidden')
-      $(temp9).removeClass('hidden')
-      if (temp5 - 6 <= 1) {
-        backButton.classList.add('hideButton')
-      }
-      temp5 = temp5 - 4
-    }
-    // if (!fieldset10.classList.contains('hidden')) {
-    //   fieldset10.classList.add('hidden')
-    //   fieldset9.classList.add('hidden')
-    //   fieldset8.classList.remove('hidden')
-    //   fieldset7.classList.remove('hidden')
-    //   fieldset6.classList.remove('hidden')
-    //   fieldset5.classList.remove('hidden')
-    // } else if (!fieldset5.classList.contains('hidden')) {
-    //   fieldset8.classList.add('hidden')
-    //   fieldset7.classList.add('hidden')
-    //   fieldset6.classList.add('hidden')
-    //   fieldset5.classList.add('hidden')
-    //   fieldset4.classList.remove('hidden')
-    //   fieldset3.classList.remove('hidden')
-    //   fieldset2.classList.remove('hidden')
-    //   fieldset1.classList.remove('hidden')
-    //   backButton.classList.add('hideButton')
-    // }
-  }
-
-  if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    console.log('Back temp5 is ' + temp5)
-    temp1 = '#fieldset' + temp5
-    temp2 = '#fieldset' + (temp5 + 1)
-    temp3 = '#fieldset' + (temp5 + 2)
-    temp6 = '#fieldset' + (temp5 - 1)
-    temp7 = '#fieldset' + (temp5 - 2)
-    temp8 = '#fieldset' + (temp5 - 3)
-    if (!$(temp1).hasClass('hidden')) {
-      $(temp1).addClass('hidden')
-      $(temp2).addClass('hidden')
-      $(temp3).addClass('hidden')
-      $(temp6).removeClass('hidden')
-      $(temp7).removeClass('hidden')
-      $(temp8).removeClass('hidden')
-      if (temp5 - 4 <= 1) {
-        backButton.classList.add('hideButton')
-      }
-      temp5 = temp5 - 3
-    }
-    // if (!fieldset10.classList.contains('hidden')) {
-    //   fieldset10.classList.add('hidden')
-    //   fieldset9.classList.add('hidden')
-    //   fieldset8.classList.add('hidden')
-    //   fieldset6.classList.remove('hidden')
-    //   fieldset5.classList.remove('hidden')
-    //   fieldset4.classList.remove('hidden')
-    // } else if (!fieldset7.classList.contains('hidden')) {
-    //   fieldset7.classList.add('hidden')
-    //   fieldset6.classList.add('hidden')
-    //   fieldset5.classList.add('hidden')
-    //   fieldset3.classList.remove('hidden')
-    //   fieldset2.classList.remove('hidden')
-    //   fieldset1.classList.remove('hidden')
-    //   backButton.classList.add('hideButton')
-    // }
-  }
 
   if (type === 'reading' && screenSize === 'small') {
     aStart--
@@ -589,15 +377,6 @@ document.querySelector('.back').addEventListener('click', function () {
     })
   }
 })
-// When the user clicks anywhere outside of the modal, close it
-// window.onclick = function (event) {
-//   if (event.target === modal) {
-//     if (modalContent.innerText === 'Do you want to end the test now?') {
-//       startStopTimer() // On cancel, continue the timer.
-//     }
-//     // modal.style.display = 'none'
-//   }
-// }
 
 // Finish early
 $('#finishButton').click(function () {
