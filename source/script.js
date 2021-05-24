@@ -248,10 +248,10 @@ if (createGrid) {
       }
     }
   }
-  // if (screenSize === 'small' && type !== 'reading') {
-  //   addPagination()
-  // }
-  addPagination()
+  if (screenSize === 'small' && type !== 'reading') {
+    addPagination()
+  }
+  // addPagination()
   resizeText()
 }
 
