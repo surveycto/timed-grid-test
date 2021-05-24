@@ -140,14 +140,6 @@ if (endAfter == null && columns === 10) {
   endAfter = parseInt(endAfter)
 }
 
-// function createItemLabels () {
-//   for (var x = 1; x < choices.length; x++) {
-//     var temp = '.item' + x
-//     var temp1 = 'ms' + x
-
-//   }
-// }
-
 // Check if MetaData exists
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
@@ -190,7 +182,6 @@ if (previousMetaData !== null) {
     o = o + ' ' + y
   }
   previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
-  console.log('PSI is ' + previousSelectedItems)
   items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
   // items = previousSelectedItems.filter(function (element) {
   //   return element !== undefined
@@ -200,7 +191,6 @@ if (previousMetaData !== null) {
   // //     return element !== undefined
   // //   })
   // // }
-  console.log('Items is ' + items)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -218,9 +208,6 @@ var boxHandler = function () {
 
 // Once the grid is created.
 if (createGrid) {
-  // console.log('gridtable is' + document.getElementById('gridTable'))
-  // addPagination()
-  // resizeText()
   var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
@@ -261,9 +248,20 @@ if (createGrid) {
       }
     }
   }
-  resizeText()
+  // if (screenSize === 'small' && type !== 'reading') {
+  //   addPagination()
+  // }
   addPagination()
+  resizeText()
 }
+
+$('#next').on('click', function () {
+  var info = $('#gridTable').page.info()
+  if (info.page + 1 === info.pages) {
+    finishButton.classList.remove('hidden')
+  }
+  // $('#gridTable').page('next').draw('page');
+})
 
 // For reading test.
 var pageArr = [] // Keep track of items on each page.
@@ -318,7 +316,6 @@ $(document).ready(function () {
   }
 })
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
-console.log('No pun array ' + noPunctuationsArray)
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
 
@@ -332,11 +329,10 @@ for (x = 0; x < topTen.length; x++) {
 
 // get next button and bind click event handler
 document.querySelector('.forward').addEventListener('click', function () {
-  resizeText()
   ++pageNumber
-  console.log('clicked')
-  console.log('Page' + pageNumber)
-  backButton.classList.remove('hideButton') // Make back button visible on click.
+  if (type === 'reading') {
+    backButton.classList.remove('hideButton') // Make back button visible on click.
+  }
 
   // Reading test on small screen.
   if (type === 'reading' && screenSize === 'small') {
@@ -345,13 +341,15 @@ document.querySelector('.forward').addEventListener('click', function () {
     aEnd++
     pageReading()
   }
+  resizeText()
 })
 
 // get back button and bind click event handler
 document.querySelector('.back').addEventListener('click', function () {
-  resizeText()
-  nextButton.classList.remove('hideButton') // Show the next button.
-  finishButton.classList.add('hidden') // Hide the next button.
+  if (type === 'reading') {
+    finishButton.classList.add('hidden') // Hide the next button.
+  }
+
   --pageNumber
 
   if (type === 'reading' && screenSize === 'small') {
@@ -376,6 +374,7 @@ document.querySelector('.back').addEventListener('click', function () {
       }
     })
   }
+  resizeText()
 })
 
 // Finish early
@@ -390,148 +389,27 @@ $('#finishButton').click(function () {
   }
 })
 
-var counter1 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend1').click(function () {
+var temp = []
+var clickCount = 1 // count the number of clicks
+$('#gridTable td:first-child').on('click', function () {
   var clickedElement = $(this)
-  if (counter1 === 0) {
+  var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
+  if (clickCount === 1) {
     firstClick(clickedElement)
-  } else if (counter1 === 1) {
-    secondClick(clickedElement, 1)
-    openIncorrectItemsModal()
-  } else if (counter1 === 2) {
-    thirdClick(clickedElement, 1)
-    counter1 = -1
+    clickCount = 2
+  } else if (clickCount === 2) {
+    $(this).siblings().each(function () {
+      if ($(this).hasClass('selected')) {
+        var temp2 = $(this).text()
+        temp.push(temp2)
+      }
+    })
+    secondClick(clickedElement, rowIndex)
+    clickCount = 3
+  } else if (clickCount === 3) {
+    thirdClick(clickedElement, temp)
+    clickCount = 1
   }
-  counter1++
-})
-
-var counter2 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend2').click(function () {
-  var clickedElement = $(this)
-  if (counter2 === 0) {
-    firstClick(clickedElement)
-  } else if (counter2 === 1) {
-    secondClick(clickedElement, 2)
-  } else if (counter2 === 2) {
-    thirdClick(clickedElement, 2)
-    counter2 = -1
-  }
-  counter2++
-})
-var counter3 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend3').click(function () {
-  var clickedElement = $(this)
-  if (counter3 === 0) {
-    firstClick(clickedElement)
-  } else if (counter3 === 1) {
-    secondClick(clickedElement, 3)
-  } else if (counter3 === 2) {
-    thirdClick(clickedElement, 3)
-    counter3 = -1
-  }
-  counter3++
-})
-var counter4 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend4').click(function () {
-  var clickedElement = $(this)
-  if (counter4 === 0) {
-    firstClick(clickedElement)
-  } else if (counter4 === 1) {
-    secondClick(clickedElement, 4)
-  } else if (counter4 === 2) {
-    thirdClick(clickedElement, 4)
-    counter4 = -1
-  }
-  counter4++
-})
-var counter5 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend5').click(function () {
-  var clickedElement = $(this)
-  if (counter5 === 0) {
-    firstClick(clickedElement)
-  } else if (counter5 === 1) {
-    secondClick(clickedElement, 5)
-  } else if (counter5 === 2) {
-    thirdClick(clickedElement, 5)
-    counter5 = -1
-  }
-  counter5++
-})
-var counter6 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend6').click(function () {
-  var clickedElement = $(this)
-  if (counter6 === 0) {
-    firstClick(clickedElement)
-  } else if (counter6 === 1) {
-    secondClick(clickedElement, 6)
-  } else if (counter6 === 2) {
-    thirdClick(clickedElement, 6)
-    counter6 = -1
-  }
-  counter6++
-})
-var counter7 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend7').click(function () {
-  var clickedElement = $(this)
-  if (counter7 === 0) {
-    firstClick(clickedElement)
-  } else if (counter7 === 1) {
-    secondClick(clickedElement, 7)
-  } else if (counter7 === 2) {
-    thirdClick(clickedElement, 7)
-    counter7 = -1
-  }
-  counter7++
-})
-var counter8 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend8').click(function () {
-  var clickedElement = $(this)
-  if (counter8 === 0) {
-    firstClick(clickedElement)
-  } else if (counter8 === 1) {
-    secondClick(clickedElement, 8)
-  } else if (counter8 === 2) {
-    thirdClick(clickedElement, 8)
-    counter8 = -1
-  }
-  counter8++
-})
-var counter9 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend9').click(function () {
-  var clickedElement = $(this)
-  if (counter9 === 0) {
-    firstClick(clickedElement)
-  } else if (counter9 === 1) {
-    secondClick(clickedElement, 9)
-  } else if (counter9 === 2) {
-    thirdClick(clickedElement, 9)
-    counter9 = -1
-  }
-  counter9++
-})
-
-var counter10 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend10').click(function () {
-  var clickedElement = $(this)
-  if (counter10 === 0) {
-    firstClick(clickedElement)
-  } else if (counter10 === 1) {
-    secondClick(clickedElement, 10)
-  } else if (counter10 === 2) {
-    thirdClick(clickedElement, 10)
-    counter10 = -1
-  }
-  counter10++
 })
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
@@ -601,21 +479,20 @@ function createGrid (keys) {
     }
     var table = '<table id="gridTable" class="gridTable">'
     var numOfRows = parseInt(rowCount / columns)
-    for (var i = 0; i <= numOfRows; i++) {
+    for (var i = 1; i <= numOfRows; i++) {
       if (i === 0) {
         table += '<thead>'
       }
       table += '<tr>'
+      table += '<td class="count">' + '(' + i + ')' + '</td>'
       for (var j = 1; j <= columns; j++) {
         if (i === 0) {
           var h = ' id = head' + j
           var hId = '<th' + h + '></th>'
-          console.log('hID is ' + hId)
           table += hId
         } else {
           var item = 'item' + counter
-          var t = '<td class="cell box ' + item + '"' + '><span>'
-          console.log(t)
+          var t = '<td class="box ' + item + '"' + '><span>'
           table += t
           table += choices[counter].CHOICE_LABEL
           table += '</span></td>'
@@ -655,23 +532,17 @@ function firstClick (clickedElement) {
 
 function secondClick (clickedElement, rowNumber) {
   clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
-  var rowId = '#fieldset' + rowNumber // Get the id of the section identified by this row number.
-  var nodes = document.querySelector(rowId).childNodes
-  for (var b = 0; b < nodes.length; b++) {
-    if (nodes[b].nodeName.toLowerCase() === 'div') {
-      nodes[b].classList.add('selected') // Mark all items in this row as selected.
-    }
-  }
+  clickedElement.siblings().addClass('selected')
 }
 
-function thirdClick (clickedElement, rowNumber) {
-  var rowId = '#fieldset' + rowNumber // Get the id of the section identified by this row number.
-  var nodes = document.querySelector(rowId).childNodes
-  for (var b = 0; b < nodes.length; b++) {
-    if (nodes[b].nodeName.toLowerCase() === 'div') {
-      nodes[b].classList.remove('selected') // Remove the selected class from all items in the row.
+function thirdClick (clickedElement, row) {
+  // clickedElement.siblings().removeClass('selected')
+  clickedElement.siblings().each(function () {
+    if ($.inArray($(this).text(), row) < 0) {
+      $(this).removeClass('selected')
     }
-  }
+  })
+  console.log('Temp is ' + temp)
 }
 
 function timer () { // Timer function.
@@ -749,7 +620,6 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
-  console.log('Item clicked')
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
@@ -766,8 +636,6 @@ function itemClicked (item, itemIndex) {
         items.push(itemIndex) // Add selected items to array.
       }
     }
-    console.log('firstten is ' + firstTenItems)
-    console.log('items is ' + items)
     var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
     if (isSame) {
       timerRunning = false // Stop timer
@@ -775,7 +643,6 @@ function itemClicked (item, itemIndex) {
       openIncorrectItemsModal() // Inform user of wrong responses.
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    console.log('Selecting last letter')
     if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
       modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
       firstModalButton.innerText = 'Okay'
@@ -822,7 +689,6 @@ function clearAnswer () {
 
 // set the results to published
 function setResult () {
-  console.log('Last index is ' + lastSelectedIndex)
   if (finishEarly === 0) {
     totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   } else {
@@ -840,7 +706,6 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-  console.log('Total Items is ' + totalItems)
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
@@ -904,11 +769,11 @@ function pageReading () {
       }
     }
   })
+  resizeText()
 }
 
 // Incorrect last item modal
 function openExtraItemsModal () {
-  console.log('Test')
   modalContent.innerHTML = 'Make any corrections now. Tap the <strong>Finished</strong> button when you are finished.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -938,9 +803,7 @@ function openLastItemModal () {
   // DISABLE HERE
   selectedItems = getSelectedItems()
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  console.log('selected items is ' + selectedItemsArray)
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  console.log('before last clicked ' + beforeLastClicked)
   for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
@@ -1349,7 +1212,6 @@ function moveForward () {
   button.innerHTML = 'Test complete'
   button.onclick = function () {
     goToNextField()
-    console.log('Test complete')
   }
 }
 
@@ -1368,20 +1230,56 @@ function resizeText () {
 }
 
 function addPagination () {
-  $('#gridTable').dataTable({
-    drawCallback: function (settings) {
-      $('#gridTable thead').remove()
-    },
-    searching: false,
-    info: false,
-    lengthChange: false,
-    pageLength: 4,
-    pagingType: 'simple',
-    language: {
-      paginate: {
-        previous: '<button id="backButton" class="startstop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><g><path transform="rotate(180 12,12)" d="m12,2c5.514,0 10,4.486 10,10s-4.486,10 -10,10s-10,-4.486 -10,-10s4.486,-10 10,-10zm0,-2c-6.627,0 -12,5.373 -12,12s5.373,12 12,12s12,-5.373 12,-12s-5.373,-12 -12,-12zm2,12l-4.5,4.5l1.527,1.5l5.973,-6l-5.973,-6l-1.527,1.5l4.5,4.5z"></path></g></svg></button>',
-        next: '<button id="nextButton" class="startstop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm2 12l-4.5 4.5 1.527 1.5 5.973-6-5.973-6-1.527 1.5 4.5 4.5z"></path></svg></button>'
-      }
-    }
+  // $('#gridTable').after('<div id="nav"></div>');
+  var rowsShown = 4
+  var rowsTotal = $('#gridTable tbody tr').length
+  var numPages = parseInt(rowsTotal / rowsShown)
+  var pagNum = 1
+  checkPage(pagNum, numPages)
+
+  $('#gridTable tbody tr').hide()
+  $('#gridTable tbody tr').slice(0, rowsShown).show()
+
+  $('#nextButton').on('click', function (e) {
+    pagNum++
+    checkPage(pagNum, numPages)
+    var currPage = pagNum
+    var startItem = currPage * rowsShown
+    var endItem = startItem + rowsShown
+    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+    e.preventDefault()
   })
+
+  $('#backButton').on('click', function (e) {
+    pagNum--
+    checkPage(pagNum, numPages)
+    var currPage = pagNum
+    var startItem = currPage * rowsShown
+    var endItem = startItem + rowsShown
+    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+    e.preventDefault()
+  })
+  resizeText()
+}
+
+function checkPage (pagNum, numPages) {
+  if (pagNum === 1) {
+    $('#nextButton').removeClass('hideButton')
+    $('#backButton').addClass('hideButton')
+    $('#finishButton').addClass('hidden')
+    console.log('Page Number' + pagNum)
+    console.log('Number of pages' + numPages)
+  } else if (pagNum === numPages) {
+    $('#nextButton').addClass('hideButton')
+    $('#backButton').removeClass('hideButton')
+    $('#finishButton').removeClass('hidden')
+    console.log('1 Page Number' + pagNum)
+    console.log('1 Number of pages' + numPages)
+  } else {
+    $('#nextButton').removeClass('hideButton')
+    $('#backButton').removeClass('hideButton')
+    $('#finishButton').addClass('hidden')
+    console.log('Page Number' + pagNum)
+    console.log('Number of pages' + numPages)
+  }
 }

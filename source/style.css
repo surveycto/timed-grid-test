@@ -66,12 +66,12 @@ button.startstop {
   border-bottom: 0 !important;
 }
 
-.cell {
+/* .cell {
   width: 100%;
   padding: 15px;
   height: 42px;
   text-align: center;
- }
+ } */
 
 .timerDisplay {
   background-color: red;
@@ -124,10 +124,31 @@ svg.checkmark {
   align-items: center;
   background-color: skyblue;
   border-radius: 5px;
+  width: 100%;
+  padding: 5px;
+  height: 42px;
+  text-align: center;
   color: black;
   cursor: pointer;
   /* display: flex; */
   font-size: 4vw;
+  justify-content: center;
+  /* width: 100%; */
+}
+
+/* Styling for the buttons */
+.count {
+  align-items: center;
+  background-color: skyblue;
+  border-radius: 5px;
+  width: 25%;
+  padding: 5px;
+  height: 42px;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+  /* display: flex; */
+  font-size: 3vw;
   justify-content: center;
   /* width: 100%; */
 }
@@ -1261,17 +1282,4 @@ hr {
 
 .selected.disabled {
   background-color: #e29f9a !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: none !important;
-  color: black!important; /*change the hover text color*/
-}
-
-
-/*below block of css for change style when active*/
-
-.dataTables_wrapper .dataTables_paginate .paginate_button:active {
-  background: none !important;
-  color: black!important;
 }
