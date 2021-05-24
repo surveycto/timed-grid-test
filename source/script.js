@@ -255,13 +255,12 @@ if (createGrid) {
   resizeText()
 }
 
-$('#next').on('click', function () {
-  var info = $('#gridTable').page.info()
-  if (info.page + 1 === info.pages) {
-    finishButton.classList.remove('hidden')
-  }
-  // $('#gridTable').page('next').draw('page');
-})
+// $('#next').on('click', function () {
+//   var info = $('#gridTable').page.info()
+//   if (info.page + 1 === info.pages) {
+//     finishButton.classList.remove('hidden')
+//   }
+// })
 
 // For reading test.
 var pageArr = [] // Keep track of items on each page.
