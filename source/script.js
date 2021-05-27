@@ -102,8 +102,8 @@ if (finishParameter == null) {
 
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
-  if (screenSize !== 'small') {
-    screenSize = 'medium'
+  if (screenSize === 'small') {
+    columns = 5
   }
 } else if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
   type = 'words'
@@ -248,10 +248,11 @@ if (createGrid) {
       }
     }
   }
-  if (screenSize === 'small' && type !== 'reading') {
-    addPagination()
-  }
-  // addPagination()
+  // finishButton.classList.remove('hidden')
+  // if (screenSize === 'small' && type !== 'reading') {
+  //   addPagination()
+  // }
+  addPagination()
   resizeText()
 }
 
@@ -327,54 +328,55 @@ for (x = 0; x < topTen.length; x++) {
 // var temp5 = 1
 
 // get next button and bind click event handler
-document.querySelector('.forward').addEventListener('click', function () {
-  ++pageNumber
-  if (type === 'reading') {
-    backButton.classList.remove('hideButton') // Make back button visible on click.
-  }
+// document.querySelector('.forward').addEventListener('click', function () {
+//   ++pageNumber
+//   if (type === 'reading') {
+//     backButton.classList.remove('hideButton') // Make back button visible on click.
+//   }
 
-  // Reading test on small screen.
-  if (type === 'reading' && screenSize === 'small') {
-    // Increment page counters.
-    aStart++
-    aEnd++
-    pageReading()
-  }
-  resizeText()
-})
+//   // Reading test on small screen.
+//   if (type === 'reading' && screenSize === 'small') {
+//     // Increment page counters.
+//     aStart++
+//     aEnd++
+//     pageReading()
+//   }
+//   resizeText()
+// })
 
 // get back button and bind click event handler
-document.querySelector('.back').addEventListener('click', function () {
-  if (type === 'reading') {
-    finishButton.classList.add('hidden') // Hide the next button.
-  }
+// document.querySelector('.back').addEventListener('click', function () {
+//   if (type === 'reading') {
+//     nextButton.classList.remove('hideButton') // Show the next button.
+//     finishButton.classList.add('hidden') // Hide the next button.
+//   }
 
-  --pageNumber
+// //   --pageNumber
 
-  if (type === 'reading' && screenSize === 'small') {
-    aStart--
-    aEnd--
-    $.map(gridItems, function (box) {
-      var temp1 = parseInt(box.classList.item(1).slice(4))
-      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
-        box.classList.add('hidden')
-      }
-      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
-        box.classList.remove('hidden')
-      }
-      if (pageArr[aStart] === undefined) {
-        backButton.classList.add('hideButton')
-        if (temp1 >= parseInt(pageArr[0])) {
-          box.classList.add('hidden')
-        }
-        if (temp1 < parseInt(pageArr[0])) {
-          box.classList.remove('hidden')
-        }
-      }
-    })
-  }
-  resizeText()
-})
+//   if (type === 'reading' && screenSize === 'small') {
+//     aStart--
+//     aEnd--
+//     $.map(gridItems, function (box) {
+//       var temp1 = parseInt(box.classList.item(1).slice(4))
+//       if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+//         box.classList.add('hidden')
+//       }
+//       if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+//         box.classList.remove('hidden')
+//       }
+//       if (pageArr[aStart] === undefined) {
+//         backButton.classList.add('hideButton')
+//         if (temp1 >= parseInt(pageArr[0])) {
+//           box.classList.add('hidden')
+//         }
+//         if (temp1 < parseInt(pageArr[0])) {
+//           box.classList.remove('hidden')
+//         }
+//       }
+//     })
+//   }
+//   resizeText()
+// })
 
 // Finish early
 $('#finishButton').click(function () {
@@ -388,7 +390,7 @@ $('#finishButton').click(function () {
   }
 })
 
-var temp = []
+var tempSelected = [] // store selected items before highlighting row
 var clickCount = 1 // count the number of clicks
 $('#gridTable td:first-child').on('click', function () {
   var clickedElement = $(this)
@@ -400,14 +402,15 @@ $('#gridTable td:first-child').on('click', function () {
     $(this).siblings().each(function () {
       if ($(this).hasClass('selected')) {
         var temp2 = $(this).text()
-        temp.push(temp2)
+        tempSelected.push(temp2)
       }
     })
     secondClick(clickedElement, rowIndex)
     clickCount = 3
   } else if (clickCount === 3) {
-    thirdClick(clickedElement, temp)
+    thirdClick(clickedElement, tempSelected)
     clickCount = 1
+    tempSelected = []
   }
 })
 
@@ -541,7 +544,7 @@ function thirdClick (clickedElement, row) {
       $(this).removeClass('selected')
     }
   })
-  console.log('Temp is ' + temp)
+  console.log('Temp is ' + tempSelected)
 }
 
 function timer () { // Timer function.
@@ -1230,55 +1233,92 @@ function resizeText () {
 
 function addPagination () {
   // $('#gridTable').after('<div id="nav"></div>');
-  var rowsShown = 4
-  var rowsTotal = $('#gridTable tbody tr').length
-  var numPages = parseInt(rowsTotal / rowsShown)
-  var pagNum = 1
-  checkPage(pagNum, numPages)
-
-  $('#gridTable tbody tr').hide()
-  $('#gridTable tbody tr').slice(0, rowsShown).show()
+  if (type !== 'reading') {
+    var rowsShown = 2
+    var rowsTotal = $('#gridTable tbody tr').length
+    var numPages = Math.ceil(rowsTotal / rowsShown)
+    checkPage(pageNumber, numPages)
+  
+    $('#gridTable tbody tr').hide()
+    $('#gridTable tbody tr').slice(0, rowsShown).show()
+  }
 
   $('#nextButton').on('click', function (e) {
-    pagNum++
-    checkPage(pagNum, numPages)
-    var currPage = pagNum
-    var startItem = currPage * rowsShown
-    var endItem = startItem + rowsShown
-    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
-    e.preventDefault()
+    pageNumber++
+    if (type !== 'reading') {
+      var currPage = pageNumber
+      var startItem = currPage * rowsShown
+      var endItem = startItem + rowsShown
+      $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+      checkPage(pageNumber, numPages)
+    } else {
+      backButton.classList.remove('hideButton') // Make back button visible on click.
+      aStart++
+      aEnd++
+      pageReading()
+    }
+    resizeText()
+    // e.preventDefault()
   })
 
   $('#backButton').on('click', function (e) {
-    pagNum--
-    checkPage(pagNum, numPages)
-    var currPage = pagNum
-    var startItem = currPage * rowsShown
-    var endItem = startItem + rowsShown
-    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
-    e.preventDefault()
+    pageNumber--
+    if (type !== 'reading') {
+      var currPage = pageNumber
+      var startItem = currPage * rowsShown
+      var endItem = startItem + rowsShown
+      $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+      checkPage(pageNumber, numPages)
+    } else {
+      nextButton.classList.remove('hideButton') // Show the next button.
+      finishButton.classList.add('hidden') // Hide the next button.
+      aStart--
+      aEnd--
+      $.map(gridItems, function (box) {
+        var temp1 = parseInt(box.classList.item(1).slice(4))
+        if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+          box.classList.add('hidden')
+        }
+        if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+          box.classList.remove('hidden')
+        }
+        if (pageArr[aStart] === undefined) {
+          backButton.classList.add('hideButton')
+          if (temp1 >= parseInt(pageArr[0])) {
+            box.classList.add('hidden')
+          }
+          if (temp1 < parseInt(pageArr[0])) {
+            box.classList.remove('hidden')
+          }
+        }
+      })
+    }
+    resizeText()
+    // e.preventDefault()
   })
   resizeText()
 }
 
 function checkPage (pagNum, numPages) {
-  if (pagNum === 1) {
+  if (pagNum === 0) {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').addClass('hideButton')
     $('#finishButton').addClass('hidden')
-    console.log('Page Number' + pagNum)
-    console.log('Number of pages' + numPages)
+    console.log('Page Number ' + pagNum)
+    console.log('Number of pages ' + numPages)
+    console.log('First page')
   } else if (pagNum === numPages) {
     $('#nextButton').addClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').removeClass('hidden')
-    console.log('1 Page Number' + pagNum)
-    console.log('1 Number of pages' + numPages)
+    console.log('1 Page Number ' + pagNum)
+    console.log('1 Number of pages ' + numPages)
+    console.log('Last page')
   } else {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').addClass('hidden')
-    console.log('Page Number' + pagNum)
-    console.log('Number of pages' + numPages)
+    console.log('Page Number ' + pagNum)
+    console.log('Number of pages ' + numPages)
   }
 }

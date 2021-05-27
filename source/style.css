@@ -59,7 +59,7 @@ button.startstop {
 }
 
 .gridTable {
-  border-spacing: 15px !important; 
+  border-spacing: 5px !important; 
   border-collapse: separate !important;
   width: 100% !important;
   table-layout: fixed !important;
@@ -138,10 +138,9 @@ svg.checkmark {
 
 /* Styling for the buttons */
 .count {
-  align-items: center;
-  width: 25%;
+  width: 75%;
   height: 42px;
-  text-align: center;
+  text-align: left;
   color: black;
   cursor: pointer;
   font-size: 3vw;
