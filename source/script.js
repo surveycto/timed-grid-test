@@ -8,6 +8,7 @@ var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
 var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
+var numberOfRows = getPluginParameter('page-rows')
 
 var previousMetaData = getMetaData() // Load Metadata.
 
@@ -72,6 +73,12 @@ if (duration == null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
 } else {
   timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
+}
+
+if (numberOfRows == null) {
+  numberOfRows = 4 // Default time limit on each field in milliseconds
+} else {
+  numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
 }
 
 if (continuity == null) {
@@ -222,7 +229,6 @@ if (createGrid) {
       box.classList.add('lastSelected')
     }
   })
-  updateGrid() // Draw grid based on selections and paging done so far.
   if (complete === 'true') {
     finishButton.classList.add('hidden')
     makeInActive()
@@ -248,11 +254,13 @@ if (createGrid) {
       }
     }
   }
-  // finishButton.classList.remove('hidden')
-  // if (screenSize === 'small' && type !== 'reading') {
-  //   addPagination()
-  // }
-  addPagination()
+  if (screenSize === 'small') {
+    addPagination()
+  } else {
+    finishButton.classList.remove('hidden')
+  }
+  updateGrid() // Draw grid based on selections and paging done so far.
+  // addPagination()
   resizeText()
 }
 
@@ -1234,11 +1242,10 @@ function resizeText () {
 function addPagination () {
   // $('#gridTable').after('<div id="nav"></div>');
   if (type !== 'reading') {
-    var rowsShown = 2
+    var rowsShown = numberOfRows
     var rowsTotal = $('#gridTable tbody tr').length
     var numPages = Math.ceil(rowsTotal / rowsShown)
     checkPage(pageNumber, numPages)
-  
     $('#gridTable tbody tr').hide()
     $('#gridTable tbody tr').slice(0, rowsShown).show()
   }
@@ -1307,7 +1314,7 @@ function checkPage (pagNum, numPages) {
     console.log('Page Number ' + pagNum)
     console.log('Number of pages ' + numPages)
     console.log('First page')
-  } else if (pagNum === numPages) {
+  } else if (pagNum === numPages - 1) {
     $('#nextButton').addClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').removeClass('hidden')
