@@ -212,10 +212,10 @@ var boxHandler = function () {
   var itemIndex = it.slice(4) // Get the number of the item based on the item class. Item class has the word 'item' plus the item number.
   itemClicked(this, itemIndex) // function to call when the box is clicked.
 }
-
+var gridItems
 // Once the grid is created.
 if (createGrid) {
-  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -439,6 +439,7 @@ function myFunction (x) {
     screenSize = 'small'
   }
 }
+// var choicesLength = checkAllAnswered()
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
@@ -488,7 +489,7 @@ function createGrid (keys) {
       $('#nextButton').addClass('hideButton')
     }
     var table = '<table id="gridTable" class="gridTable">'
-    var numOfRows = parseInt(rowCount / columns)
+    var numOfRows = Math.ceil(rowCount / columns)
     for (var i = 1; i <= numOfRows; i++) {
       if (i === 0) {
         table += '<thead>'
@@ -501,6 +502,9 @@ function createGrid (keys) {
           var hId = '<th' + h + '></th>'
           table += hId
         } else {
+          if (counter === checkAllAnswered()) {
+            break
+          }
           var item = 'item' + counter
           var t = '<td class="box ' + item + '"' + '><span>'
           table += t
@@ -744,6 +748,7 @@ function setResult () {
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount
   if (result != null) {
+    console.log(splitselectedItems)
     var finalAnswer = []
     if (selectedItems.length === 0) {
       checkAnswer()
@@ -814,7 +819,7 @@ function openLastItemModal () {
   selectedItems = getSelectedItems()
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  for (var i = 0; i < beforeLastClicked; i++) {
+  for (var i = 0; i <= beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
@@ -1227,7 +1232,7 @@ function moveForward () {
 
 // Resize the text to fit the button
 function resizeText () {
-  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   var i // Temporary counter
   // Loop through all the buttons
   for (i = 1; i <= gridItems.length; i++) {
