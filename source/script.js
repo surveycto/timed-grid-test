@@ -201,7 +201,7 @@ if (previousMetaData !== null) {
   // //   })
   // // }
 }
-
+screenSize = 'small'
 createGrid(choices) // Create a grid using the array of choices provided.
 
 // For reading grid
@@ -263,7 +263,7 @@ if (createGrid) {
   } else {
     finishButton.classList.remove('hidden')
   }
-  updateGrid() // Draw grid based on selections and paging done so far.
+  // updateGrid() // Draw grid based on selections and paging done so far.
   // addPagination()
   resizeText()
 }
@@ -334,61 +334,6 @@ var firstTenItems = [] // Array of first items from choices.
 for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
-
-// var itemCounter = 0 // Count the number of items.
-// var numRows = rowCount / columns
-// var temp5 = 1
-
-// get next button and bind click event handler
-// document.querySelector('.forward').addEventListener('click', function () {
-//   ++pageNumber
-//   if (type === 'reading') {
-//     backButton.classList.remove('hideButton') // Make back button visible on click.
-//   }
-
-//   // Reading test on small screen.
-//   if (type === 'reading' && screenSize === 'small') {
-//     // Increment page counters.
-//     aStart++
-//     aEnd++
-//     pageReading()
-//   }
-//   resizeText()
-// })
-
-// get back button and bind click event handler
-// document.querySelector('.back').addEventListener('click', function () {
-//   if (type === 'reading') {
-//     nextButton.classList.remove('hideButton') // Show the next button.
-//     finishButton.classList.add('hidden') // Hide the next button.
-//   }
-
-// //   --pageNumber
-
-//   if (type === 'reading' && screenSize === 'small') {
-//     aStart--
-//     aEnd--
-//     $.map(gridItems, function (box) {
-//       var temp1 = parseInt(box.classList.item(1).slice(4))
-//       if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
-//         box.classList.add('hidden')
-//       }
-//       if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
-//         box.classList.remove('hidden')
-//       }
-//       if (pageArr[aStart] === undefined) {
-//         backButton.classList.add('hideButton')
-//         if (temp1 >= parseInt(pageArr[0])) {
-//           box.classList.add('hidden')
-//         }
-//         if (temp1 < parseInt(pageArr[0])) {
-//           box.classList.remove('hidden')
-//         }
-//       }
-//     })
-//   }
-//   resizeText()
-// })
 
 // Finish early
 $('#finishButton').click(function () {
@@ -492,6 +437,7 @@ function createGrid (keys) {
     if (screenSize !== 'small') {
       $('#nextButton').addClass('hideButton')
     }
+    // var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
     var table = '<table id="gridTable" class="gridTable">'
     var numOfRows = Math.ceil(rowCount / columns)
     for (var i = 1; i <= numOfRows; i++) {
@@ -509,7 +455,7 @@ function createGrid (keys) {
           if (counter === checkAllAnswered()) {
             break
           }
-          var item = 'item' + counter
+          var item = 'item' + (counter + 1)
           var t = '<td class="box ' + item + '"' + '><span>'
           table += t
           table += choices[counter].CHOICE_LABEL
@@ -990,8 +936,9 @@ function checkAllAnswered () {
 
 // Paging for letter and word tests that have already started or have been completed.
 function updateGrid () {
+  console.log('Update Page number is ' + pageNumber)
   if (previousSelectedItems != null) { // Check that the test has started.
-    if (type !== 'letters' && screenSize === 'small') {
+    if (type !== 'reading' && screenSize === 'small') {
       addPagination()
       resizeText()
     }
@@ -1020,14 +967,19 @@ function resizeText () {
 }
 
 function addPagination () {
+  console.log('Add Page Number is ' + pageNumber)
   // $('#gridTable').after('<div id="nav"></div>');
   if (type !== 'reading') {
     var rowsShown = numberOfRows
     var rowsTotal = $('#gridTable tbody tr').length
     var numPages = Math.ceil(rowsTotal / rowsShown)
+    // $('#gridTable tbody tr').hide()
+    // $('#gridTable tbody tr').slice(0, rowsShown).show()
+    var currPage1 = pageNumber
+    var startItem1 = currPage1 * rowsShown
+    var endItem1 = startItem1 + rowsShown
+    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem1, endItem1).css('display', 'table-row').animate({ opacity: 1 }, 300)
     checkPage(pageNumber, numPages)
-    $('#gridTable tbody tr').hide()
-    $('#gridTable tbody tr').slice(0, rowsShown).show()
   }
 
   $('#nextButton').on('click', function (e) {
@@ -1091,21 +1043,21 @@ function checkPage (pagNum, numPages) {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').addClass('hideButton')
     $('#finishButton').addClass('hidden')
-    console.log('Page Number ' + pagNum)
-    console.log('Number of pages ' + numPages)
-    console.log('First page')
+    // console.log('Page Number ' + pagNum)
+    // console.log('Number of pages ' + numPages)
+    // console.log('First page')
   } else if (pagNum === numPages - 1) {
     $('#nextButton').addClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').removeClass('hidden')
-    console.log('1 Page Number ' + pagNum)
-    console.log('1 Number of pages ' + numPages)
-    console.log('Last page')
+    // console.log('1 Page Number ' + pagNum)
+    // console.log('1 Number of pages ' + numPages)
+    // console.log('Last page')
   } else {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').addClass('hidden')
-    console.log('Page Number ' + pagNum)
-    console.log('Number of pages ' + numPages)
+    // console.log('Page Number ' + pagNum)
+    // console.log('Number of pages ' + numPages)
   }
 }
