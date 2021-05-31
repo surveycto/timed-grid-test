@@ -233,10 +233,6 @@ if (createGrid) {
       box.classList.add('lastSelected')
     }
   })
-  if (complete === 'true') {
-    finishButton.classList.add('hidden')
-    makeInActive()
-  }
   intervalId = setInterval(timer, 1) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
@@ -262,6 +258,10 @@ if (createGrid) {
     addPagination()
   } else {
     finishButton.classList.remove('hidden')
+  }
+  if (complete === 'true') {
+    finishButton.classList.add('hidden')
+    makeInActive()
   }
   // updateGrid() // Draw grid based on selections and paging done so far.
   // addPagination()
@@ -770,7 +770,7 @@ function openLastItemModal () {
   selectedItems = getSelectedItems()
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  for (var i = 0; i <= beforeLastClicked; i++) {
+  for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
