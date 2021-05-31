@@ -53,7 +53,7 @@ var punctuationCount = 0 // count number of punctuation marks in reading passage
 var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
-var rowCount
+// var rowCount
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -201,7 +201,7 @@ if (previousMetaData !== null) {
   // //   })
   // // }
 }
-screenSize = 'small'
+// screenSize = 'small'
 createGrid(choices) // Create a grid using the array of choices provided.
 
 // For reading grid
@@ -774,7 +774,7 @@ function openLastItemModal () {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
   }
-  modalContent.innerText = 'Please tap the last item attempted'
+  modalContent.innerText = 'Please tap the last item attempted.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
