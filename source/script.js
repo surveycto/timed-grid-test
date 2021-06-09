@@ -67,7 +67,7 @@ var x = window.matchMedia('(max-width: 550px)')
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
-
+// screenSize = 'small'
 // Set parameter default values.
 if (duration == null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
@@ -109,9 +109,9 @@ if (finishParameter == null) {
 
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
-  if (screenSize === 'small') {
-    columns = 5
-  }
+  // if (screenSize === 'small') {
+  //   columns = 5
+  // }
 } else if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
   type = 'words'
 } else if (type === 'words') {
@@ -201,7 +201,7 @@ if (previousMetaData !== null) {
   // //   })
   // // }
 }
-// screenSize = 'small'
+
 createGrid(choices) // Create a grid using the array of choices provided.
 
 // For reading grid
@@ -347,28 +347,38 @@ $('#finishButton').click(function () {
   }
 })
 
-var tempSelected = [] // store selected items before highlighting row
-var clickCount = 1 // count the number of clicks
-$('#gridTable td:first-child').on('click', function () {
-  var clickedElement = $(this)
-  var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
-  if (clickCount === 1) {
-    firstClick(clickedElement)
-    clickCount = 2
-  } else if (clickCount === 2) {
-    $(this).siblings().each(function () {
-      if ($(this).hasClass('selected')) {
-        var temp2 = $(this).text()
-        tempSelected.push(temp2)
-      }
-    })
-    secondClick(clickedElement, rowIndex)
-    clickCount = 3
-  } else if (clickCount === 3) {
-    thirdClick(clickedElement, tempSelected)
-    clickCount = 1
-    tempSelected = []
-  }
+$('#gridTable td:first-child').each(function () {
+  var tempSelected = [] // store selected items before highlighting row
+  var clickCount = 1 // count the number of clicks
+  $(this).on('click', function () {
+    var clickedElement = $(this)
+    var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
+    if (clickCount === 1) {
+      firstClick(clickedElement)
+      clickCount = 2
+    } else if (clickCount === 2) {
+      $(this).siblings().each(function () {
+        if ($(this).hasClass('selected')) {
+          var temp2 = $(this).text()
+          tempSelected.push(temp2)
+        }
+      })
+      // if (type === 'letters' && screenSize === 'small') {
+      //   $(this).closest('tr').next('tr').children().each(function () {
+      //     if ($(this).hasClass('selected')) {
+      //       var temp2 = $(this).text()
+      //       tempSelected.push(temp2)
+      //     }
+      //   })
+      // }
+      secondClick(clickedElement, rowIndex)
+      clickCount = 3
+    } else if (clickCount === 3) {
+      thirdClick(clickedElement, tempSelected)
+      clickCount = 1
+      tempSelected = []
+    }
+  })
 })
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
@@ -438,6 +448,7 @@ function createGrid (keys) {
       $('#nextButton').addClass('hideButton')
     }
     // var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
+    var m = 0
     var table = '<table id="gridTable" class="gridTable">'
     var numOfRows = Math.ceil(rowCount / columns)
     for (var i = 1; i <= numOfRows; i++) {
@@ -445,7 +456,14 @@ function createGrid (keys) {
         table += '<thead>'
       }
       table += '<tr>'
+      // if (i % 2 === 1 && type === 'letters' && screenSize === 'small') {
+      //   m = m + 1
+      //   table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
+      // } else if (type !== 'letters') {
+      //   table += '<td class="count">' + '(' + i + ')' + '</td>'
+      // }
       table += '<td class="count">' + '(' + i + ')' + '</td>'
+
       for (var j = 1; j <= columns; j++) {
         if (i === 0) {
           var h = ' id = head' + j
@@ -497,6 +515,9 @@ function firstClick (clickedElement) {
 function secondClick (clickedElement, rowNumber) {
   clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
   clickedElement.siblings().addClass('selected')
+  // if (type === 'letters' && screenSize === 'small') {
+  //   clickedElement.closest('tr').next('tr').children().addClass('selected')
+  // }
 }
 
 function thirdClick (clickedElement, row) {
@@ -504,10 +525,27 @@ function thirdClick (clickedElement, row) {
   clickedElement.siblings().each(function () {
     if ($.inArray($(this).text(), row) < 0) {
       $(this).removeClass('selected')
+      // row = removeItemOnce(row, $(this).text())
     }
   })
-  console.log('Temp is ' + tempSelected)
+  // if (type === 'letters' && screenSize === 'small') {
+  //   clickedElement.closest('tr').next('tr').children().each(function () {
+  //     if ($.inArray($(this).text(), row) < 0) {
+  //       $(this).removeClass('selected')
+  //       row = removeItemOnce(row, $(this).text())
+  //     }
+  //   })
+  // }
+  // console.log('Temp is ' + tempSelected)
 }
+
+// function removeItemOnce (arr, value) {
+//   var index = arr.indexOf(value)
+//   if (index > -1) {
+//     arr.splice(index, 1)
+//   }
+//   return arr
+// }
 
 function timer () { // Timer function.
   var timeNow = Date.now() // Set the time to current time.
@@ -973,8 +1011,6 @@ function addPagination () {
     var rowsShown = numberOfRows
     var rowsTotal = $('#gridTable tbody tr').length
     var numPages = Math.ceil(rowsTotal / rowsShown)
-    // $('#gridTable tbody tr').hide()
-    // $('#gridTable tbody tr').slice(0, rowsShown).show()
     var currPage1 = pageNumber
     var startItem1 = currPage1 * rowsShown
     var endItem1 = startItem1 + rowsShown
@@ -1043,21 +1079,13 @@ function checkPage (pagNum, numPages) {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').addClass('hideButton')
     $('#finishButton').addClass('hidden')
-    // console.log('Page Number ' + pagNum)
-    // console.log('Number of pages ' + numPages)
-    // console.log('First page')
   } else if (pagNum === numPages - 1) {
     $('#nextButton').addClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').removeClass('hidden')
-    // console.log('1 Page Number ' + pagNum)
-    // console.log('1 Number of pages ' + numPages)
-    // console.log('Last page')
   } else {
     $('#nextButton').removeClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').addClass('hidden')
-    // console.log('Page Number ' + pagNum)
-    // console.log('Number of pages ' + numPages)
   }
 }

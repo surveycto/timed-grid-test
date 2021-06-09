@@ -66,6 +66,14 @@ button.startstop {
   border-bottom: 0 !important;
 }
 
+.gridTable1 {
+  border-spacing: 5px !important; 
+  border-collapse: separate !important;
+  width: 100% !important;
+  table-layout: block !important;
+  border-bottom: 0 !important;
+}
+
 /* .cell {
   width: 100%;
   padding: 15px;
@@ -1215,7 +1223,7 @@ button:hover {
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
-  position: absolute; /* Stay in place */
+  /* position: absolute; Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
   top: 0;
