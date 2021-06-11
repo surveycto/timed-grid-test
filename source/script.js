@@ -279,54 +279,54 @@ if (createGrid) {
 var pageArr = [] // Keep track of items on each page.
 var shouldPage = false // Whether to add another page on a small screen.
 
-$(document).ready(function () {
-  if (type === 'reading' && screenSize === 'small') { // For reading test on a small screen.
-    nextButton.classList.remove('hideButton') // hide next button.
-    $('.box').each(function () { // for each item in the grid.
-      var div1 = $(this)
-      var left = div1.position().left // Get the left position.
-      if (left <= minLeft || minLeft == null) { // Check whether its the leftmost item.
-        rowPos++ // Create a new row if it is the leftmost item.
-        if (rowPos >= 6) { // Check the number of rows so far.
-          shouldPage = true // Add paging if more than 6 rows.
-        }
-        if (rowPos % 7 === 0) { // Create a new page every 6 rows.
-          var temp = div1[0].classList.item(1).slice(4)
-          pageArr.push(temp)
-        }
-        minLeft = left
+// $(document).ready(function () {
+if (type === 'reading' && screenSize === 'small') { // For reading test on a small screen.
+  nextButton.classList.remove('hideButton') // hide next button.
+  $('.box').each(function () { // for each item in the grid.
+    var div1 = $(this)
+    var left = div1.position().left // Get the left position.
+    if (left <= minLeft || minLeft == null) { // Check whether its the leftmost item.
+      rowPos++ // Create a new row if it is the leftmost item.
+      if (rowPos >= 6) { // Check the number of rows so far.
+        shouldPage = true // Add paging if more than 6 rows.
       }
-    })
-    passagePaging(pageArr, shouldPage) // Create passage.
-    // Manages paging for a grid test in progress.
-    if (previousMetaData != null) {
-      if (prevPageNumber > 0) {
-        backButton.classList.remove('hideButton') // show back button for more than one page
+      if (rowPos % 7 === 0) { // Create a new page every 6 rows.
+        var temp = div1[0].classList.item(1).slice(4)
+        pageArr.push(temp)
       }
-      if (prevPageNumber === 1) {
-        aStart = 0
-        aEnd = 1
-        pageReading()
-      } else if (prevPageNumber === 2) {
-        aStart = 1
-        aEnd = 2
-        pageReading()
-      } else if (prevPageNumber === 3) {
-        aStart = 2
-        aEnd = 3
-        pageReading()
-      } else if (prevPageNumber === 4) {
-        aStart = 3
-        aEnd = 4
-        pageReading()
-      } else if (prevPageNumber === 5) {
-        aStart = 4
-        aEnd = 5
-        pageReading()
-      }
+      minLeft = left
+    }
+  })
+  passagePaging(pageArr, shouldPage) // Create passage.
+  // Manages paging for a grid test in progress.
+  if (previousMetaData != null) {
+    if (prevPageNumber > 0) {
+      backButton.classList.remove('hideButton') // show back button for more than one page
+    }
+    if (prevPageNumber === 1) {
+      aStart = 0
+      aEnd = 1
+      pageReading()
+    } else if (prevPageNumber === 2) {
+      aStart = 1
+      aEnd = 2
+      pageReading()
+    } else if (prevPageNumber === 3) {
+      aStart = 2
+      aEnd = 3
+      pageReading()
+    } else if (prevPageNumber === 4) {
+      aStart = 3
+      aEnd = 4
+      pageReading()
+    } else if (prevPageNumber === 5) {
+      aStart = 4
+      aEnd = 5
+      pageReading()
     }
   }
-})
+}
+// })
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
@@ -402,9 +402,7 @@ function myFunction (x) {
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
-  var fieldsetClass
   var rowCount
-  // var span = document.createElement('span')
   if (allAnswered != null) {
     rowCount = keys.length - 1
   } else {
@@ -423,15 +421,13 @@ function createGrid (keys) {
           var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
           var itemClass = 'item' + itemValue // CSS class to be applied.
           secondDIV.classList.add('box', itemClass) // Add CSS class.
-          if (type === 'reading') { // for the reading test.
-            nextButton.classList.add('hideButton')
-            secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-            var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-            for (var ch of textLabel) {
-              if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
-                secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
-                span.classList.add('disabled')
-              }
+          nextButton.classList.add('hideButton')
+          secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
+          var txlbl = choices[counter].CHOICE_LABEL // Add the label.
+          for (var ch of txlbl) {
+            if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
+              secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
+              span.classList.add('disabled')
             }
           }
           choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
@@ -632,8 +628,6 @@ function itemClicked (item, itemIndex) {
       }
     } else {
       classes.add('selected')
-      // if (itemCounter <= 9) { // Check number of items selected.
-      // itemCounter++
       if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
       }
@@ -1068,7 +1062,7 @@ function addPagination () {
         }
       })
     }
-    resizeText()
+    // resizeText()
     // e.preventDefault()
   })
   resizeText()
