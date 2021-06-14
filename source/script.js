@@ -53,7 +53,7 @@ var punctuationCount = 0 // count number of punctuation marks in reading passage
 var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
-// var rowCount
+var rowCount
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -67,7 +67,9 @@ var x = window.matchMedia('(max-width: 550px)')
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
+
 // screenSize = 'small'
+
 // Set parameter default values.
 if (duration == null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
@@ -109,9 +111,9 @@ if (finishParameter == null) {
 
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
-  // if (screenSize === 'small') {
-  //   columns = 5
-  // }
+  if (screenSize === 'small') {
+    columns = 5
+  }
 } else if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
   type = 'words'
 } else if (type === 'words') {
@@ -349,6 +351,7 @@ $('#finishButton').click(function () {
 
 $('#gridTable td:first-child').each(function () {
   var tempSelected = [] // store selected items before highlighting row
+  var tempSelected1 = []
   var clickCount = 1 // count the number of clicks
   $(this).on('click', function () {
     var clickedElement = $(this)
@@ -363,20 +366,21 @@ $('#gridTable td:first-child').each(function () {
           tempSelected.push(temp2)
         }
       })
-      // if (type === 'letters' && screenSize === 'small') {
-      //   $(this).closest('tr').next('tr').children().each(function () {
-      //     if ($(this).hasClass('selected')) {
-      //       var temp2 = $(this).text()
-      //       tempSelected.push(temp2)
-      //     }
-      //   })
-      // }
+      if (type === 'letters' && screenSize === 'small') {
+        $(this).closest('tr').next('tr').children().each(function () {
+          if ($(this).hasClass('selected')) {
+            var temp2 = $(this).text()
+            tempSelected1.push(temp2)
+          }
+        })
+      }
       secondClick(clickedElement, rowIndex)
       clickCount = 3
     } else if (clickCount === 3) {
-      thirdClick(clickedElement, tempSelected)
+      thirdClick(clickedElement, tempSelected, tempSelected1)
       clickCount = 1
       tempSelected = []
+      tempSelected1 = []
     }
   })
 })
@@ -402,7 +406,7 @@ function myFunction (x) {
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
-  var rowCount
+  // rowCount
   if (allAnswered != null) {
     rowCount = keys.length - 1
   } else {
@@ -411,7 +415,7 @@ function createGrid (keys) {
 
   if (type === 'reading') {
     for (var i = 0; i < rowCount / columns; i++) {
-      var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
+      var fieldset = document.createElement('div') // Creates a section element. Each section is the equivalent of a row.
       fieldset.setAttribute('class', 'pg')
       for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
         if (counter !== checkAllAnswered()) {
@@ -452,13 +456,13 @@ function createGrid (keys) {
         table += '<thead>'
       }
       table += '<tr>'
-      // if (i % 2 === 1 && type === 'letters' && screenSize === 'small') {
-      //   m = m + 1
-      //   table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
-      // } else if (type !== 'letters') {
-      //   table += '<td class="count">' + '(' + i + ')' + '</td>'
-      // }
-      table += '<td class="count">' + '(' + i + ')' + '</td>'
+      if (i % 2 === 1 && type === 'letters' && screenSize === 'small') {
+        m = m + 1
+        table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
+      } else if (type !== 'letters') {
+        table += '<td class="count">' + '(' + i + ')' + '</td>'
+      }
+      // table += '<td class="count">' + '(' + i + ')' + '</td>'
 
       for (var j = 1; j <= columns; j++) {
         if (i === 0) {
@@ -470,8 +474,8 @@ function createGrid (keys) {
             break
           }
           var item = 'item' + (counter + 1)
-          var t = '<td class="box ' + item + '"' + '><span>'
-          table += t
+          var td = '<td class="box ' + item + '"' + '><span>'
+          table += td
           table += choices[counter].CHOICE_LABEL
           table += '</span></td>'
           choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
@@ -507,16 +511,25 @@ function passagePaging (pageArray, isPage) {
 function firstClick (clickedElement) {
   clickedElement.text('(?)') // Show question mark on first click.
 }
-
+var rowCounter = 0
+var tempRows = Math.ceil(rowCount / columns)
 function secondClick (clickedElement, rowNumber) {
+  for (var i = 1; i < tempRows; i + 2) {
+    if (rowNumber === i) {
+      rowNumber = rowNumber - rowCounter
+    }
+    i = i + 2
+    rowCounter++
+  }
   clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
   clickedElement.siblings().addClass('selected')
-  // if (type === 'letters' && screenSize === 'small') {
-  //   clickedElement.closest('tr').next('tr').children().addClass('selected')
-  // }
+  if (type === 'letters' && screenSize === 'small') {
+    clickedElement.closest('tr').next('tr').children().addClass('selected')
+  }
+  rowCounter = 0
 }
 
-function thirdClick (clickedElement, row) {
+function thirdClick (clickedElement, row, row1) {
   // clickedElement.siblings().removeClass('selected')
   clickedElement.siblings().each(function () {
     if ($.inArray($(this).text(), row) < 0) {
@@ -524,15 +537,15 @@ function thirdClick (clickedElement, row) {
       // row = removeItemOnce(row, $(this).text())
     }
   })
-  // if (type === 'letters' && screenSize === 'small') {
-  //   clickedElement.closest('tr').next('tr').children().each(function () {
-  //     if ($.inArray($(this).text(), row) < 0) {
-  //       $(this).removeClass('selected')
-  //       row = removeItemOnce(row, $(this).text())
-  //     }
-  //   })
-  // }
-  // console.log('Temp is ' + tempSelected)
+  if (type === 'letters' && screenSize === 'small') {
+    clickedElement.closest('tr').next('tr').children().each(function () {
+      if ($.inArray($(this).text(), row1) < 0) {
+        $(this).removeClass('selected')
+        // row = removeItemOnce(row, $(this).text())
+      }
+    })
+  }
+  console.log('Temp is ' + row)
 }
 
 // function removeItemOnce (arr, value) {
