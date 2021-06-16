@@ -896,8 +896,8 @@ svg.checkmark {
 }
 
 .pg {
-  display: flex;
-  flex-wrap: wrap;
+  display: inline-block;
+  /* flex-wrap: wrap; */
 }
 
 .pgNumber {
@@ -923,6 +923,7 @@ svg.checkmark {
   padding: 2%;
   margin: 3px;
   display: flex;
+  float:left;
 }
 
 .pmBox {
