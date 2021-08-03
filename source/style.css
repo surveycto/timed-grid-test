@@ -138,12 +138,14 @@ svg.checkmark {
 
 /* Styling for the buttons */
 .count {
+  background-color: aliceblue;
+  border-radius: 5px;
   width: 75%;
+  padding: 5px;
   height: 42px;
-  text-align: left;
+  text-align: center;
   color: black;
   cursor: pointer;
-  /* font-size: 3vw; */
 }
 
 /* small screen first page */
@@ -927,7 +929,7 @@ svg.checkmark {
 }
 
 .pmBox {
-  background-color: #888;
+  background-color: #474e5d;;
 }
 /* hide elements */
 .hidden {

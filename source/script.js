@@ -142,9 +142,9 @@ if (type === 'letters') {
 }
 
 // Set end after default to 10 for letters and 5 for words.
-if (endAfter == null && columns === 10) {
+if (endAfter == null && type === 'letters') {
   endAfter = 10
-} else if (endAfter == null && columns === 5) {
+} else if (endAfter == null && type === 'words') {
   endAfter = 5
 } else {
   endAfter = parseInt(endAfter)
@@ -193,19 +193,9 @@ if (previousMetaData !== null) {
   }
   previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
   items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
-  // items = previousSelectedItems.filter(function (element) {
-  //   return element !== undefined
-  // })
-  // // if (previousSelectedItems != null) {
-  // //   items = previousSelectedItems.filter(function (element) {
-  // //     return element !== undefined
-  // //   })
-  // // }
 }
 
-console.time('Create Grid')
 createGrid(choices) // Create a grid using the array of choices provided.
-console.timeEnd('Create Grid')
 
 // For reading grid
 var minLeft = null // Keep track of the left most position.
@@ -219,7 +209,6 @@ var boxHandler = function () {
 }
 var gridItems
 // Once the grid is created.
-console.time('If grid created')
 if (createGrid) {
   gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
@@ -267,22 +256,12 @@ if (createGrid) {
     makeInActive()
   }
 }
-console.timeEnd('If grid created')
-// console.timeEnd('Grid created')
-
-// $('#next').on('click', function () {
-//   var info = $('#gridTable').page.info()
-//   if (info.page + 1 === info.pages) {
-//     finishButton.classList.remove('hidden')
-//   }
-// })
 
 // For reading test.
 var pageArr = [] // Keep track of items on each page.
 var shouldPage = false // Whether to add another page on a small screen.
 var boxes = document.querySelectorAll('.box')
 
-console.time('Reading')
 $(document).ready(function () {
   if (type === 'reading' && screenSize === 'small') { // For reading test on a small screen.
     nextButton.classList.remove('hideButton') // hide next button
@@ -302,21 +281,6 @@ $(document).ready(function () {
         minLeft = left
       }
     }
-    // $('.box').each(function () { // for each item in the grid.
-    //   var div1 = $(this)
-    //   var left = div1.offset().left // Get the left position.
-    //   if (left <= minLeft || minLeft == null) { // Check whether its the leftmost item.
-    //     rowPos++ // Create a new row if it is the leftmost item.
-    //     if (rowPos >= 6) { // Check the number of rows so far.
-    //       shouldPage = true // Add paging if more than 6 rows.
-    //     }
-    //     if (rowPos % 7 === 0) { // Create a new page every 6 rows.
-    //       var temp = div1[0].classList.item(1).slice(4)
-    //       pageArr.push(temp)
-    //     }
-    //     minLeft = left
-    //   }
-    // })
     passagePaging(pageArr, shouldPage) // Create passage.
     // Manages paging for a grid test in progress.
     if (previousMetaData != null) {
@@ -326,32 +290,9 @@ $(document).ready(function () {
       aStart = prevPageNumber - 1
       aEnd = prevPageNumber
       pageReading()
-      // if (prevPageNumber === 1) {
-      //   aStart = 0
-      //   aEnd = 1
-      //   pageReading()
-      // } else if (prevPageNumber === 2) {
-      //   aStart = 1
-      //   aEnd = 2
-      //   pageReading()
-      // } else if (prevPageNumber === 3) {
-      //   aStart = 2
-      //   aEnd = 3
-      //   pageReading()
-      // } else if (prevPageNumber === 4) {
-      //   aStart = 3
-      //   aEnd = 4
-      //   pageReading()
-      // } else if (prevPageNumber === 5) {
-      //   aStart = 4
-      //   aEnd = 5
-      //   pageReading()
-      // }
     }
   }
 })
-console.timeEnd('Reading')
-console.time('The rest')
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
@@ -417,7 +358,6 @@ if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true
     makeActive()
   }
 }
-console.timeEnd('The rest')
 
 // START FUNCTIONS
 
@@ -553,18 +493,15 @@ function secondClick (clickedElement, rowNumber) {
 }
 
 function thirdClick (clickedElement, row, row1) {
-  // clickedElement.siblings().removeClass('selected')
   clickedElement.siblings().each(function () {
     if ($.inArray($(this).text(), row) < 0) {
       $(this).removeClass('selected')
-      // row = removeItemOnce(row, $(this).text())
     }
   })
   if (type === 'letters' && screenSize === 'small') {
     clickedElement.closest('tr').next('tr').children().each(function () {
       if ($.inArray($(this).text(), row1) < 0) {
         $(this).removeClass('selected')
-        // row = removeItemOnce(row, $(this).text())
       }
     })
   }
@@ -949,8 +886,6 @@ function makeActive () {
       box.addEventListener('click', boxHandler, false) // Make it clickable.
       box.classList.remove('disabled')
     }
-    // box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
-    // box.classList.remove('disabled')
   })
 }
 
@@ -992,16 +927,6 @@ function checkAllAnswered () {
   return choiceListLength
 }
 
-// Paging for letter and word tests that have already started or have been completed.
-// function updateGrid () {
-//   if (previousSelectedItems != null) { // Check that the test has started.
-//     if (type !== 'reading' && screenSize === 'small') {
-//       addPagination()
-//       resizeText()
-//     }
-//   }
-// }
-
 function moveForward () {
   button.innerHTML = 'Test complete'
   button.onclick = function () {
@@ -1011,14 +936,11 @@ function moveForward () {
 
 // Resize the text to fit the button
 function resizeText () {
-  console.time('Getting buttons')
   gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  console.timeEnd('Getting buttons')
   var i // Temporary counter
   var tempItemClass
   var tempLength = gridItems.length
   // Loop through all the buttons
-  console.time('Starting loop')
   for (i = 1; i <= tempLength; i++) {
     tempItemClass = '.' + 'item' + i // Get the item (button) class to refer to individual buttons
     $(tempItemClass).textfill({ // Use the textfill.js library to resize the button text.
@@ -1026,7 +948,6 @@ function resizeText () {
       maxFontPixels: 28 // Set maximum font size
     })
   }
-  console.timeEnd('Starting loop')
 }
 
 function addPagination () {
