@@ -79,7 +79,11 @@ if (duration == null) {
 }
 
 if (numberOfRows == null) {
-  numberOfRows = 4 // Default time limit on each field in milliseconds
+  if (type === 'reading') {
+    numberOfRows = 6 // Default time limit on each field in milliseconds
+  } else {
+    numberOfRows = 4 // Default time limit on each field in milliseconds
+  }
 } else {
   numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
 }
@@ -271,10 +275,10 @@ $(document).ready(function () {
       var left = parseFloat(el.offsetLeft)// Get the left position.
       if (left <= minLeft || minLeft == null) { // Check whether its the leftmost item.
         rowPos++ // Create a new row if it is the leftmost item.
-        if (rowPos >= 6) { // Check the number of rows so far.
+        if (rowPos >= numberOfRows) { // Check the number of rows so far.
           shouldPage = true // Add paging if more than 6 rows.
         }
-        if (rowPos % 7 === 0) { // Create a new page every 6 rows.
+        if (rowPos % numberOfRows === 0) { // Create a new page every 6 rows.
           var temp = el.classList.item(1).slice(4)
           pageArr.push(temp)
         }
