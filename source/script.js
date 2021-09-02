@@ -1,6 +1,6 @@
 /* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
 
-var continuity = getPluginParameter('continuity')
+// var continuity = getPluginParameter('continuity')
 var duration = getPluginParameter('duration')
 var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
@@ -88,11 +88,11 @@ if (numberOfRows == null) {
   numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
 }
 
-if (continuity == null) {
-  continuity = 0 // Default continuity set to false.
-} else {
-  continuity = parseInt(continuity) // Parameterized continuity set to value entered.
-}
+// if (continuity == null) {
+//   continuity = 0 // Default continuity set to false.
+// } else {
+//   continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+// }
 
 if (pause == null) {
   pause = 0 // Default pause set to false.
@@ -162,6 +162,7 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   var lastTimeNow = parseInt(s1[2])
+  var prevPause = parseInt(s1[3])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
@@ -174,6 +175,9 @@ if (previousMetaData !== null) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
       var timeWhileGone = Date.now() - lastTimeNow
       var leftoverTime = timeLeft - timeWhileGone
+      if (prevPause === 1) {
+        leftoverTime = timeLeft
+      }
       if (leftoverTime < 0) {
         complete = true
         timeLeft = 0 // Completed test
@@ -300,7 +304,6 @@ $(document).ready(function () {
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
-
 for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
@@ -519,7 +522,7 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + pause + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
   if (timeLeft <= 0) {
@@ -750,7 +753,7 @@ function openExtraItemsModal () {
 }
 // Thank you note modal
 function openThankYouModal () {
-  modalContent.innerHTML = 'Thank you! You can continue. <br> Tap on Test Complete or the Next button below.' // Text to display on the modal.
+  modalContent.innerHTML = 'Thank you! You can continue. <br> Tap on Test Complete.' // Text to display on the modal.
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
