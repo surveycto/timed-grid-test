@@ -54,6 +54,8 @@ var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 var rowCount
+var prevPaused // Keep track of whether the test was paused when moving to and from the page.
+var paused = 0 // keep track of whether the test is paused or not.
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -87,12 +89,6 @@ if (numberOfRows == null) {
 } else {
   numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
 }
-
-// if (continuity == null) {
-//   continuity = 0 // Default continuity set to false.
-// } else {
-//   continuity = parseInt(continuity) // Parameterized continuity set to value entered.
-// }
 
 if (pause == null) {
   pause = 0 // Default pause set to false.
@@ -162,7 +158,7 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   var lastTimeNow = parseInt(s1[2])
-  var prevPause = parseInt(s1[3])
+  prevPaused = parseInt(s1[3])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
@@ -175,7 +171,7 @@ if (previousMetaData !== null) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
       var timeWhileGone = Date.now() - lastTimeNow
       var leftoverTime = timeLeft - timeWhileGone
-      if (prevPause === 1) {
+      if (prevPaused === 1) {
         leftoverTime = timeLeft
       }
       if (leftoverTime < 0) {
@@ -358,11 +354,20 @@ $('#gridTable td:first-child').each(function () {
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
   makeInActive() // Make all buttons inactive
+  console.log('Timer running post 2 ' + timerRunning)
+  console.log('I am here close to the end')
 } else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
   if (!timerRunning) {
     startStopTimer()
   } else {
     makeActive()
+    if (prevPaused === 1) {
+      timerRunning = true
+      pause = 1
+      startStopTimer()
+      console.log('I am here at the end')
+    }
+    console.log('I am here after the end')
   }
 }
 
@@ -522,7 +527,7 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + pause + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
   if (timeLeft <= 0) {
@@ -543,9 +548,11 @@ function startStopTimer () {
     timerRunning = false // Pause the timer.
     playIcon.style.display = ''
     pauseIcon.style.display = 'none'
+    paused = 1
     makeInActive()
   } else {
     makeActive()
+    paused = 0
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
     playIcon.style.display = 'none'
