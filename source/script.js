@@ -82,9 +82,13 @@ if (duration == null) {
 
 if (numberOfRows == null) {
   if (type === 'reading') {
-    numberOfRows = 6 // Default time limit on each field in milliseconds
+    if (screenSize === 'small') {
+      numberOfRows = 6 // Default time limit on each field in milliseconds
+    }
   } else {
-    numberOfRows = 4 // Default time limit on each field in milliseconds
+    if (screenSize === 'small') {
+      numberOfRows = 4 // Default time limit on each field in milliseconds
+    }
   }
 } else {
   numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
@@ -252,8 +256,12 @@ if (createGrid) {
   if (screenSize === 'small') {
     addPagination()
   } else {
-    finishButton.classList.remove('hidden')
-    resizeText()
+    if (numberOfRows != null) {
+      addPagination()
+    } else {
+      finishButton.classList.remove('hidden')
+      resizeText()
+    }
   }
   if (complete === 'true') {
     finishButton.classList.add('hidden')
