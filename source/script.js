@@ -1,6 +1,5 @@
 /* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
 
-// var continuity = getPluginParameter('continuity')
 var duration = getPluginParameter('duration')
 var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
@@ -362,8 +361,6 @@ $('#gridTable td:first-child').each(function () {
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
   makeInActive() // Make all buttons inactive
-  console.log('Timer running post 2 ' + timerRunning)
-  console.log('I am here close to the end')
 } else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
   if (!timerRunning) {
     startStopTimer()
@@ -373,9 +370,7 @@ if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true
       timerRunning = true
       pause = 1
       startStopTimer()
-      console.log('I am here at the end')
     }
-    console.log('I am here after the end')
   }
 }
 
