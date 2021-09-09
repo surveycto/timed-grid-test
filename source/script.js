@@ -1,6 +1,5 @@
 /* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
 
-var continuity = getPluginParameter('continuity')
 var duration = getPluginParameter('duration')
 var endAfter = getPluginParameter('end-after')
 var pause = getPluginParameter('pause')
@@ -8,6 +7,7 @@ var strict = getPluginParameter('strict')
 var type = getPluginParameter('type')
 var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
+var numberOfRows = getPluginParameter('page-rows')
 
 var previousMetaData = getMetaData() // Load Metadata.
 
@@ -52,6 +52,9 @@ var punctuationCount = 0 // count number of punctuation marks in reading passage
 var punctuationArray = [] // An array of the
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
+var rowCount
+var prevPaused // Keep track of whether the test was paused when moving to and from the page.
+var paused = 0 // keep track of whether the test is paused or not.
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -66,6 +69,9 @@ myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
 
+// For testing purposes!
+// screenSize = 'small'
+
 // Set parameter default values.
 if (duration == null) {
   timeStart = 60000 // Default time limit on each field in milliseconds
@@ -73,10 +79,18 @@ if (duration == null) {
   timeStart = duration * 1000 // Parameterized time limit on each field in milliseconds
 }
 
-if (continuity == null) {
-  continuity = 0 // Default continuity set to false.
+if (numberOfRows == null) {
+  if (type === 'reading') {
+    if (screenSize === 'small') {
+      numberOfRows = 6 // Default time limit on each field in milliseconds
+    }
+  } else {
+    if (screenSize === 'small') {
+      numberOfRows = 4 // Default time limit on each field in milliseconds
+    }
+  }
 } else {
-  continuity = parseInt(continuity) // Parameterized continuity set to value entered.
+  numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
 }
 
 if (pause == null) {
@@ -98,25 +112,20 @@ if (finishParameter == null) {
 } else {
   finishParameter = parseInt(finishParameter)
 }
+
 if (type === 'letters') {
   columns = 10 // Number of columns on grid printout (words)
-  if (screenSize !== 'small') {
-    screenSize = 'medium'
+  if (screenSize === 'small') {
+    columns = 5
   }
-}
-
-if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
+} else if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
   type = 'words'
-}
-
-if (type === 'words') {
+} else if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
-}
-
-if (type === 'reading') {
+} else if (type === 'reading') {
   columns = choices.length // Number of columns on grid printout (words)
   for (var x = 0; x < choices.length; x++) {
     var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
@@ -127,18 +136,18 @@ if (type === 'reading') {
   if (screenSize !== 'small') {
     screenSize = 'large' // Screen size determines the CSS to be applied.
   }
-}
-
-if (type === 'arithmetic') {
+} else if (type === 'arithmetic') {
   columns = 2
   isNumber = 2
   type = 'reading'
+} else {
+  columns = parseInt(type)
 }
 
 // Set end after default to 10 for letters and 5 for words.
-if (endAfter == null && columns === 10) {
+if (endAfter == null && type === 'letters') {
   endAfter = 10
-} else if (endAfter == null && columns === 5) {
+} else if (endAfter == null && type === 'words') {
   endAfter = 5
 } else {
   endAfter = parseInt(endAfter)
@@ -152,6 +161,7 @@ if (previousMetaData !== null) {
   var s1 = previousSelected[0].split(' ') // split the first value in metadata into time and page number.
   prevPageNumber = parseInt(s1[1]) // Get the last page number.
   var lastTimeNow = parseInt(s1[2])
+  prevPaused = parseInt(s1[3])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
   var previousPunctuationCount = parseInt(previousSelected[11])
   if (type === 'reading') {
@@ -164,6 +174,9 @@ if (previousMetaData !== null) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
       var timeWhileGone = Date.now() - lastTimeNow
       var leftoverTime = timeLeft - timeWhileGone
+      if (prevPaused === 1) {
+        leftoverTime = timeLeft
+      }
       if (leftoverTime < 0) {
         complete = true
         timeLeft = 0 // Completed test
@@ -186,17 +199,7 @@ if (previousMetaData !== null) {
     o = o + ' ' + y
   }
   previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
-  console.log('PSI is ' + previousSelectedItems)
   items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
-  // items = previousSelectedItems.filter(function (element) {
-  //   return element !== undefined
-  // })
-  // // if (previousSelectedItems != null) {
-  // //   items = previousSelectedItems.filter(function (element) {
-  // //     return element !== undefined
-  // //   })
-  // // }
-  console.log('Items is ' + items)
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -211,20 +214,10 @@ var boxHandler = function () {
   var itemIndex = it.slice(4) // Get the number of the item based on the item class. Item class has the word 'item' plus the item number.
   itemClicked(this, itemIndex) // function to call when the box is clicked.
 }
-
+var gridItems
 // Once the grid is created.
 if (createGrid) {
-  resizeText()
-  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  // console.log(gridItems)
-  // var i
-  // for (i = 1; i <= gridItems.length; i++) {
-  //   var tempItemClass = '.' + 'item' + i
-  //   $(tempItemClass).textfill({
-  //     widthOnly: true,
-  //     maxFontPixels: 28
-  //   })
-  // }
+  gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -238,12 +231,7 @@ if (createGrid) {
       box.classList.add('lastSelected')
     }
   })
-  updateGrid() // Draw grid based on selections and paging done so far.
-  if (complete === 'true') {
-    finishButton.classList.add('hidden')
-    makeInActive()
-  }
-  intervalId = setInterval(timer, 1) // Start the timer.
+  intervalId = setInterval(timer, 10) // Start the timer.
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
@@ -264,358 +252,64 @@ if (createGrid) {
       }
     }
   }
+  if (screenSize === 'small') {
+    addPagination()
+  } else {
+    if (numberOfRows != null) {
+      addPagination()
+    } else {
+      finishButton.classList.remove('hidden')
+      resizeText()
+    }
+  }
+  if (complete === 'true') {
+    finishButton.classList.add('hidden')
+    makeInActive()
+  }
 }
 
 // For reading test.
 var pageArr = [] // Keep track of items on each page.
 var shouldPage = false // Whether to add another page on a small screen.
+var boxes = document.querySelectorAll('.box')
 
 $(document).ready(function () {
   if (type === 'reading' && screenSize === 'small') { // For reading test on a small screen.
-    nextButton.classList.remove('hideButton') // hide next button.
-    $('.box').each(function () { // for each item in the grid.
-      var div1 = $(this)
-      var left = div1.position().left // Get the left position.
+    nextButton.classList.remove('hideButton') // hide next button
+    var n
+    for (n = 0; n < boxes.length; n++) {
+      var el = boxes[n]
+      var left = parseFloat(el.offsetLeft)// Get the left position.
       if (left <= minLeft || minLeft == null) { // Check whether its the leftmost item.
         rowPos++ // Create a new row if it is the leftmost item.
-        if (rowPos >= 6) { // Check the number of rows so far.
+        if (rowPos >= numberOfRows) { // Check the number of rows so far.
           shouldPage = true // Add paging if more than 6 rows.
         }
-        if (rowPos % 7 === 0) { // Create a new page every 6 rows.
-          var temp = div1[0].classList.item(1).slice(4)
+        if (rowPos % numberOfRows === 0) { // Create a new page every 6 rows.
+          var temp = el.classList.item(1).slice(4)
           pageArr.push(temp)
         }
         minLeft = left
       }
-    })
+    }
     passagePaging(pageArr, shouldPage) // Create passage.
     // Manages paging for a grid test in progress.
     if (previousMetaData != null) {
       if (prevPageNumber > 0) {
         backButton.classList.remove('hideButton') // show back button for more than one page
       }
-      if (prevPageNumber === 1) {
-        aStart = 0
-        aEnd = 1
-        pageReading()
-      } else if (prevPageNumber === 2) {
-        aStart = 1
-        aEnd = 2
-        pageReading()
-      } else if (prevPageNumber === 3) {
-        aStart = 2
-        aEnd = 3
-        pageReading()
-      } else if (prevPageNumber === 4) {
-        aStart = 3
-        aEnd = 4
-        pageReading()
-      } else if (prevPageNumber === 5) {
-        aStart = 4
-        aEnd = 5
-        pageReading()
-      }
+      aStart = prevPageNumber - 1
+      aEnd = prevPageNumber
+      pageReading()
     }
   }
 })
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
-console.log('No pun array ' + noPunctuationsArray)
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
-
 for (x = 0; x < topTen.length; x++) {
   firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
 }
-
-var itemCounter = 0 // Count the number of items.
-
-// get next button and bind click event handler
-document.querySelector('.next').addEventListener('click', function () {
-  ++pageNumber
-  backButton.classList.remove('hideButton') // Make back button visible on click.
-
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  /*  For each test, show and hide rows on button click using CSS classes. Continuity allows the last row on a page
-      to become the first row on the next page */
-
-  // Letters test on small screen with no continuity.
-  if (type === 'letters' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
-    }
-  }
-  // Letters test on small screen with continuity.
-  if (type === 'letters' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset2.classList.contains('hidden')) {
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
-    }
-  }
-  // Words test on small screen with no continuity.
-  if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
-    }
-  }
-  // Letters test on small screen with continuity.
-  if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset1.classList.contains('hidden')) {
-      fieldset1.classList.add('hidden')
-      fieldset2.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset10.classList.remove('hidden')
-      nextButton.classList.add('hideButton')
-      hideFinishButton()
-    }
-  }
-  // Reading test on small screen.
-  if (type === 'reading' && screenSize === 'small') {
-    // Increment page counters.
-    aStart++
-    aEnd++
-    pageReading()
-  }
-  resizeText()
-})
-
-// get back button and bind click event handler
-document.querySelector('.back').addEventListener('click', function () {
-  nextButton.classList.remove('hideButton') // Show the next button.
-  finishButton.classList.add('hidden') // Hide the next button.
-  --pageNumber
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-
-  if (type === 'letters' && continuity === 0) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'letters' && continuity === 1) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.remove('hidden')
-      fieldset8.classList.remove('hidden')
-    } else if (!fieldset9.classList.contains('hidden')) {
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-    } else if (!fieldset8.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset6.classList.contains('hidden')) {
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-    } else if (!fieldset4.classList.contains('hidden')) {
-      fieldset4.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-    } else if (!fieldset3.classList.contains('hidden')) {
-      fieldset3.classList.add('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small' && continuity === 0) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.remove('hidden')
-      fieldset7.classList.remove('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-    } else if (!fieldset5.classList.contains('hidden')) {
-      fieldset8.classList.add('hidden')
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset4.classList.remove('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'words' && screenSize === 'small' && continuity === 1) {
-    if (!fieldset10.classList.contains('hidden')) {
-      fieldset10.classList.add('hidden')
-      fieldset9.classList.add('hidden')
-      fieldset8.classList.add('hidden')
-      fieldset6.classList.remove('hidden')
-      fieldset5.classList.remove('hidden')
-      fieldset4.classList.remove('hidden')
-    } else if (!fieldset7.classList.contains('hidden')) {
-      fieldset7.classList.add('hidden')
-      fieldset6.classList.add('hidden')
-      fieldset5.classList.add('hidden')
-      fieldset3.classList.remove('hidden')
-      fieldset2.classList.remove('hidden')
-      fieldset1.classList.remove('hidden')
-      backButton.classList.add('hideButton')
-    }
-  }
-
-  if (type === 'reading' && screenSize === 'small') {
-    aStart--
-    aEnd--
-    $.map(gridItems, function (box) {
-      var temp1 = parseInt(box.classList.item(1).slice(4))
-      if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
-        box.classList.add('hidden')
-      }
-      if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
-        box.classList.remove('hidden')
-      }
-      if (pageArr[aStart] === undefined) {
-        backButton.classList.add('hideButton')
-        if (temp1 >= parseInt(pageArr[0])) {
-          box.classList.add('hidden')
-        }
-        if (temp1 < parseInt(pageArr[0])) {
-          box.classList.remove('hidden')
-        }
-      }
-    })
-  }
-  resizeText()
-})
-
-// When the user clicks anywhere outside of the modal, close it
-// window.onclick = function (event) {
-//   if (event.target === modal) {
-//     if (modalContent.innerText === 'Do you want to end the test now?') {
-//       startStopTimer() // On cancel, continue the timer.
-//     }
-//     // modal.style.display = 'none'
-//   }
-// }
 
 // Finish early
 $('#finishButton').click(function () {
@@ -629,148 +323,40 @@ $('#finishButton').click(function () {
   }
 })
 
-var counter1 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend1').click(function () {
-  var clickedElement = $(this)
-  if (counter1 === 0) {
-    firstClick(clickedElement)
-  } else if (counter1 === 1) {
-    secondClick(clickedElement, 1)
-    openIncorrectItemsModal()
-  } else if (counter1 === 2) {
-    thirdClick(clickedElement, 1)
-    counter1 = -1
-  }
-  counter1++
-})
-
-var counter2 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend2').click(function () {
-  var clickedElement = $(this)
-  if (counter2 === 0) {
-    firstClick(clickedElement)
-  } else if (counter2 === 1) {
-    secondClick(clickedElement, 2)
-  } else if (counter2 === 2) {
-    thirdClick(clickedElement, 2)
-    counter2 = -1
-  }
-  counter2++
-})
-var counter3 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend3').click(function () {
-  var clickedElement = $(this)
-  if (counter3 === 0) {
-    firstClick(clickedElement)
-  } else if (counter3 === 1) {
-    secondClick(clickedElement, 3)
-  } else if (counter3 === 2) {
-    thirdClick(clickedElement, 3)
-    counter3 = -1
-  }
-  counter3++
-})
-var counter4 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend4').click(function () {
-  var clickedElement = $(this)
-  if (counter4 === 0) {
-    firstClick(clickedElement)
-  } else if (counter4 === 1) {
-    secondClick(clickedElement, 4)
-  } else if (counter4 === 2) {
-    thirdClick(clickedElement, 4)
-    counter4 = -1
-  }
-  counter4++
-})
-var counter5 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend5').click(function () {
-  var clickedElement = $(this)
-  if (counter5 === 0) {
-    firstClick(clickedElement)
-  } else if (counter5 === 1) {
-    secondClick(clickedElement, 5)
-  } else if (counter5 === 2) {
-    thirdClick(clickedElement, 5)
-    counter5 = -1
-  }
-  counter5++
-})
-var counter6 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend6').click(function () {
-  var clickedElement = $(this)
-  if (counter6 === 0) {
-    firstClick(clickedElement)
-  } else if (counter6 === 1) {
-    secondClick(clickedElement, 6)
-  } else if (counter6 === 2) {
-    thirdClick(clickedElement, 6)
-    counter6 = -1
-  }
-  counter6++
-})
-var counter7 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend7').click(function () {
-  var clickedElement = $(this)
-  if (counter7 === 0) {
-    firstClick(clickedElement)
-  } else if (counter7 === 1) {
-    secondClick(clickedElement, 7)
-  } else if (counter7 === 2) {
-    thirdClick(clickedElement, 7)
-    counter7 = -1
-  }
-  counter7++
-})
-var counter8 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend8').click(function () {
-  var clickedElement = $(this)
-  if (counter8 === 0) {
-    firstClick(clickedElement)
-  } else if (counter8 === 1) {
-    secondClick(clickedElement, 8)
-  } else if (counter8 === 2) {
-    thirdClick(clickedElement, 8)
-    counter8 = -1
-  }
-  counter8++
-})
-var counter9 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend9').click(function () {
-  var clickedElement = $(this)
-  if (counter9 === 0) {
-    firstClick(clickedElement)
-  } else if (counter9 === 1) {
-    secondClick(clickedElement, 9)
-  } else if (counter9 === 2) {
-    thirdClick(clickedElement, 9)
-    counter9 = -1
-  }
-  counter9++
-})
-
-var counter10 = 0
-// Add click event to row numbers and allow selecting of the whole row
-$('#legend10').click(function () {
-  var clickedElement = $(this)
-  if (counter10 === 0) {
-    firstClick(clickedElement)
-  } else if (counter10 === 1) {
-    secondClick(clickedElement, 10)
-  } else if (counter10 === 2) {
-    thirdClick(clickedElement, 10)
-    counter10 = -1
-  }
-  counter10++
+$('#gridTable td:first-child').each(function () {
+  var tempSelected = [] // store selected items before highlighting row
+  var tempSelected1 = []
+  var clickCount = 1 // count the number of clicks
+  $(this).on('click', function () {
+    var clickedElement = $(this)
+    var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
+    if (clickCount === 1) {
+      firstClick(clickedElement)
+      clickCount = 2
+    } else if (clickCount === 2) {
+      $(this).siblings().each(function () {
+        if ($(this).hasClass('selected')) {
+          var temp2 = $(this).text()
+          tempSelected.push(temp2)
+        }
+      })
+      if (type === 'letters' && screenSize === 'small') {
+        $(this).closest('tr').next('tr').children().each(function () {
+          if ($(this).hasClass('selected')) {
+            var temp2 = $(this).text()
+            tempSelected1.push(temp2)
+          }
+        })
+      }
+      secondClick(clickedElement, rowIndex)
+      clickCount = 3
+    } else if (clickCount === 3) {
+      thirdClick(clickedElement, tempSelected, tempSelected1)
+      clickCount = 1
+      tempSelected = []
+      tempSelected1 = []
+    }
+  })
 })
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
@@ -780,6 +366,11 @@ if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true
     startStopTimer()
   } else {
     makeActive()
+    if (prevPaused === 1) {
+      timerRunning = true
+      pause = 1
+      startStopTimer()
+    }
   }
 }
 
@@ -790,97 +381,92 @@ function myFunction (x) {
     screenSize = 'small'
   }
 }
+// var choicesLength = checkAllAnswered()
 // Function to create the grid. Takes a list of choices.
 function createGrid (keys) {
   var counter = 0 // Keep track of which choice is being referenced.
-  var fieldsetClass
-  var rowCount
-  // var span = document.createElement('span')
+  var span
+  var txlbl
+  var text
+  var itemValue
+  var itemClass
+  // rowCount
   if (allAnswered != null) {
     rowCount = keys.length - 1
   } else {
     rowCount = keys.length
   }
-  // Loop through list of choices.
-  for (var i = 0; i < rowCount / columns; i++) {
-    var fieldset = document.createElement('section') // Creates a section element. Each section is the equivalent of a row.
-    var tracker = i + 1 // tracker used for numbering the sections.
-    if (type !== 'reading') { // applies to letter and word tests.
-      var legend = document.createElement('h1') // Create h1 element to label the row.
-      var legendId = 'legend' + tracker // Create and id for the legend based on the section number (tracker).
-      legend.setAttribute('id', legendId) // Sets the id for the legend.
-      var text1 = '(' + tracker + ')' // Add the row number.
-      var legendText = document.createTextNode(text1) // Create text element for the row number.
-      legend.appendChild(legendText) // Add the text to the legend.
-      fieldset.appendChild(legend) // Add the legend to the fieldset.
-      var fieldsetId = 'fieldset' + tracker // Create id for the section.
-      if (screenSize === 'small' && type === 'letters') { // for small screens and the letter test.
-        fieldsetClass = 'sm' + tracker // CSS class to be applied.
-        if (tracker > 2) { // checker whether there are two rows displayed already.
-          fieldset.classList.add('hidden') // Hide all other rows except the first two.
-        }
-      } else if (screenSize === 'small' && type === 'words') { // for small screen and the words test.
-        fieldsetClass = 'lg' + tracker // CSS class to be applied.
-        if (tracker > 4) { // check whether there are four rows displayed.
-          fieldset.classList.add('hidden') // Hide all other rows except the first four.
-          nextButton.classList.remove('hideButton') // hide next button.
-          finishButton.classList.add('hidden')
-        } else {
-          nextButton.classList.add('hideButton') // hide next button.
-          finishButton.classList.remove('hidden')
-        }
-      } else if (screenSize === 'medium') { // this is really a large screen for the words test *NEED TO RENAME THIS*
-        fieldsetClass = 'ms' + tracker // CSS class to be applied.
-        nextButton.classList.add('hideButton') // Hide the next button.
-        finishButton.classList.remove('hidden') // Show the finish button.
-      } else if (screenSize === 'large') { // this is for a large screen.
-        fieldsetClass = 'lg' + tracker // CSS class to be applied.
-        nextButton.classList.add('hideButton') // Hide the next button.
-        finishButton.classList.remove('hidden') // Show the finish button.
-      }
-      fieldset.setAttribute('id', fieldsetId) // Create id for the section.
-      fieldset.classList.add(fieldsetClass, 'fieldset') // Add the fieldset CSS class to the section.
-    } else {
-      if (isNumber === 2) {
-        // fieldset.classList.add('pgNumber')
-      } else {
-        fieldset.classList.add('pg') // Add the pg CSS class to the section for reading test on large screen.
-      }
-      if (screenSize !== 'small') {
-        finishButton.classList.remove('hidden') // Show the button.
-      }
-    }
-    for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
-      if (counter !== checkAllAnswered()) {
-        secondDIV = document.createElement('div') // Create the div element.
-        var span = document.createElement('span')
-        var text = document.createTextNode(choices[counter].CHOICE_LABEL) // Get the label of the text.
-        var itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
-        var itemClass = 'item' + itemValue // CSS class to be applied.
-        secondDIV.classList.add('box', itemClass) // Add CSS class.
-        if (type === 'reading') { // for the reading test.
-          nextButton.classList.add('hideButton')
+
+  if (type === 'reading') {
+    // Add the row to main container.
+    for (var i = 0; i < rowCount / columns; i++) {
+      var fieldset = document.createElement('div') // Creates a section element. Each section is the equivalent of a row.
+      fieldset.setAttribute('class', 'pg')
+      for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
+        if (counter !== checkAllAnswered()) {
+          secondDIV = document.createElement('div') // Create the div element.
+          span = document.createElement('span')
+          txlbl = choices[counter].CHOICE_LABEL // Add the label.
+          text = document.createTextNode(txlbl) // Get the label of the text.
+          itemValue = counter + 1 // Start numbering the items at 1 instead of 0.
+          itemClass = 'item' + itemValue // CSS class to be applied.
+          secondDIV.classList.add('box', itemClass) // Add CSS class.
           secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-          var textLabel = choices[counter].CHOICE_LABEL // Add the label.
-          for (var ch of textLabel) {
+          for (var ch of txlbl) {
             if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
               secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
               span.classList.add('disabled')
             }
           }
+          choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+          counter++ // increment counter.
+          span.appendChild(text)
+          secondDIV.appendChild(span) // add the text to the div.
+          fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
         }
-        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-        counter++ // increment counter.
-        // var span = document.createElement('span')
-        span.appendChild(text)
-        secondDIV.appendChild(span) // add the text to the div.
-        // $(secondDIV).textfill({
-        //   widthOnly: true
-        // })
-        fieldset.appendChild(secondDIV) // add the div to the fieldset (row).
+      }
+      div.appendChild(fieldset) // Add the row to main container.
+    }
+  } else {
+    if (screenSize !== 'small') {
+      $('#nextButton').addClass('hideButton')
+    }
+    var m = 0
+    var numOfRows = Math.ceil(rowCount / columns)
+    var table = '<table id="gridTable" class="gridTable">'
+    for (var i = 1; i <= numOfRows; i++) {
+      table += '<tr>'
+      if (screenSize !== 'small' || type !== 'letters') {
+        table += '<td class="count">' + '(' + i + ')' + '</td>'
+      } else if (i % 2 === 1 && type === 'letters' && screenSize === 'small') {
+        m = m + 1
+        table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
+      }
+      for (var j = 1; j <= columns; j++) {
+        if (i === 0) {
+          var h = ' id = head' + j
+          var hId = '<th' + h + '></th>'
+          table += hId
+        } else {
+          if (counter === checkAllAnswered()) {
+            break
+          }
+          var item = 'item' + (counter + 1)
+          var td = '<td class="box ' + item + '"' + '><span>'
+          table += td
+          table += choices[counter].CHOICE_LABEL
+          table += '</span></td>'
+          choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+          counter++
+        }
+      }
+      table += '</tr>'
+      if (i === 0) {
+        table += '</thead>'
       }
     }
-    div.appendChild(fieldset) // Add the row to main container.
+    table += '</table>'
+    div.innerHTML = table // Add the row to main container.
   }
   if (isNumber === 2) {
     div.classList.add('pgNumber')
@@ -903,25 +489,36 @@ function passagePaging (pageArray, isPage) {
 function firstClick (clickedElement) {
   clickedElement.text('(?)') // Show question mark on first click.
 }
-
+var rowCounter = 0
+var tempRows = Math.ceil(rowCount / columns)
 function secondClick (clickedElement, rowNumber) {
-  clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
-  var rowId = '#fieldset' + rowNumber // Get the id of the section identified by this row number.
-  var nodes = document.querySelector(rowId).childNodes
-  for (var b = 0; b < nodes.length; b++) {
-    if (nodes[b].nodeName.toLowerCase() === 'div') {
-      nodes[b].classList.add('selected') // Mark all items in this row as selected.
+  for (var i = 1; i < tempRows; i + 2) {
+    if (rowNumber === i) {
+      rowNumber = rowNumber - rowCounter
     }
+    i = i + 2
+    rowCounter++
   }
+  clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
+  clickedElement.siblings().addClass('selected')
+  if (type === 'letters' && screenSize === 'small') {
+    clickedElement.closest('tr').next('tr').children().addClass('selected')
+  }
+  rowCounter = 0
 }
 
-function thirdClick (clickedElement, rowNumber) {
-  var rowId = '#fieldset' + rowNumber // Get the id of the section identified by this row number.
-  var nodes = document.querySelector(rowId).childNodes
-  for (var b = 0; b < nodes.length; b++) {
-    if (nodes[b].nodeName.toLowerCase() === 'div') {
-      nodes[b].classList.remove('selected') // Remove the selected class from all items in the row.
+function thirdClick (clickedElement, row, row1) {
+  clickedElement.siblings().each(function () {
+    if ($.inArray($(this).text(), row) < 0) {
+      $(this).removeClass('selected')
     }
+  })
+  if (type === 'letters' && screenSize === 'small') {
+    clickedElement.closest('tr').next('tr').children().each(function () {
+      if ($.inArray($(this).text(), row1) < 0) {
+        $(this).removeClass('selected')
+      }
+    })
   }
 }
 
@@ -933,7 +530,7 @@ function timer () { // Timer function.
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + '|' + selectedItems // Save progress whilst the timer is running.
+    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer)
   }
   if (timeLeft <= 0) {
@@ -954,9 +551,11 @@ function startStopTimer () {
     timerRunning = false // Pause the timer.
     playIcon.style.display = ''
     pauseIcon.style.display = 'none'
+    paused = 1
     makeInActive()
   } else {
     makeActive()
+    paused = 0
     startTime = Date.now() - timePassed
     timerRunning = true // Start the timer.
     playIcon.style.display = 'none'
@@ -1000,7 +599,6 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
-  console.log('Item clicked')
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
@@ -1011,14 +609,10 @@ function itemClicked (item, itemIndex) {
       }
     } else {
       classes.add('selected')
-      // if (itemCounter <= 9) { // Check number of items selected.
-      // itemCounter++
       if ($.inArray(itemIndex, items) < 0) {
         items.push(itemIndex) // Add selected items to array.
       }
     }
-    console.log('firstten is ' + firstTenItems)
-    console.log('items is ' + items)
     var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
     if (isSame) {
       timerRunning = false // Stop timer
@@ -1026,7 +620,6 @@ function itemClicked (item, itemIndex) {
       openIncorrectItemsModal() // Inform user of wrong responses.
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
-    console.log('Selecting last letter')
     if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
       modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
       firstModalButton.innerText = 'Okay'
@@ -1073,7 +666,6 @@ function clearAnswer () {
 
 // set the results to published
 function setResult () {
-  console.log('Last index is ' + lastSelectedIndex)
   if (finishEarly === 0) {
     totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
   } else {
@@ -1091,7 +683,6 @@ function setResult () {
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
   }
-  console.log('Total Items is ' + totalItems)
   var splitselectedItems = selectedItems.split(' ') // Create array of selected items.
   var incorrectItems = splitselectedItems.length // Number of incorrect items attempted
   arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
@@ -1102,14 +693,15 @@ function setResult () {
     notAnsweredItemsArray = arrayValues.slice(totalItems + punctuationCount, arrayValues.length)
     notAnsweredItemsArray = $.grep(notAnsweredItemsArray, function (value) { return $.inArray(value, punctuationArray) < 0 })
   }
-  if (notAnsweredItemsArray[notAnsweredItemsArray.length - 1] == allAnswered) {
+  var notAnsweredItemsArrayLength = notAnsweredItemsArray.length
+  if (notAnsweredItemsArray[notAnsweredItemsArrayLength - 1] == allAnswered) {
     notAnsweredItemsArray.pop() // Remove last item from the array.
   }
   var notAnsweredItemsList = notAnsweredItemsArray.join(' ')
-  if (notAnsweredItemsArray.length === 1 && notAnsweredItemsArray[0] == allAnswered) {
+  if (notAnsweredItemsArrayLength === 1 && notAnsweredItemsArray[0] == allAnswered) {
     notAnsweredItemsList = ''
   }
-  if (type === 'reading' && notAnsweredItemsArray.length === punctuationCount) {
+  if (type === 'reading' && notAnsweredItemsArrayLength === punctuationCount) {
     notAnsweredItemsList = ''
   }
   var correctItemsArray = $.grep(correctIncorrectArray, function (value) { return $.inArray(value, splitselectedItems) < 0 })
@@ -1155,11 +747,11 @@ function pageReading () {
       }
     }
   })
+  resizeText()
 }
 
 // Incorrect last item modal
 function openExtraItemsModal () {
-  console.log('Test')
   modalContent.innerHTML = 'Make any corrections now. Tap the <strong>Finished</strong> button when you are finished.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -1171,7 +763,7 @@ function openExtraItemsModal () {
 }
 // Thank you note modal
 function openThankYouModal () {
-  modalContent.innerText = 'Thank you! You can continue. Tap on Test Complete or the Next button below.' // Text to display on the modal.
+  modalContent.innerHTML = 'Thank you! You can continue. <br> Tap on Test Complete.' // Text to display on the modal.
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
   firstModalButton.style.width = '100%'
@@ -1189,9 +781,7 @@ function openLastItemModal () {
   // DISABLE HERE
   selectedItems = getSelectedItems()
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  console.log('selected items is ' + selectedItemsArray)
   var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
-  console.log('before last clicked ' + beforeLastClicked)
   for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
     thisBox.classList.add('disabled')
@@ -1313,8 +903,6 @@ function makeActive () {
       box.addEventListener('click', boxHandler, false) // Make it clickable.
       box.classList.remove('disabled')
     }
-    // box.addEventListener('click', boxHandler, false) // Make all buttons unselectable.
-    // box.classList.remove('disabled')
   })
 }
 
@@ -1356,251 +944,108 @@ function checkAllAnswered () {
   return choiceListLength
 }
 
-// Paging for letter and word tests that have already started or have been completed.
-function updateGrid () {
-  var fieldset1 = document.querySelector('#fieldset1')
-  var fieldset2 = document.querySelector('#fieldset2')
-  var fieldset3 = document.querySelector('#fieldset3')
-  var fieldset4 = document.querySelector('#fieldset4')
-  var fieldset5 = document.querySelector('#fieldset5')
-  var fieldset6 = document.querySelector('#fieldset6')
-  var fieldset7 = document.querySelector('#fieldset7')
-  var fieldset8 = document.querySelector('#fieldset8')
-  var fieldset9 = document.querySelector('#fieldset9')
-  var fieldset10 = document.querySelector('#fieldset10')
-  if (previousSelectedItems != null) { // Check that the test has started.
-    if (type === 'letters' && screenSize === 'small' && continuity === 0) {
-      if (prevPageNumber === 1) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.remove('hidden')
-        fieldset4.classList.remove('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 2) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.remove('hidden')
-        fieldset6.classList.remove('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 3) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.remove('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 4) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.remove('hidden')
-        fieldset10.classList.remove('hidden')
-        hideFinishButton()
-        nextButton.classList.add('hideButton')
-        backButton.classList.remove('hideButton')
-      }
-    }
-    if (type === 'letters' && screenSize === 'small' && continuity === 1) {
-      if (prevPageNumber === 1) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.remove('hidden')
-        fieldset3.classList.remove('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 2) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.remove('hidden')
-        fieldset4.classList.remove('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 3) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.remove('hidden')
-        fieldset5.classList.remove('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 4) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.remove('hidden')
-        fieldset6.classList.remove('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 5) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.remove('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 6) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.remove('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 7) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.remove('hidden')
-        fieldset9.classList.remove('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 8) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.remove('hidden')
-        fieldset10.classList.add('hidden')
-        hideFinishButton()
-        backButton.classList.remove('hideButton')
-      }
-    }
-    if (type === 'words' && screenSize === 'small' && continuity === 0) {
-      if (prevPageNumber === 1) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.remove('hidden')
-        fieldset6.classList.remove('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.remove('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 2) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.add('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.remove('hidden')
-        fieldset10.classList.remove('hidden')
-        hideFinishButton()
-        nextButton.classList.add('hideButton')
-        backButton.classList.remove('hideButton')
-      }
-    }
-    if (type === 'words' && screenSize === 'small' && continuity === 1) {
-      if (prevPageNumber === 1) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.remove('hidden')
-        fieldset5.classList.remove('hidden')
-        fieldset6.classList.remove('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.add('hidden')
-        fieldset9.classList.add('hidden')
-        fieldset10.classList.add('hidden')
-        nextButton.classList.remove('hideButton')
-        backButton.classList.remove('hideButton')
-      } else if (prevPageNumber === 2) {
-        fieldset1.classList.add('hidden')
-        fieldset2.classList.add('hidden')
-        fieldset3.classList.add('hidden')
-        fieldset4.classList.add('hidden')
-        fieldset5.classList.add('hidden')
-        fieldset6.classList.add('hidden')
-        fieldset7.classList.remove('hidden')
-        fieldset8.classList.remove('hidden')
-        fieldset9.classList.remove('hidden')
-        fieldset10.classList.remove('hidden')
-        hideFinishButton()
-        nextButton.classList.add('hideButton')
-        backButton.classList.remove('hideButton')
-      }
-    }
-  }
-  resizeText()
-}
-
 function moveForward () {
   button.innerHTML = 'Test complete'
   button.onclick = function () {
     goToNextField()
-    console.log('Test complete')
+  }
+}
+
+// Resize the text to fit the button
+function resizeText () {
+  gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  var i // Temporary counter
+  var tempItemClass
+  var tempLength = gridItems.length
+  // Loop through all the buttons
+  for (i = 1; i <= tempLength; i++) {
+    tempItemClass = '.' + 'item' + i // Get the item (button) class to refer to individual buttons
+    $(tempItemClass).textfill({ // Use the textfill.js library to resize the button text.
+      widthOnly: true, // Resize only text width
+      maxFontPixels: 28 // Set maximum font size
+    })
+  }
+}
+
+function addPagination () {
+  if (type !== 'reading') {
+    var rowsShown = numberOfRows
+    var rowsTotal = $('#gridTable tbody tr').length
+    var numPages = Math.ceil(rowsTotal / rowsShown)
+    var currPage1 = pageNumber
+    var startItem1 = currPage1 * rowsShown
+    var endItem1 = startItem1 + rowsShown
+    $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem1, endItem1).css('display', 'table-row').animate({ opacity: 1 }, 300)
+    checkPage(pageNumber, numPages)
+    resizeText()
+  }
+
+  $('#nextButton').on('click', function (e) {
+    pageNumber++
+    if (type !== 'reading') {
+      var currPage = pageNumber
+      var startItem = currPage * rowsShown
+      var endItem = startItem + rowsShown
+      $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+      checkPage(pageNumber, numPages)
+    } else {
+      backButton.classList.remove('hideButton') // Make back button visible on click.
+      aStart++
+      aEnd++
+      pageReading()
+    }
+    resizeText()
+  })
+
+  $('#backButton').on('click', function (e) {
+    pageNumber--
+    if (type !== 'reading') {
+      var currPage = pageNumber
+      var startItem = currPage * rowsShown
+      var endItem = startItem + rowsShown
+      $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
+      checkPage(pageNumber, numPages)
+    } else {
+      nextButton.classList.remove('hideButton') // Show the next button.
+      finishButton.classList.add('hidden') // Hide the next button.
+      aStart--
+      aEnd--
+      $.map(gridItems, function (box) {
+        var temp1 = parseInt(box.classList.item(1).slice(4))
+        if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
+          box.classList.add('hidden')
+        }
+        if (temp1 >= parseInt(pageArr[aStart]) && ((temp1 < parseInt(pageArr[aEnd])) || (pageArr[aEnd] === undefined))) {
+          box.classList.remove('hidden')
+        }
+        if (pageArr[aStart] === undefined) {
+          backButton.classList.add('hideButton')
+          if (temp1 >= parseInt(pageArr[0])) {
+            box.classList.add('hidden')
+          }
+          if (temp1 < parseInt(pageArr[0])) {
+            box.classList.remove('hidden')
+          }
+        }
+      })
+    }
+    resizeText()
+  })
+}
+
+function checkPage (pagNum, numPages) {
+  if (pagNum === 0) {
+    $('#nextButton').removeClass('hideButton')
+    $('#backButton').addClass('hideButton')
+    $('#finishButton').addClass('hidden')
+  } else if (pagNum === numPages - 1) {
+    $('#nextButton').addClass('hideButton')
+    $('#backButton').removeClass('hideButton')
+    $('#finishButton').removeClass('hidden')
+  } else {
+    $('#nextButton').removeClass('hideButton')
+    $('#backButton').removeClass('hideButton')
+    $('#finishButton').addClass('hidden')
   }
 }
 
