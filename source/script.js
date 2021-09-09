@@ -1048,3 +1048,17 @@ function checkPage (pagNum, numPages) {
     $('#finishButton').addClass('hidden')
   }
 }
+
+// Resize the text to fit the button
+function resizeText () {
+  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
+  var i // Temporary counter
+  // Loop through all the buttons
+  for (i = 1; i <= gridItems.length; i++) {
+    var tempItemClass = '.' + 'item' + i // Get the item (button) class to refer to individual buttons
+    $(tempItemClass).textfill({ // Use the textfill.js library to resize the button text.
+      widthOnly: true, // Resize only text width
+      maxFontPixels: 28 // Set maximum font size
+    })
+  }
+}
