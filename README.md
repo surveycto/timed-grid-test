@@ -9,7 +9,7 @@
 This field plug-in is designed to help execute timed tests and assessments, where buttons are arranged in grid format. In particular, timed-grid-test is optimal for executing educational assessments like the Early Grade Reading Assessment (EGRA) and the Early Grade Mathematics Assessment (EGMA) on SurveyCTO. See features for a list of supported tests.
 
 
-[![Download now](extras/beta-release-download.jpg)](https://github.com/surveycto/timed-grid-test/raw/master/timed-grid-test.fieldplugin.zip)
+[![Download now](download-button.png)](https://github.com/surveycto/timed-grid-test/raw/master/timed-grid-test.fieldplugin.zip)
 
 ### Features
 
