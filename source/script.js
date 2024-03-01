@@ -8,6 +8,10 @@ var type = getPluginParameter('type')
 var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
 var numberOfRows = getPluginParameter('page-rows')
+var getRTL = getPluginParameter('rtl')
+if(getRTL === 1) {
+  var isRTL = 1
+}
 
 var previousMetaData = getMetaData() // Load Metadata.
 
@@ -68,9 +72,6 @@ var x = window.matchMedia('(max-width: 550px)')
 myFunction(x)
 x.addListener(myFunction)
 // end window size check and assignment.
-
-// For testing purposes!
-// screenSize = 'small'
 
 // Set parameter default values.
 if (duration == null) {
@@ -402,6 +403,10 @@ function createGrid (keys) {
     for (var i = 0; i < rowCount / columns; i++) {
       var fieldset = document.createElement('div') // Creates a section element. Each section is the equivalent of a row.
       fieldset.setAttribute('class', 'pg')
+      if (isRTL === 1) {
+        console.log('Add div RTL')
+        fieldset.dir = "rtl";
+      }
       for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
         if (counter !== checkAllAnswered()) {
           secondDIV = document.createElement('div') // Create the div element.
@@ -412,6 +417,9 @@ function createGrid (keys) {
           itemClass = 'item' + itemValue // CSS class to be applied.
           secondDIV.classList.add('box', itemClass) // Add CSS class.
           secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
+          if(isRTL === 1) {
+            secondDIV.style.float = 'right';
+          }
           for (var ch of txlbl) {
             if ($.inArray(ch, marks) !== -1) { // Check if the label is a punctuation mark.
               secondDIV.classList.add('pmBox') // Add the pmBox class to punctuation marks.
@@ -426,6 +434,7 @@ function createGrid (keys) {
         }
       }
       div.appendChild(fieldset) // Add the row to main container.
+      
     }
   } else {
     if (screenSize !== 'small') {
@@ -470,6 +479,10 @@ function createGrid (keys) {
   }
   if (isNumber === 2) {
     div.classList.add('pgNumber')
+  }
+  if (isRTL === 1) {
+    console.log('Add div RTL')
+    div.dir = "rtl";
   }
   return true
 }
@@ -1061,4 +1074,13 @@ function resizeText () {
       maxFontPixels: 28 // Set maximum font size
     })
   }
+}
+
+// Detect right-to-left languages
+function isRTL(s){
+  var ltrChars    = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
+      rtlChars    = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+      rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
+
+  return rtlDirCheck.test(s);
 }
