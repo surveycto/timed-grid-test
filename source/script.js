@@ -8,8 +8,9 @@ var type = getPluginParameter('type')
 var finishParameter = getPluginParameter('finish')
 var allAnswered = getPluginParameter('all-answered')
 var numberOfRows = getPluginParameter('page-rows')
-var getRTL = getPluginParameter('rtl')
-if(getRTL === 1) {
+var getDirection = getPluginParameter('direction')
+
+if ((fieldProperties.LANGUAGE !== null && isRTL(fieldProperties.LANGUAGE)) || getDirection === 'rtl') {
   var isRTL = 1
 }
 
