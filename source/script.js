@@ -10,6 +10,7 @@ var allAnswered = getPluginParameter('all-answered')
 var numberOfRows = getPluginParameter('page-rows')
 var getDirection = getPluginParameter('direction')
 
+// Check the language property
 if ((fieldProperties.LANGUAGE !== null && isRTL(fieldProperties.LANGUAGE)) || getDirection === 'rtl') {
   var isRTL = 1
 }
@@ -387,6 +388,9 @@ if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true
 function myFunction (x) {
   if (x.matches) {
     screenSize = 'small'
+    if(isRTL === 1) {
+      screenSize = 'large'
+    }
   }
 }
 // var choicesLength = checkAllAnswered()
