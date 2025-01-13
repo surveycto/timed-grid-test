@@ -332,41 +332,84 @@ $('#finishButton').click(function () {
   }
 })
 
-$('#gridTable td:first-child').each(function () {
-  var tempSelected = [] // store selected items before highlighting row
-  var tempSelected1 = []
-  var clickCount = 1 // count the number of clicks
+// $('#gridTable td:first-child').each(function () {
+//   var tempSelected = [] // store selected items before highlighting row
+//   var tempSelected1 = []
+//   var clickCount = 1 // count the number of clicks
+//   $(this).on('click', function () {
+//     var clickedElement = $(this)
+//     var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
+//     if (clickCount === 1) {
+//       firstClick(clickedElement)
+//       clickCount = 2
+//     } else if (clickCount === 2) {
+//       $(this).siblings().each(function () {
+//         if ($(this).hasClass('selected')) {
+//           var temp2 = $(this).text()
+//           tempSelected.push(temp2)
+//         }
+//       })
+//       if (type === 'letters' && screenSize === 'small') {
+//         $(this).closest('tr').next('tr').children().each(function () {
+//           if ($(this).hasClass('selected')) {
+//             var temp2 = $(this).text()
+//             tempSelected1.push(temp2)
+//           }
+//         })
+//       }
+//       secondClick(clickedElement, rowIndex)
+//       clickCount = 3
+//     } else if (clickCount === 3) {
+//       thirdClick(clickedElement, tempSelected, tempSelected1)
+//       clickCount = 1
+//       tempSelected = []
+//       tempSelected1 = []
+//     }
+//   })
+// })
+
+$('#gridTable td.count').each(function () {
+  // We track how many times *this particular label cell* has been clicked
+  let clickCount = 1;
+  let tempSelected = [];
+  let tempSelected1 = [];
+
   $(this).on('click', function () {
-    var clickedElement = $(this)
-    var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
+    const clickedElement = $(this);
+    // Grab the “logical row index” from the data attribute
+    const rowNumber = parseInt(clickedElement.attr('data-row-index'), 10);
+
     if (clickCount === 1) {
-      firstClick(clickedElement)
-      clickCount = 2
+      firstClick(clickedElement);
+      clickCount = 2;
     } else if (clickCount === 2) {
-      $(this).siblings().each(function () {
+      // Gather selected items so we can revert them later (on 3rd click)
+      tempSelected = [];
+      tempSelected1 = [];
+
+      // In the same `<tr>`:
+      clickedElement.siblings().each(function () {
         if ($(this).hasClass('selected')) {
-          var temp2 = $(this).text()
-          tempSelected.push(temp2)
+          tempSelected.push($(this).text());
         }
-      })
+      });
+      // If “letters + small screen,” also handle the next row
       if (type === 'letters' && screenSize === 'small') {
-        $(this).closest('tr').next('tr').children().each(function () {
+        clickedElement.closest('tr').next('tr').children().each(function () {
           if ($(this).hasClass('selected')) {
-            var temp2 = $(this).text()
-            tempSelected1.push(temp2)
+            tempSelected1.push($(this).text());
           }
-        })
+        });
       }
-      secondClick(clickedElement, rowIndex)
-      clickCount = 3
-    } else if (clickCount === 3) {
-      thirdClick(clickedElement, tempSelected, tempSelected1)
-      clickCount = 1
-      tempSelected = []
-      tempSelected1 = []
+
+      secondClick(clickedElement, rowNumber);
+      clickCount = 3;
+    } else {
+      thirdClick(clickedElement, tempSelected, tempSelected1);
+      clickCount = 1; // reset
     }
-  })
-})
+  });
+});
 
 if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
   makeInActive() // Make all buttons inactive
@@ -456,10 +499,12 @@ function createGrid (keys) {
     for (var i = 1; i <= numOfRows; i++) {
       table += '<tr>'
       if (screenSize !== 'small' || type !== 'letters') {
-        table += '<td class="count">' + '(' + i + ')' + '</td>'
+        // table += '<td class="count">' + '(' + i + ')' + '</td>'
+        table += '<td class="count" data-row-index="' + i + '">(' + i + ')</td>'
       } else if (i % 2 === 1 && type === 'letters' && screenSize === 'small') {
         m = m + 1
-        table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
+        // table += '<td rowspan="2" class="count">' + '(' + m + ')' + '</td>'
+        table += '<td rowspan="2" class="count" data-row-index="' + m + '">(' + m + ')</td>'
       }
       for (var j = 1; j <= columns; j++) {
         if (i === 0) {
@@ -508,39 +553,79 @@ function passagePaging (pageArray, isPage) {
 }
 
 // Click events for the row labels
-function firstClick (clickedElement) {
-  clickedElement.text('(?)') // Show question mark on first click.
-}
-var rowCounter = 0
-var tempRows = Math.ceil(rowCount / columns)
-function secondClick (clickedElement, rowNumber) {
-  for (var i = 1; i < tempRows; i + 2) {
-    if (rowNumber === i) {
-      rowNumber = rowNumber - rowCounter
-    }
-    i = i + 2
-    rowCounter++
-  }
-  clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
-  clickedElement.siblings().addClass('selected')
-  if (type === 'letters' && screenSize === 'small') {
-    clickedElement.closest('tr').next('tr').children().addClass('selected')
-  }
-  rowCounter = 0
+// function firstClick (clickedElement) {
+//   clickedElement.text('(?)') // Show question mark on first click.
+// }
+// var rowCounter = 0
+// var tempRows = Math.ceil(rowCount / columns)
+// function secondClick (clickedElement, rowNumber) {
+//   for (var i = 1; i < tempRows; i + 2) {
+//     if (rowNumber === i) {
+//       rowNumber = rowNumber - rowCounter
+//     }
+//     i = i + 2
+//     rowCounter++
+//   }
+//   clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
+//   clickedElement.siblings().addClass('selected')
+//   if (type === 'letters' && screenSize === 'small') {
+//     clickedElement.closest('tr').next('tr').children().addClass('selected')
+//   }
+//   rowCounter = 0
+// }
+
+// function thirdClick (clickedElement, row, row1) {
+//   clickedElement.siblings().each(function () {
+//     if ($.inArray($(this).text(), row) < 0) {
+//       $(this).removeClass('selected')
+//     }
+//   })
+//   if (type === 'letters' && screenSize === 'small') {
+//     clickedElement.closest('tr').next('tr').children().each(function () {
+//       if ($.inArray($(this).text(), row1) < 0) {
+//         $(this).removeClass('selected')
+//       }
+//     })
+//   }
+// }
+
+function firstClick(clickedElement) {
+  // Show (?) when first clicked
+  clickedElement.text('(?)');
 }
 
-function thirdClick (clickedElement, row, row1) {
-  clickedElement.siblings().each(function () {
-    if ($.inArray($(this).text(), row) < 0) {
-      $(this).removeClass('selected')
-    }
-  })
+function secondClick(clickedElement, rowNumber) {
+  // Replace (?) with rowNumber and select all siblings
+  clickedElement.text('(' + rowNumber + ')');
+  clickedElement.siblings().addClass('selected');
+
+  // If letters + small screen, select the next row’s siblings
   if (type === 'letters' && screenSize === 'small') {
-    clickedElement.closest('tr').next('tr').children().each(function () {
-      if ($.inArray($(this).text(), row1) < 0) {
-        $(this).removeClass('selected')
-      }
-    })
+    clickedElement.closest('tr')
+      .next('tr')
+      .children()
+      .addClass('selected');
+  }
+}
+
+function thirdClick(clickedElement, tempSelected, tempSelected1) {
+  // Deselect anything that wasn’t in tempSelected
+  clickedElement.siblings().each(function () {
+    if (!tempSelected.includes($(this).text())) {
+      $(this).removeClass('selected');
+    }
+  });
+
+  // If letters + small screen, similarly revert next row
+  if (type === 'letters' && screenSize === 'small') {
+    clickedElement.closest('tr')
+      .next('tr')
+      .children()
+      .each(function () {
+        if (!tempSelected1.includes($(this).text())) {
+          $(this).removeClass('selected');
+        }
+      });
   }
 }
 
