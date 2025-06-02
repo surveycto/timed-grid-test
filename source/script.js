@@ -643,7 +643,7 @@ function itemClicked (item, itemIndex) {
     }
   } else if (timeLeft === 0 && extraItems === 0) { // This is for selecting the last letter, and it will be used at the very end.
     if (item.classList.contains('disabled')) { // Shows modal warning user that that item cannot be selected
-      modalContent.innerText = 'Either pick the last incorrect item, or one after that.'
+      modalContent.innerText = 'Please mark the last attempted item and ensure no other items are marked after it.'
       firstModalButton.innerText = 'Okay'
       secondModalButton.classList.add('hidden')
       firstModalButton.style.width = '100%'
