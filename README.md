@@ -31,7 +31,7 @@ For EGRA, the following subtasks are possible:
 * Nonword reading
 * Oral reading fluency with comprehension
 
-For details on these tests, please consult the [USAID EGRA Toolkit](https://pdf.usaid.gov/pdf_docs/PA00M4TN.pdf). Also see the [Support Center Guide to EGRA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052796233).
+For details on these tests, see the [Support Center Guide to EGRA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052796233).
 
 In the case of EGMA, this field plug-in can be used for these subtasks:
 
@@ -39,7 +39,7 @@ In the case of EGMA, this field plug-in can be used for these subtasks:
 * Addition Level 1
 * Subtraction Level 1
 
-For details on these tests, please consult the [USAID EGMA Toolkit](https://ierc-publicfiles.s3.amazonaws.com/public/resources/EGMA%20Toolkit_March2014.pdf). Also see the [Support Center Guide to EGMA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052750634).
+For details on these tests, see the [Support Center Guide to EGMA on SurveyCTO](https://support.surveycto.com/hc/en-us/articles/360052750634).
 
 The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master/README.md) field plug-in is also useful for certain EGRA and EGMA subtasks.
 
