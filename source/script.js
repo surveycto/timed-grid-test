@@ -173,7 +173,9 @@ if (endAfter == null && type === 'letters') {
 
 // Parse milestones parameter (comma-separated seconds, e.g., "60" or "60,120")
 if (milestonesParam != null && milestonesParam !== '') {
-  milestones = milestonesParam.split(',').map(function (s) {
+  // Convert to string in case it's passed as a number (e.g., milestones = 60)
+  var milestonesStr = String(milestonesParam)
+  milestones = milestonesStr.split(',').map(function (s) {
     return parseInt(s.trim(), 10) * 1000 // Convert to milliseconds
   }).filter(function (n) {
     return !isNaN(n) && n > 0
