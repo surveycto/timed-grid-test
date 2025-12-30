@@ -47,8 +47,6 @@ temp/
 # Build artifacts (if any)
 dist/
 build/
-*.min.js
-*.min.css
 
 # Environment files
 .env
