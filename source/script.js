@@ -10,6 +10,15 @@ var allAnswered = getPluginParameter('all-answered')
 var numberOfRows = getPluginParameter('page-rows')
 var getDirection = getPluginParameter('direction')
 
+// Milestone tracking parameters
+var milestonesParam = getPluginParameter('milestones')
+var milestones = [] // Array of milestone times in milliseconds
+var nextMilestoneIndex = 0 // Index of the next milestone to trigger
+var milestoneData = [] // Array to store captured milestone data
+var milestoneSelectionMode = false // Whether we're currently selecting a milestone item
+var currentMilestoneIndex = -1 // The milestone index being captured
+var milestoneVisualCue = true // Whether to show visual cue (red background) at milestone
+
 // Check the language property
 if ((fieldProperties.LANGUAGE !== null && isRTL(fieldProperties.LANGUAGE)) || getDirection === 'rtl') {
   var isRTL = 1
@@ -162,6 +171,17 @@ if (endAfter == null && type === 'letters') {
   endAfter = parseInt(endAfter)
 }
 
+// Parse milestones parameter (comma-separated seconds, e.g., "60" or "60,120")
+if (milestonesParam != null && milestonesParam !== '') {
+  milestones = milestonesParam.split(',').map(function (s) {
+    return parseInt(s.trim(), 10) * 1000 // Convert to milliseconds
+  }).filter(function (n) {
+    return !isNaN(n) && n > 0
+  }).sort(function (a, b) {
+    return a - b // Sort ascending
+  })
+}
+
 // Check if MetaData exists
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
@@ -209,6 +229,28 @@ if (previousMetaData !== null) {
   }
   previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
   items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
+
+  // Restore milestone data from metadata (positions 12+ contain milestone data)
+  // Each milestone uses 5 positions: seconds, lastIndex, totalItems, incorrect, correct
+  if (previousSelected.length > 12 && milestones.length > 0) {
+    var milestoneStartPos = 12
+    var milestonesRestored = 0
+    while (milestoneStartPos + 4 < previousSelected.length && milestonesRestored < milestones.length) {
+      var msSeconds = parseInt(previousSelected[milestoneStartPos])
+      if (!isNaN(msSeconds) && msSeconds > 0) {
+        milestoneData.push({
+          seconds: msSeconds,
+          lastIndex: parseInt(previousSelected[milestoneStartPos + 1]),
+          totalItems: parseInt(previousSelected[milestoneStartPos + 2]),
+          incorrect: parseInt(previousSelected[milestoneStartPos + 3]),
+          correct: parseInt(previousSelected[milestoneStartPos + 4])
+        })
+        milestonesRestored++
+        nextMilestoneIndex = milestonesRestored // Skip already-captured milestones
+      }
+      milestoneStartPos += 5
+    }
+  }
 }
 
 createGrid(choices) // Create a grid using the array of choices provided.
@@ -634,11 +676,19 @@ function timer () { // Timer function.
   if (timerRunning) { // For a running timer.
     timePassed = timeNow - startTime
     timeLeft = timeStart - timePassed
+
+    // Check for milestone triggers
+    if (milestones.length > nextMilestoneIndex && !milestoneSelectionMode) {
+      var elapsed = timePassed
+      if (elapsed >= milestones[nextMilestoneIndex]) {
+        triggerMilestone(nextMilestoneIndex)
+      }
+    }
   }
   selectedItems = getSelectedItems()
   if (complete !== 'true') { // For incomplete tests.
     currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems // Save progress whilst the timer is running.
-    setMetaData(currentAnswer)
+    setMetaData(currentAnswer + getMilestoneMetadataTail())
   }
   if (timeLeft <= 0) {
     endTimer() // End test if time is less than 0.
@@ -706,6 +756,36 @@ function endTimer () {
 }
 
 function itemClicked (item, itemIndex) {
+  // Handle milestone selection mode
+  if (milestoneSelectionMode) {
+    // Remove previous milestone selection highlight
+    for (var cell of gridItems) {
+      cell.classList.remove('milestoneSelected')
+    }
+    // Add milestone selection highlight to this item
+    item.classList.add('milestoneSelected')
+
+    // Save the milestone result
+    saveMilestoneResult(currentMilestoneIndex, itemIndex)
+
+    // Exit milestone selection mode
+    milestoneSelectionMode = false
+    currentMilestoneIndex = -1
+
+    // Remove visual cue (red background)
+    document.documentElement.style.removeProperty('--milestone-active')
+    document.body.classList.remove('milestone-active')
+
+    // Resume the timer
+    paused = 0
+    startTime = Date.now() - timePassed
+    timerRunning = true
+    playIcon.style.display = 'none'
+    pauseIcon.style.display = ''
+
+    return // Don't process as a normal click
+  }
+
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
@@ -816,7 +896,7 @@ function setResult () {
     incorrectItems = 0
   }
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
-  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount
+  var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount + getMilestoneMetadataTail()
   if (result != null) {
     var finalAnswer = []
     if (selectedItems.length === 0) {
@@ -1176,4 +1256,120 @@ function isRTL(s){
       rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
 
   return rtlDirCheck.test(s);
+}
+
+// ==================== MILESTONE TRACKING FUNCTIONS ====================
+
+// Trigger a milestone capture
+function triggerMilestone (milestoneIndex) {
+  // Pause the timer but don't end the test
+  timerRunning = false
+  paused = 1
+
+  // Store which milestone we're capturing
+  currentMilestoneIndex = milestoneIndex
+  nextMilestoneIndex = milestoneIndex + 1 // Move to next milestone
+
+  // Apply visual cue (red background like timeFlash)
+  if (milestoneVisualCue) {
+    document.body.classList.add('milestone-active')
+  }
+
+  // Calculate milestone time in seconds for display
+  var milestoneSeconds = milestones[milestoneIndex] / 1000
+
+  // Show modal with instructions
+  modalContent.innerHTML = '<strong>' + milestoneSeconds + ' seconds reached!</strong><br><br>' +
+    'Tap <strong>OK</strong>, then tap the <strong>last word read</strong> at ' + milestoneSeconds + ' seconds.<br><br>' +
+    '<em>The student can continue reading while you do this.</em>'
+  firstModalButton.innerText = 'OK'
+  secondModalButton.classList.add('hidden')
+  firstModalButton.style.width = '100%'
+  modal.style.display = 'block'
+
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    secondModalButton.classList.remove('hidden')
+    firstModalButton.style.width = '50%'
+    milestoneSelectionMode = true // Enable milestone selection mode
+  }
+}
+
+// Save milestone result with computed counts
+function saveMilestoneResult (milestoneIndex, milestoneLastIndex) {
+  var milestoneSeconds = milestones[milestoneIndex] / 1000
+
+  // Calculate total items attempted up to the milestone last index
+  var totalItemsAtMilestone = parseInt(milestoneLastIndex)
+
+  // Count punctuation marks up to this point (for reading type)
+  var localPunctuationCount = 0
+  if (type === 'reading') {
+    for (var x = 0; x < totalItemsAtMilestone; x++) {
+      var textLabel = choices[x].CHOICE_LABEL
+      if ($.inArray(textLabel, marks) !== -1) {
+        localPunctuationCount++
+      }
+    }
+    totalItemsAtMilestone = totalItemsAtMilestone - localPunctuationCount
+  }
+
+  // Get current selected (incorrect) items at this point
+  var currentSelectedItems = getSelectedItems()
+  var splitCurrentSelected = currentSelectedItems.split(' ')
+
+  // Count incorrect items that are within the milestone range
+  var incorrectAtMilestone = 0
+  if (currentSelectedItems.length > 0) {
+    for (var i = 0; i < splitCurrentSelected.length; i++) {
+      var itemPos = parseInt(splitCurrentSelected[i])
+      if (itemPos <= parseInt(milestoneLastIndex)) {
+        incorrectAtMilestone++
+      }
+    }
+  }
+
+  var correctAtMilestone = totalItemsAtMilestone - incorrectAtMilestone
+
+  // Store milestone data
+  milestoneData.push({
+    seconds: milestoneSeconds,
+    lastIndex: parseInt(milestoneLastIndex),
+    totalItems: totalItemsAtMilestone,
+    incorrect: incorrectAtMilestone,
+    correct: correctAtMilestone
+  })
+
+  // Immediately persist to metadata
+  var timeNow = Date.now()
+  var progress = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems
+  setMetaData(progress + getMilestoneMetadataTail())
+
+  // Show confirmation modal
+  modalContent.innerHTML = '<strong>Milestone captured!</strong><br><br>' +
+    'At ' + milestoneSeconds + ' seconds:<br>' +
+    '• Items attempted: ' + totalItemsAtMilestone + '<br>' +
+    '• Correct: ' + correctAtMilestone + '<br>' +
+    '• Incorrect: ' + incorrectAtMilestone + '<br><br>' +
+    '<em>Test will continue now.</em>'
+  firstModalButton.innerText = 'Continue'
+  secondModalButton.classList.add('hidden')
+  firstModalButton.style.width = '100%'
+  modal.style.display = 'block'
+
+  firstModalButton.onclick = function () {
+    modal.style.display = 'none'
+    secondModalButton.classList.remove('hidden')
+    firstModalButton.style.width = '50%'
+  }
+}
+
+// Generate milestone metadata tail string
+function getMilestoneMetadataTail () {
+  var tail = ''
+  for (var i = 0; i < milestoneData.length; i++) {
+    var ms = milestoneData[i]
+    tail += '|' + ms.seconds + '|' + ms.lastIndex + '|' + ms.totalItems + '|' + ms.incorrect + '|' + ms.correct
+  }
+  return tail
 }

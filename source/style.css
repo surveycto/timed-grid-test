@@ -1078,3 +1078,30 @@ hr {
 .selected.disabled {
   background-color: #e29f9a !important;
 }
+
+/* ==================== MILESTONE TRACKING STYLES ==================== */
+
+/* Visual cue when milestone is reached (red background like timeFlash) */
+.milestone-active {
+  background-color: #ffcccc !important;
+}
+
+.milestone-active .wrapper {
+  background-color: #ffcccc;
+  border: 3px solid #ff0000;
+  border-radius: 10px;
+  padding: 5px;
+}
+
+/* Milestone selected item indicator */
+.milestoneSelected {
+  background-color: #9b59b6 !important;
+  border: 3px dashed #8e44ad !important;
+  color: white !important;
+}
+
+/* Keep milestone selection visible even when disabled */
+.milestoneSelected.disabled {
+  background-color: #9b59b6 !important;
+  border: 3px dashed #8e44ad !important;
+}
