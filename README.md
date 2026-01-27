@@ -1,5 +1,3 @@
-
-
 # Timed grid test
 
 ![Screenshot](extras/egra-test.jpg)
@@ -47,7 +45,7 @@ The [timed-field-list](https://github.com/surveycto/timed-field-list/blob/master
 
 ### Data format
 
-This field plug-in supports the [*select_multiple* field type]([https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html)). The field stores the list of items selected, representing items marked incorrect, whilst other test data is stored in the field plug-in's metadata. The metadata is stored in a pipe-separated (|) list. For example:
+This field plug-in supports the [*select_multiple* field type](https://docs.surveycto.com/02-designing-forms/01-core-concepts/03i.field-types-select-multiple.html). The field stores the list of items selected, representing items marked incorrect, whilst other test data is stored in the field plug-in's metadata. The metadata is stored in a pipe-separated (|) list. For example:
 
     16714 0 16700|7 14 16|true|17|88|3|85|No|12|1 2 3|18 19 20|0
 
@@ -69,12 +67,14 @@ You can retrieve the specific values with the [plug-in-metadata() function](http
 For each milestone configured, 5 additional metadata positions are added starting at position 12. For example, with `milestones=60`:
 
 * 12 - Milestone time in seconds (e.g., 60).
-* 13 - Last item index at milestone.
-* 14 - Total items attempted at milestone.
+* 13 - Last item **index** at milestone (the raw grid position that was tapped; useful for identifying which specific word was selected or for reconstructing the selection visually).
+* 14 - Total items **attempted** at milestone (excludes punctuation marks; **use this value for fluency/words-per-minute calculations**).
 * 15 - Number of incorrect items at milestone.
-* 16 - Number of correct items at milestone (this is typically the "words correct per minute" for EGRA fluency).
+* 16 - Number of correct items at milestone (items attempted minus incorrect; **this is typically the "words correct per minute" for EGRA fluency**).
 
-If multiple milestones are configured (e.g., `milestones=60,120`), the second milestone data starts at position 17:
+> **Note:** Position 13 (last item index) and position 14 (total items attempted) differ when punctuation marks are present in the choice list. Position 14 subtracts punctuation marks and is the correct value for WCPM calculations. Position 13 is the raw index and is useful if you need to know exactly which word in the grid was tapped.
+
+If multiple milestones are configured (e.g., `milestones='60,120'`), the second milestone data starts at position 17:
 
 * 17 - Second milestone time in seconds (e.g., 120).
 * 18 - Last item index at second milestone.
@@ -83,6 +83,8 @@ If multiple milestones are configured (e.g., `milestones=60,120`), the second mi
 * 21 - Number of correct items at second milestone.
 
 See the use of the `plug-in-metadata()` function in the [sample form](https://github.com/surveycto/timed-grid-test/raw/master/extras/sample-form/Sample%20form%20-%20Timed%20grid%20test%20field%20plug-in.xlsx) for details.
+
+> **Best practice for choice list values:** Each item in your choice list should have a unique value. If you want punctuation marks (periods, commas) to not count toward word totals, use unique negative values (e.g., -1, -2, -3) rather than sharing the same value (e.g., all having value "0"). The plug-in automatically excludes punctuation from word counts, so unique values ensure accurate tracking.
 
 ## How to use
 
@@ -94,16 +96,17 @@ See the use of the `plug-in-metadata()` function in the [sample form](https://gi
 
 |Key|Value|
 |---|---|
-|`type` (required)|Used to specify the kind of test the field plug-in is being used for. This determines the screen layout. You can specify any one of these values: <ul><li>`letters` - for the EGRA letter reading test. Creates 10 columns.</li><li> `words` - for the EGRA nonword or familiar word reading test. Creates 5 columns.</li><li>`reading` - for the EGRA reading/comprehension test. Arranges choice list in passage with variable button widths according to the size of words. </li><li>`numbers` - for the EGMA number identification test. Creates 5 columns.</li><li> `arithmetic` - for the EGMA addition/subtraction level 1 tests. Creates 2 columns.</li></ul><br>It can also take an integer value which determines the number of columns to display on a screen. This is useful for screens that can accomodate more or fewer columns than the standard tests, as well as cases where the width of items would be better presented in a grid with fewer columns. Simply assign the type an integer value, for example: `type = 8`.|
+|`type` (required)|Used to specify the kind of test the field plug-in is being used for. This determines the screen layout. You can specify any one of these values: <ul><li>`letters` - for the EGRA letter reading test. Creates 10 columns.</li><li> `words` - for the EGRA nonword or familiar word reading test. Creates 5 columns.</li><li>`reading` - for the EGRA reading/comprehension test. Arranges choice list in passage with variable button widths according to the size of words. </li><li>`numbers` - for the EGMA number identification test. Creates 5 columns.</li><li> `arithmetic` - for the EGMA addition/subtraction level 1 tests. Creates 2 columns.</li></ul><br>It can also take an integer value which determines the number of columns to display on a screen. This is useful for screens that can accommodate more or fewer columns than the standard tests, as well as cases where the width of items would be better presented in a grid with fewer columns. Simply assign the type an integer value, for example: `type = 8`.|
 |`all-answered` (recommended)|Used to define a value to be stored as the fields answer if all the items are correct. This is important because in both EGRA and EGMA subtasks, selections indicate incorrect answers. The `all-answered` value must also be included in the choice list. If you do not supply an `all-answered` value, the failsafe behavior is to store the first item in the choice list, but this can be misleading.|
-|`page-rows` (optional)|Used to specify the number of rows to display on a screen. Like `type` with an integer value which manages the number of columns, this gives flexibilty on the number of rows that can be displayed on the screen. If more rows are available, paging will automatically be activated. Simply assign the type an integer value, for example: `page-rows = 8`. Default is `4` rows per page.|
-|`duration` (optional)|Used to specify the length of the test in seconds. Default is 60 seconds. Enter a custom value as required to override the default as required.|
+|`page-rows` (optional)|Used to specify the number of rows to display on a screen. Like `type` with an integer value which manages the number of columns, this gives flexibility on the number of rows that can be displayed on the screen. If more rows are available, paging will automatically be activated. Simply assign `page-rows` an integer value, for example: `page-rows = 8`. Default is `4` rows per page.|
+|`duration` (optional)|Used to specify the length of the test in seconds. Default is 60 seconds. Enter a custom value to override the default.|
 |`end-after` (optional)|Used to specify a limit on the number of consecutive incorrect items that can be marked from the start before being prompted to end the test early. The default is 10 items for the EGRA letter reading test and 5 for the EGRA nonword or familiar reading test, but you can specify a custom value, including 0 to disable.  By default, a pop-up is presented to the user, and they can select whether to end the test there, or to continue. If they choose to end the test, they will then be prompted to select the last attempted item, and then they can move forward. A more strict mode is available when the `strict` parameter is set to `1`; in this strict mode, the user is notified with a pop-up saying that the test is ending early, and on acknowledging the popup, they are immediately advanced to the next field.|
 |`strict` (optional)|Enable to enforce strict adherence to the time limit specified in `duration`. When strict is enabled (`strict = 1`), when the timer runs out, no more selections are possible. When strict is off (the default behavior) the user can continue to make selections once time runs out. This will allow slower users to catch up according to what they heard just before time ran out. `strict` does not prevent the last attempted item from being revised. `strict` also governs the behavior of `end-after` (read more above).|
 |`finish` (optional)|Used to customize the behavior of the finish button. It can take three values: <ul><li>`1` (the default)  means the user will be asked to confirm that the subtask is over, and to pick the last attempted item. The user must manually advance to the next screen.</li><li>`2` means the user will be asked to confirm the subtask is over, and on confirmation, assumes the last attempted item to be the last item in the list. Confirming that the subtask is over automatically advances to the next field.</li><li>`3` skips the confirmation altogether, assuming the last item attempted to be the last item in the list, and automatically progresses to the next field.</li></ul>|
 |`pause` (optional)|The default behavior is to not allow pausing a timed EGRA test. However, if you would like the user to be allowed to pause the test, specify `pause = 1`.|
-|`direction` (optional)| Useful for conducting the tests using Right-To-Left (RTL) languages (Arabic, Urdu, Hebrew etc). The default behaviour is to present the language direction detected by SurveyCTO. Specify `direction = 'rtl'` to force RTL.|
-|`milestones` (optional)|Used to capture progress snapshots at specific time intervals during the test. Specify one or more times in seconds, comma-separated. For example, `milestones = 60` captures progress at 60 seconds, useful for EGRA fluency measurement in longer tests. When a milestone is reached: (1) the screen briefly highlights, (2) a modal prompts the enumerator to tap the last word read at that time, (3) the test continues seamlessly. Milestone data (items attempted, correct, incorrect at each milestone) is stored in metadata positions 12+ (see Data format section). Example for a 3-minute test with 1-minute fluency capture: `duration = 180, milestones = 60`.|
+|`direction` (optional)| Useful for conducting the tests using Right-To-Left (RTL) languages (Arabic, Urdu, Hebrew etc). The default behavior is to present the language direction detected by SurveyCTO. Specify `direction = 'rtl'` to force RTL.|
+|`milestones` (optional)|Used to capture progress snapshots at specific time intervals during the test. Specify one or more times in seconds. For a single milestone: `milestones = 60`. For multiple milestones, **use quotes**: `milestones = '60,120'`. When a milestone is reached: (1) the screen briefly highlights, (2) a modal prompts the enumerator to tap the last word read at that time, (3) the test continues seamlessly. Milestone data (items attempted, correct, incorrect at each milestone) is stored in metadata positions 12+ (see Data format section). Example for a 3-minute test with 1-minute fluency capture: `duration = 180, milestones = 60`.|
+|`milestone-alert` (optional)|Controls how milestone notifications are presented. Three options are available: <ul><li>`modal` (default) - Shows a modal dialog when the milestone is reached. The timer pauses, and the enumerator must tap OK, then tap the last word read, then see a confirmation.</li><li>`flash` - Less disruptive option. The screen flashes briefly, the timer pauses, and a toast message appears asking to tap the last word read. No modal dialogs are shown.</li><li>`auto` - Minimal disruption. The screen flashes briefly, and the milestone is auto-captured. The timer does NOT pause. Position is estimated using multiple signals: (1) furthest item marked incorrect, (2) furthest item tapped, (3) current page position, and (4) time-based estimation. Works well even if the student reads perfectly with no errors.</li></ul>Example: `milestone-alert = 'flash'`|
 
 ### Examples
 
@@ -127,6 +130,17 @@ This captures:
 - **Fluency at 60s**: Use `plug-in-metadata(fieldname, 16)` to get words correct at 60 seconds.
 - **Overall accuracy**: Use `plug-in-metadata(fieldname, 6)` to get total correct items at the end.
 
+For a less disruptive milestone capture that only flashes the screen:
+
+    custom-timed-grid-test(type='reading', all-answered=99, duration=180, milestones=60, milestone-alert='flash')
+
+For automatic milestone capture with minimal interruption (uses smart estimation based on interactions, page position, and elapsed time):
+
+    custom-timed-grid-test(type='reading', all-answered=99, duration=180, milestones=60, milestone-alert='auto')
+
+For capturing multiple milestones (e.g., at 10 seconds and 60 seconds in a 90-second test), **use quotes around the comma-separated values**:
+
+    custom-timed-grid-test(type='reading', all-answered=999, duration=90, milestones='10,60')
 
 ## More resources
 

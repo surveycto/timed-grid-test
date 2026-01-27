@@ -12,16 +12,18 @@ var getDirection = getPluginParameter('direction')
 
 // Milestone tracking parameters
 var milestonesParam = getPluginParameter('milestones')
+var milestoneAlertParam = getPluginParameter('milestone-alert') // 'modal' (default), 'flash', or 'auto'
 var milestones = [] // Array of milestone times in milliseconds
 var nextMilestoneIndex = 0 // Index of the next milestone to trigger
 var milestoneData = [] // Array to store captured milestone data
 var milestoneSelectionMode = false // Whether we're currently selecting a milestone item
 var currentMilestoneIndex = -1 // The milestone index being captured
 var milestoneVisualCue = true // Whether to show visual cue (red background) at milestone
+var milestoneAlertMode = 'modal' // Default alert mode
 
 // Check the language property
-if ((fieldProperties.LANGUAGE !== null && isRTL(fieldProperties.LANGUAGE)) || getDirection === 'rtl') {
-  var isRTL = 1
+if ((fieldProperties.LANGUAGE !== null && checkRTL(fieldProperties.LANGUAGE)) || getDirection === 'rtl') {
+  var isRTLMode = 1
 }
 
 var previousMetaData = getMetaData() // Load Metadata.
@@ -49,6 +51,7 @@ var aEnd = 0 // Counter for paging for reading test.
 var arrayValues = choices.map(function (obj) { return obj.CHOICE_VALUE })
 var items = [] // Array to keep the selected items.
 var intervalId
+var highestInteractedIndex = 0 // Track the highest item index ever clicked (for auto mode estimation)
 
 var timerDisp = document.querySelector('#timer') // Span displaying the actual timer.
 var backButton = document.getElementById('backButton') // back button for navigation
@@ -64,7 +67,7 @@ var firstModalButton = document.getElementById('firstModalButton') // Get the fi
 var secondModalButton = document.getElementById('secondModalButton') // Get the second button on the modal.
 var sentenceCount = 0 // count number of full stops in reading passage.
 var punctuationCount = 0 // count number of punctuation marks in reading passage.
-var punctuationArray = [] // An array of the
+var punctuationArray = [] // An array of punctuation mark values
 var extraItems// track whether to allow selecting items after time has run out.
 var isNumber = 1
 var rowCount
@@ -76,12 +79,12 @@ var secondDIV
 var screenSize
 var pageNumber = 0
 var prevPageNumber = 0
-var marks = ['.', ',', '!', '?'] // List of punction marks.
+var marks = ['.', ',', '!', '?'] // List of punctuation marks.
 var totalItems // Keep track of the total number of items.
 // Check if the window size is 550px - this is treated as a small screen.
-var x = window.matchMedia('(max-width: 550px)')
-myFunction(x)
-x.addListener(myFunction)
+var mediaQuery = window.matchMedia('(max-width: 550px)')
+myFunction(mediaQuery)
+mediaQuery.addEventListener('change', myFunction)
 // end window size check and assignment.
 
 // Set parameter default values.
@@ -94,15 +97,15 @@ if (duration == null) {
 if (numberOfRows == null) {
   if (type === 'reading') {
     if (screenSize === 'small') {
-      numberOfRows = 6 // Default time limit on each field in milliseconds
+      numberOfRows = 6 // Default number of rows for reading test on small screen
     }
   } else {
     if (screenSize === 'small') {
-      numberOfRows = 4 // Default time limit on each field in milliseconds
+      numberOfRows = 4 // Default number of rows on small screen
     }
   }
 } else {
-  numberOfRows = parseInt(numberOfRows) // Parameterized time limit on each field in milliseconds
+  numberOfRows = parseInt(numberOfRows) // Parameterized number of rows
 }
 
 if (pause == null) {
@@ -126,7 +129,7 @@ if (finishParameter == null) {
 }
 
 if (type === 'letters') {
-  columns = 10 // Number of columns on grid printout (words)
+  columns = 10 // Number of columns on grid printout (letters)
   if (screenSize === 'small') {
     columns = 5
   }
@@ -139,10 +142,10 @@ if (type === 'letters') {
   }
 } else if (type === 'reading') {
   columns = choices.length // Number of columns on grid printout (words)
-  for (var x = 0; x < choices.length; x++) {
-    var textLabel = choices[x].CHOICE_LABEL // Get the label of each item.
+  for (var idx = 0; idx < choices.length; idx++) {
+    var textLabel = choices[idx].CHOICE_LABEL // Get the label of each item.
     if ($.inArray(textLabel, marks) !== -1) { // Check if the label is a punctuation mark.
-      punctuationArray.push(choices[x].CHOICE_VALUE)
+      punctuationArray.push(choices[idx].CHOICE_VALUE)
     }
   }
   if (screenSize !== 'small') {
@@ -156,19 +159,26 @@ if (type === 'letters') {
   columns = parseInt(type)
 }
 
-// Set end after to 'null' when it has a value of 0. 
-// This is the equivalent of not providing a value for this (disabling it)
+// When endAfter is explicitly set to 0, disable the early-end prompt
 if (endAfter == 0) {
-  endAfter = 5
+  endAfter = null
 }
 
 // Set end after default to 10 for letters and 5 for words.
+// For other types (reading, arithmetic), disable stop-rule unless explicitly set.
 if (endAfter == null && type === 'letters') {
   endAfter = 10
 } else if (endAfter == null && type === 'words') {
   endAfter = 5
+} else if (endAfter == null) {
+  // Keep as null to disable stop-rule for types like reading/arithmetic
+  endAfter = null
 } else {
   endAfter = parseInt(endAfter)
+  // Guard against NaN if parse fails
+  if (isNaN(endAfter)) {
+    endAfter = null
+  }
 }
 
 // Parse milestones parameter (comma-separated seconds, e.g., "60" or "60,120")
@@ -184,6 +194,14 @@ if (milestonesParam != null && milestonesParam !== '') {
   })
 }
 
+// Parse milestone-alert parameter: 'modal' (default), 'flash', or 'auto'
+if (milestoneAlertParam != null && milestoneAlertParam !== '') {
+  var alertMode = String(milestoneAlertParam).toLowerCase().trim()
+  if (alertMode === 'flash' || alertMode === 'auto') {
+    milestoneAlertMode = alertMode
+  }
+}
+
 // Check if MetaData exists
 if (previousMetaData !== null) {
   var previousSelected = previousMetaData.split('|') // Split metadata into constituent parts.
@@ -194,22 +212,31 @@ if (previousMetaData !== null) {
   var lastTimeNow = parseInt(s1[2])
   prevPaused = parseInt(s1[3])
   pageNumber = prevPageNumber // Update pageNumber to the last page number.
-  var previousPunctuationCount = parseInt(previousSelected[11])
+  var previousPunctuationCount = parseInt(previousSelected[11]) || 0 // Default to 0 for backward compatibility with older metadata
   if (type === 'reading') {
     previousTotalItems = parseInt(previousSelected[4]) + parseInt(previousPunctuationCount)
   } else {
-    previousTotalItems = previousSelected[4]
+    previousTotalItems = parseInt(previousSelected[4]) // Ensure consistent number type
   }
   if (complete !== 'true' || complete == null) { // For incomplete test.
     if (!isNaN(parseInt(s1[0]))) {
       timeLeft = parseInt(s1[0]) // Get time left from metadata.
+      
+      // Validate timeLeft is within reasonable bounds (prevent corruption)
+      var originalDuration = duration != null ? duration * 1000 : 60000
+      if (timeLeft < 0 || timeLeft > originalDuration) {
+        // Corrupted value detected - reset to safe state
+        console.warn('Timed grid: Detected corrupted timeLeft value (' + timeLeft + '), resetting')
+        timeLeft = originalDuration
+      }
+      
       var timeWhileGone = Date.now() - lastTimeNow
       var leftoverTime = timeLeft - timeWhileGone
       if (prevPaused === 1) {
         leftoverTime = timeLeft
       }
       if (leftoverTime < 0) {
-        complete = true
+        complete = 'true'
         timeLeft = 0 // Completed test
         timeStart = 0
       } else {
@@ -221,15 +248,13 @@ if (previousMetaData !== null) {
     finishButton.classList.add('hidden')
   }
   timerRunning = true
-  var t = previousSelected[1].split(' ')
-  var y
-  var q
-  var o
-  for (q = 0; q < t.length; q++) {
-    y = arrayValues.indexOf(t[q]) + 1
-    o = o + ' ' + y
+  var previousValues = previousSelected[1].split(' ')
+  var itemPositions = ''
+  for (var pIdx = 0; pIdx < previousValues.length; pIdx++) {
+    var position = arrayValues.indexOf(previousValues[pIdx]) + 1
+    itemPositions = itemPositions + ' ' + position
   }
-  previousSelectedItems = o.split(' ') // Get an array of the previously selected items.
+  previousSelectedItems = itemPositions.split(' ') // Get an array of the previously selected items.
   items = previousSelectedItems.slice(1) // Remove the first item in the array which is undefined.
 
   // Restore milestone data from metadata (positions 12+ contain milestone data)
@@ -284,7 +309,27 @@ if (createGrid) {
       box.classList.add('lastSelected')
     }
   })
-  intervalId = setInterval(timer, 10) // Start the timer.
+
+  // Restore milestone selection highlights from restored milestoneData
+  if (milestoneData.length > 0) {
+    for (var mi = 0; mi < milestoneData.length; mi++) {
+      var msLastIndex = milestoneData[mi].lastIndex
+      if (msLastIndex > 0 && msLastIndex <= gridItems.length) {
+        var msItem = gridItems[msLastIndex - 1] // Convert 1-based index to 0-based
+        if (msItem) {
+          msItem.classList.add('milestoneSelected')
+        }
+      }
+    }
+  }
+  intervalId = setInterval(timer, 100) // Start the timer (100ms for better battery life).
+  
+  // Clean up timer on page unload to prevent memory leaks
+  window.addEventListener('beforeunload', function () {
+    if (intervalId) {
+      clearInterval(intervalId)
+    }
+  })
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
@@ -360,8 +405,8 @@ $(document).ready(function () {
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
 var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
 var firstTenItems = [] // Array of first items from choices.
-for (x = 0; x < topTen.length; x++) {
-  firstTenItems.push(noPunctuationsArray[x]) // Get the values of the first x items and put them in the array.
+for (var k = 0; k < topTen.length; k++) {
+  firstTenItems.push(noPunctuationsArray[k]) // Get the values of the first k items and put them in the array.
 }
 
 // Finish early
@@ -375,42 +420,6 @@ $('#finishButton').click(function () {
     }
   }
 })
-
-// $('#gridTable td:first-child').each(function () {
-//   var tempSelected = [] // store selected items before highlighting row
-//   var tempSelected1 = []
-//   var clickCount = 1 // count the number of clicks
-//   $(this).on('click', function () {
-//     var clickedElement = $(this)
-//     var rowIndex = $(this).parent().parent().children().index($(this).parent()) + 1
-//     if (clickCount === 1) {
-//       firstClick(clickedElement)
-//       clickCount = 2
-//     } else if (clickCount === 2) {
-//       $(this).siblings().each(function () {
-//         if ($(this).hasClass('selected')) {
-//           var temp2 = $(this).text()
-//           tempSelected.push(temp2)
-//         }
-//       })
-//       if (type === 'letters' && screenSize === 'small') {
-//         $(this).closest('tr').next('tr').children().each(function () {
-//           if ($(this).hasClass('selected')) {
-//             var temp2 = $(this).text()
-//             tempSelected1.push(temp2)
-//           }
-//         })
-//       }
-//       secondClick(clickedElement, rowIndex)
-//       clickCount = 3
-//     } else if (clickCount === 3) {
-//       thirdClick(clickedElement, tempSelected, tempSelected1)
-//       clickCount = 1
-//       tempSelected = []
-//       tempSelected1 = []
-//     }
-//   })
-// })
 
 $('#gridTable td.count').each(function () {
   // We track how many times *this particular label cell* has been clicked
@@ -431,22 +440,28 @@ $('#gridTable td.count').each(function () {
       tempSelected = [];
       tempSelected1 = [];
 
-      // In the same `<tr>`:
-      clickedElement.siblings().each(function () {
+      // In the same `<tr>`: Store item INDICES instead of text to handle duplicate labels
+      clickedElement.siblings('.box').each(function () {
         if ($(this).hasClass('selected')) {
-          tempSelected.push($(this).text());
+          var match = $(this).attr('class').match(/item(\d+)/);
+          if (match && match[1]) {
+            tempSelected.push(match[1]);  // Store index, not text
+          }
         }
       });
-      // If “letters + small screen,” also handle the next row
+      // If "letters + small screen," also handle the next row
       if (type === 'letters' && screenSize === 'small') {
-        clickedElement.closest('tr').next('tr').children().each(function () {
+        clickedElement.closest('tr').next('tr').children('.box').each(function () {
           if ($(this).hasClass('selected')) {
-            tempSelected1.push($(this).text());
+            var match = $(this).attr('class').match(/item(\d+)/);
+            if (match && match[1]) {
+              tempSelected1.push(match[1]);  // Store index, not text
+            }
           }
         });
       }
 
-      secondClick(clickedElement, rowNumber);
+            secondClick(clickedElement, rowNumber);
       clickCount = 3;
     } else {
       thirdClick(clickedElement, tempSelected, tempSelected1);
@@ -455,7 +470,7 @@ $('#gridTable td.count').each(function () {
   });
 });
 
-if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
+if ((previousMetaData == null) || (typeof s1 === 'undefined') || (s1[0] === 'undefined') || (complete === 'true')) { // The second check is to see if the timer had actually been started or not
   makeInActive() // Make all buttons inactive
 } else { // Since the timer keeps track of time away from the field, and subtracts that from the time, then it makes sense to have the timer running when they return.
   if (!timerRunning) {
@@ -472,17 +487,20 @@ if ((previousMetaData == null) || (s1[0] === 'undefined') || (complete === 'true
 
 // START FUNCTIONS
 
-function myFunction (x) {
+function myFunction(x) {
   if (x.matches) {
     screenSize = 'small'
-    if(isRTL === 1) {
+    if (isRTLMode === 1) {
       screenSize = 'large'
     }
+  } else {
+    // Handle resize from small to large
+    screenSize = 'large'
   }
 }
-// var choicesLength = checkAllAnswered()
+
 // Function to create the grid. Takes a list of choices.
-function createGrid (keys) {
+function createGrid(keys) {
   var counter = 0 // Keep track of which choice is being referenced.
   var span
   var txlbl
@@ -501,7 +519,7 @@ function createGrid (keys) {
     for (var i = 0; i < rowCount / columns; i++) {
       var fieldset = document.createElement('div') // Creates a section element. Each section is the equivalent of a row.
       fieldset.setAttribute('class', 'pg')
-      if (isRTL === 1) {
+      if (isRTLMode === 1) {
         fieldset.dir = "rtl";
       }
       for (var j = 0; j < columns; j++) { // Create the individual boxes in each row/screen.
@@ -514,7 +532,7 @@ function createGrid (keys) {
           itemClass = 'item' + itemValue // CSS class to be applied.
           secondDIV.classList.add('box', itemClass) // Add CSS class.
           secondDIV.classList.add('pgBox') // Add the pgBox class for different styling.
-          if(isRTL === 1) {
+          if (isRTLMode === 1) {
             secondDIV.style.float = 'right';
           }
           for (var ch of txlbl) {
@@ -531,7 +549,7 @@ function createGrid (keys) {
         }
       }
       div.appendChild(fieldset) // Add the row to main container.
-      
+
     }
   } else {
     if (screenSize !== 'small') {
@@ -551,27 +569,18 @@ function createGrid (keys) {
         table += '<td rowspan="2" class="count" data-row-index="' + m + '">(' + m + ')</td>'
       }
       for (var j = 1; j <= columns; j++) {
-        if (i === 0) {
-          var h = ' id = head' + j
-          var hId = '<th' + h + '></th>'
-          table += hId
-        } else {
-          if (counter === checkAllAnswered()) {
-            break
-          }
-          var item = 'item' + (counter + 1)
-          var td = '<td class="box ' + item + '"' + '><span>'
-          table += td
-          table += choices[counter].CHOICE_LABEL
-          table += '</span></td>'
-          choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
-          counter++
+        if (counter === checkAllAnswered()) {
+          break
         }
+        var item = 'item' + (counter + 1)
+        var td = '<td class="box ' + item + '"' + '><span>'
+        table += td
+        table += choices[counter].CHOICE_LABEL
+        table += '</span></td>'
+        choiceValuesArray.push(choices[counter].CHOICE_VALUE) // add choice labels to Array
+        counter++
       }
       table += '</tr>'
-      if (i === 0) {
-        table += '</thead>'
-      }
     }
     table += '</table>'
     div.innerHTML = table // Add the row to main container.
@@ -579,13 +588,13 @@ function createGrid (keys) {
   if (isNumber === 2) {
     div.classList.add('pgNumber')
   }
-  if (isRTL === 1) {
+  if (isRTLMode === 1) {
     div.dir = "rtl";
   }
   return true
 }
 
-function passagePaging (pageArray, isPage) {
+function passagePaging(pageArray, isPage) {
   if (isPage) {
     $.map(gridItems, function (box) {
       var temp1 = parseInt(box.classList.item(1).slice(4))
@@ -595,43 +604,6 @@ function passagePaging (pageArray, isPage) {
     })
   }
 }
-
-// Click events for the row labels
-// function firstClick (clickedElement) {
-//   clickedElement.text('(?)') // Show question mark on first click.
-// }
-// var rowCounter = 0
-// var tempRows = Math.ceil(rowCount / columns)
-// function secondClick (clickedElement, rowNumber) {
-//   for (var i = 1; i < tempRows; i + 2) {
-//     if (rowNumber === i) {
-//       rowNumber = rowNumber - rowCounter
-//     }
-//     i = i + 2
-//     rowCounter++
-//   }
-//   clickedElement.text('(' + rowNumber + ')') // Replace question mark with row number on second click.
-//   clickedElement.siblings().addClass('selected')
-//   if (type === 'letters' && screenSize === 'small') {
-//     clickedElement.closest('tr').next('tr').children().addClass('selected')
-//   }
-//   rowCounter = 0
-// }
-
-// function thirdClick (clickedElement, row, row1) {
-//   clickedElement.siblings().each(function () {
-//     if ($.inArray($(this).text(), row) < 0) {
-//       $(this).removeClass('selected')
-//     }
-//   })
-//   if (type === 'letters' && screenSize === 'small') {
-//     clickedElement.closest('tr').next('tr').children().each(function () {
-//       if ($.inArray($(this).text(), row1) < 0) {
-//         $(this).removeClass('selected')
-//       }
-//     })
-//   }
-// }
 
 function firstClick(clickedElement) {
   // Show (?) when first clicked
@@ -643,20 +615,63 @@ function secondClick(clickedElement, rowNumber) {
   clickedElement.text('(' + rowNumber + ')');
   clickedElement.siblings().addClass('selected');
 
-  // If letters + small screen, select the next row’s siblings
+  // Update the items array for each selected sibling (for stop-rule to work)
+  clickedElement.siblings('.box').each(function () {
+    var itemClass = $(this).attr('class').match(/item(\d+)/);
+    if (itemClass && itemClass[1]) {
+      var itemIndex = itemClass[1];
+      if ($.inArray(itemIndex, items) < 0) {
+        items.push(itemIndex);
+      }
+    }
+  });
+
+  // If letters + small screen, select the next row's siblings
   if (type === 'letters' && screenSize === 'small') {
     clickedElement.closest('tr')
       .next('tr')
       .children()
       .addClass('selected');
+
+    // Update items array for the next row as well
+    clickedElement.closest('tr').next('tr').children('.box').each(function () {
+      var itemClass = $(this).attr('class').match(/item(\d+)/);
+      if (itemClass && itemClass[1]) {
+        var itemIndex = itemClass[1];
+        if ($.inArray(itemIndex, items) < 0) {
+          items.push(itemIndex);
+        }
+      }
+    });
+  }
+
+  // Check if stop-rule should trigger after row selection
+  var isSame = (firstTenItems.slice().sort().toString() === items.slice().sort().toString());
+  if (isSame) {
+    timerRunning = false;
+    endFirstLine = 'Yes';
+    openIncorrectItemsModal();
   }
 }
 
 function thirdClick(clickedElement, tempSelected, tempSelected1) {
-  // Deselect anything that wasn’t in tempSelected
-  clickedElement.siblings().each(function () {
-    if (!tempSelected.includes($(this).text())) {
-      $(this).removeClass('selected');
+  // Deselect anything that wasn't in tempSelected (compare by ITEM INDEX, not text)
+  clickedElement.siblings('.box').each(function () {
+    var itemClass = $(this).attr('class');
+    if (itemClass) {
+      var match = itemClass.match(/item(\d+)/);
+      if (match && match[1]) {
+        var itemIndex = match[1];
+        // Check if this item's INDEX was in the original selection
+        if (!tempSelected.includes(itemIndex)) {
+          $(this).removeClass('selected');
+          // Also remove from items array
+          var idx = items.indexOf(itemIndex);
+          if (idx > -1) {
+            items.splice(idx, 1);
+          }
+        }
+      }
     }
   });
 
@@ -664,16 +679,29 @@ function thirdClick(clickedElement, tempSelected, tempSelected1) {
   if (type === 'letters' && screenSize === 'small') {
     clickedElement.closest('tr')
       .next('tr')
-      .children()
+      .children('.box')
       .each(function () {
-        if (!tempSelected1.includes($(this).text())) {
-          $(this).removeClass('selected');
+        var itemClass = $(this).attr('class');
+        if (itemClass) {
+          var match = itemClass.match(/item(\d+)/);
+          if (match && match[1]) {
+            var itemIndex = match[1];
+            // Check if this item's INDEX was in the original selection
+            if (!tempSelected1.includes(itemIndex)) {
+              $(this).removeClass('selected');
+              // Also remove from items array
+              var idx = items.indexOf(itemIndex);
+              if (idx > -1) {
+                items.splice(idx, 1);
+              }
+            }
+          }
         }
       });
   }
 }
 
-function timer () { // Timer function.
+function timer() { // Timer function.
   var timeNow = Date.now() // Set the time to current time.
   if (timerRunning) { // For a running timer.
     timePassed = timeNow - startTime
@@ -687,9 +715,19 @@ function timer () { // Timer function.
       }
     }
   }
-  selectedItems = getSelectedItems()
+  
+  // Safeguard: Don't update selectedItems during milestone selection mode
+  // This prevents stale data from corrupting the saved state
+  if (!milestoneSelectionMode) {
+    selectedItems = getSelectedItems()
+  }
   if (complete !== 'true') { // For incomplete tests.
-    currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems // Save progress whilst the timer is running.
+    // Validate timeLeft before persisting to prevent corruption
+    var safeTimeLeft = timeLeft
+    if (isNaN(safeTimeLeft) || safeTimeLeft < 0) {
+      safeTimeLeft = 0
+    }
+    currentAnswer = String(safeTimeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems // Save progress whilst the timer is running.
     setMetaData(currentAnswer + getMilestoneMetadataTail())
   }
   if (timeLeft <= 0) {
@@ -701,7 +739,7 @@ function timer () { // Timer function.
 }
 
 // Function to facilitate pausing and resuming tests.
-function startStopTimer () {
+function startStopTimer() {
   timerDisplay.classList.remove('hidden') // Make the timer visible (hidden by default).
   if (pause === 0) { // Check whether pausing is allowed as a parameter.
     button.classList.add('hidden') // Hide the pause button if not specified.
@@ -722,13 +760,13 @@ function startStopTimer () {
   }
 }
 
-function endEarly () {
+function endEarly() {
   timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
   endTimer() // End the test.
 }
 
 // Ending the test.
-function endTimer () {
+function endTimer() {
   clearInterval(intervalId)
   moveForward()
   button.classList.remove('hidden') // Make the button visible.
@@ -757,7 +795,7 @@ function endTimer () {
   selectedItems = getSelectedItems() // get list of selected items.
 }
 
-function itemClicked (item, itemIndex) {
+function itemClicked(item, itemIndex) {
   // Handle milestone selection mode
   if (milestoneSelectionMode) {
     // Remove previous milestone selection highlight
@@ -778,7 +816,15 @@ function itemClicked (item, itemIndex) {
     document.documentElement.style.removeProperty('--milestone-active')
     document.body.classList.remove('milestone-active')
 
-    // Resume the timer
+    // Resume the timer with validation to prevent state corruption
+    // Validate timePassed is reasonable (not negative, not greater than duration)
+    if (isNaN(timePassed) || timePassed < 0) {
+      timePassed = 0
+    }
+    if (timePassed > timeStart) {
+      timePassed = timeStart
+    }
+    
     paused = 0
     startTime = Date.now() - timePassed
     timerRunning = true
@@ -789,6 +835,12 @@ function itemClicked (item, itemIndex) {
   }
 
   if (timerRunning || (timeLeft === 0 && strict === 0 && extraItems === 1)) { // This way, it only works when the timer is running
+    // Track the highest item ever interacted with (for auto mode milestone estimation)
+    var clickedIdx = parseInt(itemIndex)
+    if (clickedIdx > highestInteractedIndex) {
+      highestInteractedIndex = clickedIdx
+    }
+
     var classes = item.classList
     if (classes.contains('selected')) { // Toggle the state of the item with CSS selected class.
       classes.remove('selected')
@@ -802,7 +854,7 @@ function itemClicked (item, itemIndex) {
         items.push(itemIndex) // Add selected items to array.
       }
     }
-    var isSame = (firstTenItems.sort().toString() === items.sort().toString()) // compare array of collected items to array of first 10 elements.
+    var isSame = (firstTenItems.slice().sort().toString() === items.slice().sort().toString()) // compare array of collected items to array of first 10 elements (use slice() to avoid mutating original arrays).
     if (isSame) {
       timerRunning = false // Stop timer
       endFirstLine = 'Yes' // Indicate that the first line was all incorrect
@@ -833,7 +885,7 @@ function itemClicked (item, itemIndex) {
 }
 
 // Function to get list of selected items.
-function getSelectedItems () {
+function getSelectedItems() {
   var selectedLet = []
   for (var cell of gridItems) {
     if (cell.classList.contains('selected')) { // Loop through all items checking those with the CSS selected class.
@@ -846,18 +898,17 @@ function getSelectedItems () {
   return selectedLet.join(' ') // Convert array to string.
 }
 
-function clearAnswer () {
-  // setAnswer()
-  timePassed = 0
-}
-
 // set the results to published
-function setResult () {
-  if (finishEarly === 0) {
-    totalItems = choices.map(function (o) { return o.CHOICE_VALUE }).indexOf(lastSelectedIndex) + 1 // total number of items attempted
-  } else {
-    totalItems = lastSelectedIndex // total items are all the items.
+function setResult() {
+  // Note: lastSelectedIndex is always the 1-based item index (not the choice value)
+  // Using parseInt ensures we work with the index directly, avoiding issues with
+  // duplicate choice values (e.g., punctuation marks sharing value "0")
+  // Validate lastSelectedIndex to prevent NaN from corrupting results
+  if (lastSelectedIndex === undefined || isNaN(parseInt(lastSelectedIndex))) {
+    console.warn('Timed grid: lastSelectedIndex is undefined or invalid, using default')
+    lastSelectedIndex = 1
   }
+  totalItems = parseInt(lastSelectedIndex)
   if (type === 'reading') { // For reading test.
     punctuationCount = 0 //Reset the current punctuation count
     for (var x = 0; x < totalItems; x++) {
@@ -866,7 +917,7 @@ function setResult () {
         if (textLabel === '.') { // If the label is a full stop increase the count of sentences.
           sentenceCount++
         }
-        punctuationCount++ // Count of puntuation marks.
+        punctuationCount++ // Count of punctuation marks.
       }
     }
     totalItems = totalItems - punctuationCount // for reading test, subtract number of punctuation marks
@@ -917,7 +968,7 @@ function setResult () {
 }
 
 // Creates paging for the reading test.
-function pageReading () {
+function pageReading() {
   $.map(gridItems, function (box) {
     var temp1 = parseInt(box.classList.item(1).slice(4)) // Get the item number.
     if (temp1 < parseInt(pageArr[aStart]) || temp1 >= parseInt(pageArr[aEnd])) {
@@ -927,7 +978,7 @@ function pageReading () {
       box.classList.remove('hidden') // Show items within current page limits
     }
     if (pageArr[aEnd] === undefined) { // If on the last page.
-      nextButton.classList.add('hideButton') // Hide nex button.
+      nextButton.classList.add('hideButton') // Hide next button.
       hideFinishButton() // Show the finish button.
       if (complete === 'true') {
         finishButton.classList.add('hidden')
@@ -939,7 +990,7 @@ function pageReading () {
 }
 
 // Incorrect last item modal
-function openExtraItemsModal () {
+function openExtraItemsModal() {
   modalContent.innerHTML = 'Make any corrections now. Tap the <strong>Finished</strong> button when you are finished.'
   firstModalButton.innerText = 'Okay'
   secondModalButton.classList.add('hidden')
@@ -950,7 +1001,7 @@ function openExtraItemsModal () {
   }
 }
 // Thank you note modal
-function openThankYouModal () {
+function openThankYouModal() {
   modalContent.innerHTML = 'Thank you! You can continue. <br> Tap on Test Complete.' // Text to display on the modal.
   firstModalButton.innerText = 'Done'
   secondModalButton.classList.add('hidden')
@@ -964,15 +1015,19 @@ function openThankYouModal () {
   }
 }
 // Modal to prompt user to select the last item.
-function openLastItemModal () {
+function openLastItemModal() {
   makeActive()
-  // DISABLE HERE
+  // Disable items before the last selected to prevent selecting an earlier item as "last attempted"
   selectedItems = getSelectedItems()
   var selectedItemsArray = selectedItems.split(' ') // Create an array of the selected items.
-  var beforeLastClicked = selectedItemsArray[selectedItemsArray.length - 1] - 1 // Item before last clicked
+  // Guard against empty selection - if no items selected, beforeLastClicked would be NaN
+  var lastItem = selectedItemsArray[selectedItemsArray.length - 1]
+  var beforeLastClicked = (lastItem && !isNaN(parseInt(lastItem))) ? parseInt(lastItem) - 1 : 0
   for (var i = 0; i < beforeLastClicked; i++) {
     var thisBox = gridItems[i]
-    thisBox.classList.add('disabled')
+    if (thisBox) {
+      thisBox.classList.add('disabled')
+    }
   }
   modalContent.innerText = 'Please tap the last item attempted.'
   firstModalButton.innerText = 'Okay'
@@ -984,7 +1039,7 @@ function openLastItemModal () {
   }
 }
 
-function openIncorrectItemsModal () {
+function openIncorrectItemsModal() {
   if (strict === 1 && endAfter != null) {
     modalContent.innerText = endAfter + ' wrong answers on row 1.'
     firstModalButton.innerText = 'Okay'
@@ -995,7 +1050,7 @@ function openIncorrectItemsModal () {
       finishEarly = 1
       timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
       startStopTimer()
-      complete = true
+      complete = 'true'
       lastSelectedIndex = endAfter
       setResult()
       moveForward()
@@ -1018,7 +1073,7 @@ function openIncorrectItemsModal () {
   }
 }
 
-function endTest () {
+function endTest() {
   if (finishParameter === 2) {
     modalContent.innerText = 'Do you want to end the test now?'
     firstModalButton.innerText = 'Yes'
@@ -1027,7 +1082,7 @@ function endTest () {
     firstModalButton.onclick = function () {
       finishEarly = 1
       timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-      complete = true
+      complete = 'true'
       if (type === 'reading') {
         lastSelectedIndex = choices.length - 1
       } else {
@@ -1048,7 +1103,7 @@ function endTest () {
   } else {
     finishEarly = 1
     timeRemaining = Math.ceil(timeLeft / 1000) // Amount of time remaining
-    complete = true
+    complete = 'true'
     if (type === 'reading') {
       lastSelectedIndex = choices.length - 1
     } else {
@@ -1065,7 +1120,7 @@ function endTest () {
 }
 
 // Modal to confirm finishing a test early.
-function finishModal () {
+function finishModal() {
   modalContent.innerText = 'Do you want to end the test now?'
   firstModalButton.innerText = 'Yes'
   secondModalButton.innerText = 'No'
@@ -1085,7 +1140,7 @@ function finishModal () {
   }
 }
 
-function makeActive () {
+function makeActive() {
   $.map(gridItems, function (box) {
     if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
       box.addEventListener('click', boxHandler, false) // Make it clickable.
@@ -1094,7 +1149,7 @@ function makeActive () {
   })
 }
 
-function makeInActive () {
+function makeInActive() {
   $.map(gridItems, function (box) {
     box.removeEventListener('click', boxHandler, false) // Make all buttons unselectable.
     box.classList.add('disabled')
@@ -1104,7 +1159,7 @@ function makeInActive () {
   }
 }
 
-function hideFinishButton () {
+function hideFinishButton() {
   if (screenSize !== 'small' && (complete === 'true' || complete == null)) {
     finishButton.classList.add('hidden')
   } else {
@@ -1112,7 +1167,7 @@ function hideFinishButton () {
   }
 }
 
-function checkAnswer () {
+function checkAnswer() {
   if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
     ans = allAnswered
   } else {
@@ -1120,7 +1175,7 @@ function checkAnswer () {
   }
 }
 
-function checkAllAnswered () {
+function checkAllAnswered() {
   var choiceListLength
   if (allAnswered != null && allAnswered == choices[choices.length - 1].CHOICE_VALUE) {
     choiceListLength = choices.length - 1
@@ -1132,7 +1187,7 @@ function checkAllAnswered () {
   return choiceListLength
 }
 
-function moveForward () {
+function moveForward() {
   button.innerHTML = 'Test complete'
   button.onclick = function () {
     goToNextField()
@@ -1140,7 +1195,7 @@ function moveForward () {
 }
 
 // Resize the text to fit the button
-function resizeText () {
+function resizeText() {
   gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   var i // Temporary counter
   var tempItemClass
@@ -1155,7 +1210,7 @@ function resizeText () {
   }
 }
 
-function addPagination () {
+function addPagination() {
   if (type !== 'reading') {
     var rowsShown = numberOfRows
     var rowsTotal = $('#gridTable tbody tr').length
@@ -1221,84 +1276,194 @@ function addPagination () {
   })
 }
 
-function checkPage (pagNum, numPages) {
-  if (pagNum === 0) {
+function checkPage(pagNum, numPages) {
+  // Handle single-page case first - show Finish, hide navigation
+  if (numPages === 1) {
+    $('#nextButton').addClass('hideButton')
+    $('#backButton').addClass('hideButton')
+    $('#finishButton').removeClass('hidden')
+  } else if (pagNum === 0) {
+    // First page of multi-page grid
     $('#nextButton').removeClass('hideButton')
     $('#backButton').addClass('hideButton')
     $('#finishButton').addClass('hidden')
   } else if (pagNum === numPages - 1) {
+    // Last page of multi-page grid
     $('#nextButton').addClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').removeClass('hidden')
   } else {
+    // Middle pages
     $('#nextButton').removeClass('hideButton')
     $('#backButton').removeClass('hideButton')
     $('#finishButton').addClass('hidden')
   }
 }
 
-// Resize the text to fit the button
-function resizeText () {
-  var gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
-  var i // Temporary counter
-  // Loop through all the buttons
-  for (i = 1; i <= gridItems.length; i++) {
-    var tempItemClass = '.' + 'item' + i // Get the item (button) class to refer to individual buttons
-    $(tempItemClass).textfill({ // Use the textfill.js library to resize the button text.
-      widthOnly: true, // Resize only text width
-      maxFontPixels: 28 // Set maximum font size
-    })
-  }
-}
-
 // Detect right-to-left languages
-function isRTL(s){
-  var ltrChars    = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
-      rtlChars    = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
-      rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
+function checkRTL(s) {
+  var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF' + '\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
+    rtlChars = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+    rtlDirCheck = new RegExp('^[^' + ltrChars + ']*[' + rtlChars + ']');
 
   return rtlDirCheck.test(s);
 }
 
 // ==================== MILESTONE TRACKING FUNCTIONS ====================
 
-// Trigger a milestone capture
-function triggerMilestone (milestoneIndex) {
-  // Pause the timer but don't end the test
-  timerRunning = false
-  paused = 1
+// Show a toast notification for flash/auto modes
+function showMilestoneToast(message, duration) {
+  var toast = document.getElementById('milestoneToast')
+  if (!toast) {
+    // Create toast element if it doesn't exist
+    toast = document.createElement('div')
+    toast.id = 'milestoneToast'
+    toast.className = 'milestone-toast'
+    document.body.appendChild(toast)
+  }
+  toast.innerText = message
+  toast.classList.add('show')
+  if (duration > 0) {
+    setTimeout(function () {
+      toast.classList.remove('show')
+    }, duration)
+  }
+}
 
+// Hide the milestone toast
+function hideMilestoneToast() {
+  var toast = document.getElementById('milestoneToast')
+  if (toast) {
+    toast.classList.remove('show')
+  }
+}
+
+// Flash the screen briefly
+function flashScreen(duration) {
+  document.body.classList.add('milestone-active')
+  setTimeout(function () {
+    document.body.classList.remove('milestone-active')
+  }, duration || 300)
+}
+
+// Get the last item position using multiple heuristics (for auto mode)
+// Uses a hybrid approach combining: selections, page position, and time estimation
+function getLastItemPosition() {
+  var lastSelected = 0
+  var lastInteracted = highestInteractedIndex || 0
+
+  // 1. Find highest selected (incorrect) item
+  for (var i = 0; i < gridItems.length; i++) {
+    var item = gridItems[i]
+    // Skip punctuation marks
+    if (item.classList.contains('pmBox')) continue
+    if (item.classList.contains('selected')) {
+      var itemIndex = parseInt(item.classList.item(1).slice(4))
+      lastSelected = Math.max(lastSelected, itemIndex)
+    }
+  }
+
+  // 2. Estimate minimum position based on current page
+  // If enumerator has navigated to a page, student has at least reached that point
+  var itemsPerPage = numberOfRows * columns
+  var minFromPage = 1
+  if (type === 'reading' && screenSize === 'small' && pageArr.length > 0) {
+    // For reading type, use pageArr which tracks actual page boundaries
+    if (pageNumber > 0 && pageArr[pageNumber - 1]) {
+      minFromPage = parseInt(pageArr[pageNumber - 1])
+    }
+  } else if (numberOfRows && columns) {
+    // For grid types, calculate based on rows and columns
+    minFromPage = (pageNumber * itemsPerPage) + 1
+  }
+
+  // 3. Time-based estimation as fallback
+  // Conservative estimate: ~0.7 words per second for early grade readers
+  // This provides a reasonable floor when no other data is available
+  var elapsedSeconds = timePassed / 1000
+  var timeEstimate = Math.floor(elapsedSeconds * 0.7)
+
+  // Return the highest of all estimates (minimum of 1)
+  var result = Math.max(lastSelected, lastInteracted, minFromPage, timeEstimate, 1)
+
+  // Cap at total number of items (excluding all-answered placeholder)
+  var maxItems = checkAllAnswered()
+  return Math.min(result, maxItems)
+}
+
+// Trigger a milestone capture
+function triggerMilestone(milestoneIndex) {
   // Store which milestone we're capturing
   currentMilestoneIndex = milestoneIndex
   nextMilestoneIndex = milestoneIndex + 1 // Move to next milestone
 
-  // Apply visual cue (red background like timeFlash)
-  if (milestoneVisualCue) {
-    document.body.classList.add('milestone-active')
-  }
-
   // Calculate milestone time in seconds for display
   var milestoneSeconds = milestones[milestoneIndex] / 1000
 
-  // Show modal with instructions
-  modalContent.innerHTML = '<strong>' + milestoneSeconds + ' seconds reached!</strong><br><br>' +
-    'Tap <strong>OK</strong>, then tap the <strong>last word read</strong> at ' + milestoneSeconds + ' seconds.<br><br>' +
-    '<em>The student can continue reading while you do this.</em>'
-  firstModalButton.innerText = 'OK'
-  secondModalButton.classList.add('hidden')
-  firstModalButton.style.width = '100%'
-  modal.style.display = 'block'
+  if (milestoneAlertMode === 'auto') {
+    // AUTO MODE: Flash screen, auto-capture based on last marked item, no pause
+    flashScreen(500)
 
-  firstModalButton.onclick = function () {
-    modal.style.display = 'none'
-    secondModalButton.classList.remove('hidden')
-    firstModalButton.style.width = '50%'
-    milestoneSelectionMode = true // Enable milestone selection mode
+    // Get estimate of last position based on selections
+    var autoLastIndex = getLastItemPosition()
+
+    // If no items marked, show a brief warning
+    if (autoLastIndex <= 1) {
+      showMilestoneToast(milestoneSeconds + 's: No items marked - tap last word read', 3000)
+      // Fall back to flash mode behavior
+      milestoneSelectionMode = true
+      currentMilestoneIndex = milestoneIndex
+    } else {
+      // Auto-save the milestone
+      saveMilestoneResult(milestoneIndex, autoLastIndex, true) // true = auto mode (no confirmation modal)
+      showMilestoneToast(milestoneSeconds + 's captured (item ' + autoLastIndex + ')', 2000)
+    }
+  } else if (milestoneAlertMode === 'flash') {
+    // FLASH MODE: Flash screen, pause timer, wait for tap (no modal)
+    timerRunning = false
+    paused = 1
+
+    // Apply visual cue
+    if (milestoneVisualCue) {
+      document.body.classList.add('milestone-active')
+    }
+
+    // Show toast instruction instead of modal
+    showMilestoneToast('Tap last word read at ' + milestoneSeconds + 's', 0)
+
+    // Enable milestone selection mode immediately (no modal to dismiss)
+    milestoneSelectionMode = true
+  } else {
+    // MODAL MODE (default): Full modal dialog
+    timerRunning = false
+    paused = 1
+
+    // Apply visual cue (red background like timeFlash)
+    if (milestoneVisualCue) {
+      document.body.classList.add('milestone-active')
+    }
+
+    // Show modal with instructions
+    modalContent.innerHTML = '<strong>' + milestoneSeconds + ' seconds reached!</strong><br><br>' +
+      'Tap <strong>OK</strong>, then tap the <strong>last word read</strong> at ' + milestoneSeconds + ' seconds.<br><br>' +
+      '<em>The student can continue reading while you do this.</em>'
+    firstModalButton.innerText = 'OK'
+    secondModalButton.classList.add('hidden')
+    firstModalButton.style.width = '100%'
+    modal.style.display = 'block'
+
+    firstModalButton.onclick = function () {
+      modal.style.display = 'none'
+      secondModalButton.classList.remove('hidden')
+      firstModalButton.style.width = '50%'
+      milestoneSelectionMode = true // Enable milestone selection mode
+    }
   }
 }
 
 // Save milestone result with computed counts
-function saveMilestoneResult (milestoneIndex, milestoneLastIndex) {
+// skipConfirmation: if true, don't show the confirmation modal (for auto mode)
+function saveMilestoneResult(milestoneIndex, milestoneLastIndex, skipConfirmation) {
   var milestoneSeconds = milestones[milestoneIndex] / 1000
 
   // Calculate total items attempted up to the milestone last index
@@ -1316,16 +1481,16 @@ function saveMilestoneResult (milestoneIndex, milestoneLastIndex) {
     totalItemsAtMilestone = totalItemsAtMilestone - localPunctuationCount
   }
 
-  // Get current selected (incorrect) items at this point
-  var currentSelectedItems = getSelectedItems()
-  var splitCurrentSelected = currentSelectedItems.split(' ')
-
   // Count incorrect items that are within the milestone range
+  // We iterate through grid items directly to avoid issues with duplicate values
   var incorrectAtMilestone = 0
-  if (currentSelectedItems.length > 0) {
-    for (var i = 0; i < splitCurrentSelected.length; i++) {
-      var itemPos = parseInt(splitCurrentSelected[i])
-      if (itemPos <= parseInt(milestoneLastIndex)) {
+  for (var gi = 0; gi < gridItems.length; gi++) {
+    var gridItem = gridItems[gi]
+    if (gridItem.classList.contains('selected')) {
+      // Get the 1-based index from the item class (e.g., "item42" -> 42)
+      var itemClass = gridItem.classList.item(1)
+      var itemIdx = parseInt(itemClass.slice(4))
+      if (itemIdx <= parseInt(milestoneLastIndex)) {
         incorrectAtMilestone++
       }
     }
@@ -1343,11 +1508,21 @@ function saveMilestoneResult (milestoneIndex, milestoneLastIndex) {
   })
 
   // Immediately persist to metadata
+  // IMPORTANT: Refresh selectedItems to avoid stale data (timer is paused during milestone mode)
+  var freshSelectedItems = getSelectedItems()
   var timeNow = Date.now()
-  var progress = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems
+  var progress = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + freshSelectedItems
   setMetaData(progress + getMilestoneMetadataTail())
 
-  // Show confirmation modal
+  // Hide toast if visible (for flash mode)
+  hideMilestoneToast()
+
+  // Skip confirmation modal if requested (auto mode) or using flash mode
+  if (skipConfirmation || milestoneAlertMode === 'flash') {
+    return
+  }
+
+  // Show confirmation modal (modal mode only)
   modalContent.innerHTML = '<strong>Milestone captured!</strong><br><br>' +
     'At ' + milestoneSeconds + ' seconds:<br>' +
     '• Items attempted: ' + totalItemsAtMilestone + '<br>' +
@@ -1367,7 +1542,7 @@ function saveMilestoneResult (milestoneIndex, milestoneLastIndex) {
 }
 
 // Generate milestone metadata tail string
-function getMilestoneMetadataTail () {
+function getMilestoneMetadataTail() {
   var tail = ''
   for (var i = 0; i < milestoneData.length; i++) {
     var ms = milestoneData[i]
