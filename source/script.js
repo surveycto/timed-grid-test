@@ -73,6 +73,7 @@ var isNumber = 1
 var rowCount
 var prevPaused // Keep track of whether the test was paused when moving to and from the page.
 var paused = 0 // keep track of whether the test is paused or not.
+var wasRunningBeforeHide = false // Track timer state before visibility change
 
 var div = document.getElementById('button-holder') // General div to house the grid.
 var secondDIV
@@ -230,18 +231,10 @@ if (previousMetaData !== null) {
         timeLeft = originalDuration
       }
       
-      var timeWhileGone = Date.now() - lastTimeNow
-      var leftoverTime = timeLeft - timeWhileGone
-      if (prevPaused === 1) {
-        leftoverTime = timeLeft
-      }
-      if (leftoverTime < 0) {
-        complete = 'true'
-        timeLeft = 0 // Completed test
-        timeStart = 0
-      } else {
-        timeStart = leftoverTime // Start timer from time left.
-      }
+      // Timer pauses on swipe-away and resumes from where it was
+      // Time away is NOT subtracted - timer preserves state during navigation
+      var leftoverTime = timeLeft
+      timeStart = leftoverTime // Resume timer from where it was
     }
   } else {
     timeLeft = 0 // For completed test
@@ -330,6 +323,41 @@ if (createGrid) {
       clearInterval(intervalId)
     }
   })
+
+  // Handle visibility change (app backgrounded, screen off, tab switch, etc.)
+  // This prevents timer corruption and freezes when the page loses focus
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      // Page is hidden - pause the timer if running
+      if (timerRunning && !milestoneSelectionMode) {
+        wasRunningBeforeHide = true
+        // Pause the timer
+        timerRunning = false
+        paused = 1
+        // Update time tracking to preserve accurate state
+        timePassed = Date.now() - startTime
+        timeLeft = timeStart - timePassed
+        // Persist current state to metadata
+        selectedItems = getSelectedItems()
+        var timeNow = Date.now()
+        currentAnswer = String(timeLeft) + ' ' + pageNumber + ' ' + String(timeNow) + ' ' + paused + '|' + selectedItems
+        setMetaData(currentAnswer + getMilestoneMetadataTail())
+      } else {
+        wasRunningBeforeHide = false
+      }
+    } else {
+      // Page is visible again - resume if we were running before
+      if (wasRunningBeforeHide && !milestoneSelectionMode && complete !== 'true') {
+        paused = 0
+        startTime = Date.now() - timePassed
+        timerRunning = true
+        wasRunningBeforeHide = false
+        // Update UI state
+        playIcon.style.display = 'none'
+        pauseIcon.style.display = ''
+      }
+    }
+  })
   if (previousMetaData != null && complete !== 'true') { // For a test in progress.
     timerRunning = false // mimick a paused test
     if (!isNaN(timeLeft)) {
@@ -403,10 +431,20 @@ $(document).ready(function () {
   }
 })
 var noPunctuationsArray = $.grep(arrayValues, function (value) { return $.inArray(value, punctuationArray) < 0 })
-var topTen = noPunctuationsArray.slice(0, endAfter) // Keep track of how many consecutive items can be selected before ending the test.
-var firstTenItems = [] // Array of first items from choices.
-for (var k = 0; k < topTen.length; k++) {
-  firstTenItems.push(noPunctuationsArray[k]) // Get the values of the first k items and put them in the array.
+
+// Build array of first N non-punctuation item INDICES for stop-rule comparison
+// FIX: Previously this stored VALUES but items array stores INDICES, causing comparison to fail
+var firstTenItems = [] // Array of first item INDICES (as strings) for stop-rule
+if (endAfter != null) {
+  var nonPunctuationCount = 0
+  for (var stopIdx = 0; stopIdx < choices.length && nonPunctuationCount < endAfter; stopIdx++) {
+    var choiceVal = choices[stopIdx].CHOICE_VALUE
+    // Skip punctuation marks
+    if ($.inArray(choiceVal, punctuationArray) < 0) {
+      firstTenItems.push(String(stopIdx + 1)) // Store as string index (1-based) to match items array
+      nonPunctuationCount++
+    }
+  }
 }
 
 // Finish early
@@ -1127,11 +1165,13 @@ function finishModal() {
   modal.style.display = 'block'
   firstModalButton.onclick = function () {
     modal.style.display = 'none'
-    finishEarly = 0 // Mark the test as finishing early.
+    // FIX: Set finishEarly = 1 (not 0) to correctly indicate early finish
+    // This prevents duplicate modal calls from endTimer()
+    finishEarly = 1
     extraItems = 0
-    endEarly() // Pause the timer.
+    endEarly() // End the timer (calls endTimer which calls moveForward)
     openLastItemModal() // Prompt user to select last item.
-    moveForward()
+    // FIX: Removed duplicate moveForward() call - already called in endTimer()
     finishButton.classList.add('hidden') // Hide finish button.
   }
   secondModalButton.onclick = function () {

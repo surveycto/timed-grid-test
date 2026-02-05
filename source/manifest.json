@@ -1,7 +1,7 @@
 {
 	"name" : "Timed grid test",
 	"author" : "Dobility",
-	"version": "3.0.1",
+	"version": "3.0.2",
 	"supportedFieldTypes": ["select_multiple"],
 	"externalCss": ["bootstrap.min.css"],
 	"externalJs": ["jquery-3.7.1.min.js", "bootstrap.bundle.min.js", "jquery.textfill.min.js"]
