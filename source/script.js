@@ -483,7 +483,9 @@ $('#finishButton').click(function () {
   }
 })
 
-$('#gridTable td.count').each(function () {
+// Row-label click handler. Skipped in read-only mode so the (1)/(2) labels
+// can't be tapped to mass-select sibling boxes via firstClick/secondClick.
+if (!isReadOnly) $('#gridTable td.count').each(function () {
   // We track how many times *this particular label cell* has been clicked
   let clickCount = 1;
   let tempSelected = [];
@@ -1356,11 +1358,17 @@ function addPagination() {
       $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
       checkPage(pageNumber, numPages)
     } else {
-      pageNumber++
-      backButton.classList.remove('hideButton') // Make back button visible on click.
-      aStart++
-      aEnd++
-      pageReading()
+      // Reading mode: pageArr holds the index of the first item on each page.
+      // The "last page" is signalled by pageArr[aEnd] === undefined (aEnd === pageArr.length).
+      // Don't advance past that — pageReading() hides the next button there, but a rapid
+      // tap could still drive aEnd past pageArr.length and corrupt subsequent back-presses.
+      if (aEnd < pageArr.length) {
+        pageNumber++
+        aStart++
+        aEnd++
+        backButton.classList.remove('hideButton') // Make back button visible on click.
+        pageReading()
+      }
     }
     resizeText()
   })
@@ -1374,7 +1382,9 @@ function addPagination() {
       var endItem = startItem + rowsShown
       $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
       checkPage(pageNumber, numPages)
-    } else {
+    } else if (aStart > -1) {
+      // Reading mode first-page boundary: aStart === -1 represents "before the first
+      // page-break index", i.e. we're on page 0. Don't decrement below that.
       pageNumber--
       nextButton.classList.remove('hideButton') // Show the next button.
       finishButton.classList.add('hidden') // Hide the next button.
