@@ -1,4 +1,4 @@
-/* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData */
+/* global $, fieldProperties, setAnswer, getPluginParameter, getMetaData, setMetaData, goToNextField, clearAnswer */
 
 var duration = getPluginParameter('duration')
 var endAfter = getPluginParameter('end-after')
@@ -28,6 +28,11 @@ if ((fieldProperties.LANGUAGE !== null && checkRTL(fieldProperties.LANGUAGE)) ||
 
 var previousMetaData = getMetaData() // Load Metadata.
 
+// Honor SurveyCTO read-only state. When the field is read-only the plug-in
+// must render the prior answer for review without allowing any new input
+// (no click bindings, no timer start, no finish/start buttons).
+var isReadOnly = fieldProperties.READONLY === true
+
 var choices = fieldProperties.CHOICES // Array of choices.
 var complete = 'false' // Keep track of whether the test was completed
 var currentAnswer // Keep track of the answer to be recorded.
@@ -36,7 +41,7 @@ var timerRunning = false // Track whether the timer is running.
 var timeStart // Track time limit on each field in milliseconds.
 var timeLeft = timeStart // Starts this way for the display.
 var startTime = 0 // This will get an actual value when the timer starts in startStopTimer().
-var selectedItems // Track selected (incorrect) items.
+var selectedItems = '' // Track selected (incorrect) items. Initialized to empty string so setResult() can safely .split() before the first timer tick.
 var lastSelectedIndex // Track index of last selected item.
 var ans // Dummy answer.
 var timeRemaining = 0 // Keep track of test time.
@@ -85,7 +90,13 @@ var totalItems // Keep track of the total number of items.
 // Check if the window size is 550px - this is treated as a small screen.
 var mediaQuery = window.matchMedia('(max-width: 550px)')
 myFunction(mediaQuery)
-mediaQuery.addEventListener('change', myFunction)
+// MediaQueryList.addEventListener landed in WebView 75 (mid-2019). Fall back
+// to the deprecated-but-universal addListener for older Android Collect WebViews.
+if (typeof mediaQuery.addEventListener === 'function') {
+  mediaQuery.addEventListener('change', myFunction)
+} else if (typeof mediaQuery.addListener === 'function') {
+  mediaQuery.addListener(myFunction)
+}
 // end window size check and assignment.
 
 // Set parameter default values.
@@ -135,6 +146,7 @@ if (type === 'letters') {
     columns = 5
   }
 } else if (type === 'numbers') { // Allow user to enter numbers as parameter, but essentially works as words.
+  columns = 5 // Match the documented 5-column layout for the EGMA number identification test
   type = 'words'
 } else if (type === 'words') {
   columns = 5 // Number of columns on grid printout (words)
@@ -290,7 +302,7 @@ var gridItems
 if (createGrid) {
   gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
   $.map(gridItems, function (box) {
-    if (!(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark).
+    if (!isReadOnly && !(box.classList.contains('pmBox'))) { // If the item doesn't have the class pmBox (its not a punctuation mark) and the field is editable.
       box.addEventListener('click', boxHandler, false) // Make it clickable.
     }
     var it = box.classList.item(1) // Get the item class
@@ -391,6 +403,18 @@ if (createGrid) {
   if (complete === 'true') {
     finishButton.classList.add('hidden')
     makeInActive()
+  }
+  if (isReadOnly) {
+    // Read-only: no timer, no finish, no start/stop button. Render only.
+    finishButton.classList.add('hidden')
+    button.classList.add('hidden')
+    timerDisplay.classList.add('hidden')
+    makeInActive()
+    if (intervalId) {
+      clearInterval(intervalId)
+      intervalId = null
+    }
+    timerRunning = false
   }
 }
 
@@ -683,8 +707,11 @@ function secondClick(clickedElement, rowNumber) {
     });
   }
 
-  // Check if stop-rule should trigger after row selection
-  var isSame = (firstTenItems.slice().sort().toString() === items.slice().sort().toString());
+  // Check if stop-rule should trigger after row selection.
+  // Guard on firstTenItems.length: when endAfter is null (stop-rule disabled)
+  // the array is empty and would spuriously match an empty items array.
+  var isSame = firstTenItems.length > 0 &&
+    (firstTenItems.slice().sort().toString() === items.slice().sort().toString());
   if (isSame) {
     timerRunning = false;
     endFirstLine = 'Yes';
@@ -778,6 +805,7 @@ function timer() { // Timer function.
 
 // Function to facilitate pausing and resuming tests.
 function startStopTimer() {
+  if (isReadOnly) return // Read-only fields must not start or pause the timer.
   timerDisplay.classList.remove('hidden') // Make the timer visible (hidden by default).
   if (pause === 0) { // Check whether pausing is allowed as a parameter.
     button.classList.add('hidden') // Hide the pause button if not specified.
@@ -892,7 +920,10 @@ function itemClicked(item, itemIndex) {
         items.push(itemIndex) // Add selected items to array.
       }
     }
-    var isSame = (firstTenItems.slice().sort().toString() === items.slice().sort().toString()) // compare array of collected items to array of first 10 elements (use slice() to avoid mutating original arrays).
+    // Guard on firstTenItems.length: when endAfter is null (stop-rule disabled)
+    // the array is empty and would spuriously match an empty items array.
+    var isSame = firstTenItems.length > 0 &&
+      (firstTenItems.slice().sort().toString() === items.slice().sort().toString()) // compare array of collected items to array of first 10 elements (use slice() to avoid mutating original arrays).
     if (isSame) {
       timerRunning = false // Stop timer
       endFirstLine = 'Yes' // Indicate that the first line was all incorrect
@@ -938,12 +969,16 @@ function getSelectedItems() {
 
 // set the results to published
 function setResult() {
+  // Defensive refresh: endTest() can call us directly before the first timer tick,
+  // when selectedItems may still be the empty initializer. Re-read from the DOM.
+  if (gridItems) {
+    selectedItems = getSelectedItems()
+  }
   // Note: lastSelectedIndex is always the 1-based item index (not the choice value)
   // Using parseInt ensures we work with the index directly, avoiding issues with
   // duplicate choice values (e.g., punctuation marks sharing value "0")
   // Validate lastSelectedIndex to prevent NaN from corrupting results
   if (lastSelectedIndex === undefined || isNaN(parseInt(lastSelectedIndex))) {
-    console.warn('Timed grid: lastSelectedIndex is undefined or invalid, using default')
     lastSelectedIndex = 1
   }
   totalItems = parseInt(lastSelectedIndex)
@@ -989,18 +1024,16 @@ function setResult() {
   var correctItems = totalItems - incorrectItems // Number of correct items attempted
   var result = currentAnswer + '|' + complete + '|' + timeRemaining + '|' + totalItems + '|' + incorrectItems + '|' + correctItems + '|' + endFirstLine + '|' + sentenceCount + '|' + correctItemsList + '|' + notAnsweredItemsList + '|' + punctuationCount + getMilestoneMetadataTail()
   if (result != null) {
-    var finalAnswer = []
     if (selectedItems.length === 0) {
       checkAnswer()
     } else {
-      for (var i = 0; i < splitselectedItems.length; i++) {
-        var position = parseInt(splitselectedItems[i]) - 1
-        var choiceValue = choices[position].CHOICE_VALUE
-        finalAnswer.push(choiceValue)
-      }
-      ans = finalAnswer.join(' ')
+      // splitselectedItems already contains CHOICE_VALUE strings from getSelectedItems().
+      // The previous implementation parseInt'd each value and indexed back into `choices`,
+      // which silently corrupted any non-numeric or non-positional choice value (e.g.
+      // "word_a", or value "101" at index 5). Pass through directly.
+      ans = selectedItems
     }
-    setAnswer(ans) // set answer to dummy result
+    setAnswer(ans) // set the field's select_multiple answer (space-separated CHOICE_VALUEs)
   }
   setMetaData(result) // make result accessible as plugin metadata
 }
@@ -1234,6 +1267,55 @@ function moveForward() {
   }
 }
 
+// SurveyCTO calls this when the user clears the field's answer. Reset all in-memory
+// state, the visible UI, and persisted metadata so a fresh start is genuinely fresh.
+function clearAnswer() {
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+  timerRunning = false
+  paused = 0
+  timePassed = 0
+  timeLeft = timeStart
+  complete = 'false'
+  finishEarly = 0
+  lastSelectedIndex = undefined
+  items = []
+  selectedItems = ''
+  pageNumber = 0
+  endFirstLine = 'No'
+  sentenceCount = 0
+  punctuationCount = 0
+  // Reset milestone tracking state
+  milestoneData = []
+  nextMilestoneIndex = 0
+  milestoneSelectionMode = false
+  currentMilestoneIndex = -1
+  highestInteractedIndex = 0
+  // Clear visible state on every grid cell
+  if (gridItems) {
+    $.map(gridItems, function (box) {
+      box.classList.remove('selected')
+      box.classList.remove('lastSelected')
+      box.classList.remove('milestoneSelected')
+      box.classList.remove('disabled')
+    })
+  }
+  // Reset visible chrome
+  if (modal) modal.style.display = 'none'
+  if (timerDisp) timerDisp.innerHTML = ''
+  if (timerDisplay) timerDisplay.classList.add('hidden')
+  if (button) {
+    button.innerHTML = ''
+    button.classList.remove('hidden')
+  }
+  document.body.classList.remove('milestone-active')
+  hideMilestoneToast()
+  setAnswer('')
+  setMetaData('')
+}
+
 // Resize the text to fit the button
 function resizeText() {
   gridItems = $.makeArray(document.querySelectorAll('.box')) // Get all grid items - they all have the box class.
@@ -1264,14 +1346,17 @@ function addPagination() {
   }
 
   $('#nextButton').on('click', function (e) {
-    pageNumber++
     if (type !== 'reading') {
+      // Clamp so a rapid double-tap during the .animate() can't push past the last page
+      // and leave us on an empty .slice() with both arrows visible.
+      pageNumber = Math.min(numPages - 1, pageNumber + 1)
       var currPage = pageNumber
       var startItem = currPage * rowsShown
       var endItem = startItem + rowsShown
       $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
       checkPage(pageNumber, numPages)
     } else {
+      pageNumber++
       backButton.classList.remove('hideButton') // Make back button visible on click.
       aStart++
       aEnd++
@@ -1281,14 +1366,16 @@ function addPagination() {
   })
 
   $('#backButton').on('click', function (e) {
-    pageNumber--
     if (type !== 'reading') {
+      // Clamp at 0 to prevent negative pageNumber on rapid taps.
+      pageNumber = Math.max(0, pageNumber - 1)
       var currPage = pageNumber
       var startItem = currPage * rowsShown
       var endItem = startItem + rowsShown
       $('#gridTable tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({ opacity: 1 }, 300)
       checkPage(pageNumber, numPages)
     } else {
+      pageNumber--
       nextButton.classList.remove('hideButton') // Show the next button.
       finishButton.classList.add('hidden') // Hide the next button.
       aStart--
