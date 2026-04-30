@@ -1,0 +1,58 @@
+# Test-related files and directories
+tests/
+test/
+__tests__/
+*.test.js
+*.spec.js
+jest.config.js
+jest.config.json
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Node.js dependencies (if using npm for testing)
+node_modules/
+package.json
+package-lock.json
+yarn.lock
+
+# Test results and reports
+test-results/
+junit.xml
+coverage.xml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Documentation files (optional - remove if you want to include them)
+README-testing.md
+TESTING.md
